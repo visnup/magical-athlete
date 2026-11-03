@@ -31,8 +31,10 @@
 - [ ] Whole games played well: `playGame` drafts by draft value, plays the best race order, and
       picks a safe or swingy racer for the last race depending on the score (`spread.ts`). Then
       check its win rates against the per-race estimates.
-- [ ] Draft simulation: snake drafts where everyone drafts greedily. What is first pick worth, and
-      does denying a racer (M.O.U.T.H. against a Scoocher player) beat taking the best one left?
+- [x] Draft simulation (`games.ts`, `draft.ts`): the first two picks win 61% of games between them,
+      and no strategy tried beats taking the highest-rated racer left.
+- [ ] Counter-drafting: take M.O.U.T.H. against a Scoocher player and race it in Scoocher's race.
+      Needs per-player race order in `playGame`.
 - [ ] The 2-player and 3-player double-racer variants: two racers per player, which needs
       per-player seating and turn order (fiddly details 9). Suckerfish's "another player's
       Scoocher" check only matters here.

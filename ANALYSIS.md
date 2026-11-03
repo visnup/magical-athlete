@@ -253,6 +253,25 @@ games, against 20% for an even share, and the estimate correlates 0.49 with the 
 Estimates run low (8.93 against 9.70 actual), probably because they come from races against
 random opponents rather than drafted, stronger ones.
 
+## Drafting strategy
+
+`node draft.ts` gives one randomly seated player a different drafting strategy against
+opponents who take the highest-rated racer left (100,000 games of 5 each):
+
+| my draft | wins | score |
+| --- | --- | --- |
+| highest rating, as opponents do | 20.1% | 9.71 |
+| most added to my best race order | 20.1% | 9.72 |
+| my gain plus the most it would add to an opponent (denial) | 19.9% | 9.71 |
+
+**Nothing beats taking the highest-rated racer.** The value is concentrated in a few racers, so the
+racer that adds most to your team, the one that adds most to an opponent's, and the highest-rated
+one are nearly always the same pick. Where you sit in the draft matters far more than how you
+draft.
+
+Not tested: drafting a counter, like M.O.U.T.H. against a player who has Scoocher. A counter only
+works if it races in the same race, which means choosing your race order around theirs.
+
 ## Spread of points
 
 `node spread.ts` (race 4 by default, 100,000 races of 5). An average hides how a racer gets there.
