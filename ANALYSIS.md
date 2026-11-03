@@ -225,7 +225,14 @@ likely winner of this particular race than the best-rated racer.
 **On the Wild Wilds they leave a lot behind, because they ignore the track.** Moving 5 or the roll,
 4 or the roll, double or not, riding or not, swapping with whom: each lands on a different space,
 and a star, a rock or an arrow there is worth more than a space or two of distance. Playouts see
-that; the heuristics don't. A cheap fix is to score where each option lands.
+that; the heuristics didn't.
+
+**So the heuristics now score where each option lands** (`landing` in `racers.ts`: an arrow's move
+counts, a star is worth 3 spaces, a rock costs a roll). Head to head in the same `choices.ts`
+runs, race-2 points on the Wild Wilds, previous → now: Legs 1.95 → 2.54, Flip Flop 2.56 → 2.95,
+Rocket Scientist 2.03 → 2.23, Alchemist 1.23 → 1.34, Cheerleader 2.30 → 2.41. The Mild Mile is
+unchanged within ±0.03. Suckerfish was tried too and kept as it was: it scored 2.95 against 3.75
+for always riding, because a ride the −4 arrow sends back still passes the star on 13 again.
 
 Not covered: Magician's rerolls and the before-race picks (Egg, Twin), which happen outside a
 turn's snapshot or outside `choose`.

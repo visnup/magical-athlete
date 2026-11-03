@@ -64,6 +64,28 @@ function stoppedWith(race: Race, mover: Racer, at: number, together: Racer[]) {
   return qs.length === 1 && !(together.includes(mover) && together.includes(qs[0])) ? qs[0] : null;
 }
 
+/**
+ * What stopping on `to` is worth, in spaces, for choices that pick where to land: an arrow's move
+ * counts, a star is worth about 3 spaces and a rock costs a turn's roll. Crossing the finish beats
+ * any space.
+ */
+function landing(race: Race, to: number) {
+  const n = race.track.length;
+  let at = Math.max(0, to);
+  let bonus = 0;
+  for (let i = 0; i < 3 && at < n; i++) {
+    const space = race.track.spaces[at];
+    if (space?.star) bonus += 3;
+    if (space?.trip) bonus -= 3.5;
+    if (!space?.arrow) break;
+    at = Math.max(0, at + space.arrow);
+  }
+  return at >= n ? n + 10 : at + bonus;
+}
+
+/** `landing` averaged over a die roll from `from`. */
+const rolled = (race: Race, from: number) => [1, 2, 3, 4, 5, 6].reduce((s, d) => s + landing(race, from + d), 0) / 6;
+
 function duel(race: Race, me: Racer, q: Racer) {
   if (me.pos !== q.pos || !race.active(me) || !race.active(q) || !race.choose(me, "Duelist", q)) return;
   race.use(me, "Duelist", () => {
@@ -84,7 +106,7 @@ export const RACERS: Record<Name, Powers> = {
    * TRANSMUTE 'N' SCOOT: When I roll a 1 or 2 for my main move, I can move 4 instead.
    */
   "Alchemist": {
-    choose: () => true,
+    choose: (race, me, roll: number) => landing(race, me.pos + 4) >= landing(race, me.pos + roll),
     base: (race, me, roll, base) => (roll <= 2 && race.choose(me, "Alchemist", roll) ? 4 : base),
   },
 
@@ -164,8 +186,9 @@ export const RACERS: Record<Name, Powers> = {
    * If I cheer for myself, those are two separate moves: move 2 then move 1.
    */
   "Cheerleader": {
-    // Cheering every turn beat cheering only from last place by about half a point a race.
-    choose: () => true,
+    // Cheering every turn beat cheering only from last place by about half a point a race, unless
+    // my own move lands somewhere worse than where I am, like a rock.
+    choose: (race, me) => landing(race, (race.last().includes(me) ? me.pos + 2 : me.pos) + 1) >= me.pos,
     startTurn(race, me) {
       const last = race.last();
       if (!race.choose(me, "Cheerleader")) return;
@@ -294,8 +317,9 @@ export const RACERS: Record<Name, Powers> = {
   "Flip Flop": {
     choose(race, me) {
       // A Copycat would copy the new leader's Flip Flop and swap straight back, forever.
-      const ahead = race.onTrack().filter((o) => o !== me && o.pos - me.pos >= 4 && !race.powers(o).includes("Copycat"));
-      return ahead.sort((a, b) => b.pos - a.pos)[0] ?? null;
+      const roll = rolled(race, me.pos);
+      const better = race.onTrack().filter((o) => o !== me && landing(race, o.pos) > roll && !race.powers(o).includes("Copycat"));
+      return better.sort((a, b) => landing(race, b.pos) - landing(race, a.pos))[0] ?? null;
     },
     replaceMain(race, me) {
       const t: Racer | null = race.choose(me, "Flip Flop");
@@ -512,7 +536,7 @@ export const RACERS: Record<Name, Powers> = {
    * My power counts as my main move, so can be gooped by Gunk or get the hustle bonus from Coach.
    */
   "Legs": {
-    choose: () => true,
+    choose: (race, me) => landing(race, me.pos + 5) >= rolled(race, me.pos),
     replaceMain: (race, me) => (race.choose(me, "Legs") ? 5 : false),
   },
 
@@ -604,7 +628,7 @@ export const RACERS: Record<Name, Powers> = {
    * and Gunk—resolve in turn order.
    */
   "Rocket Scientist": {
-    choose: (race, me, roll: number) => roll >= 4 || me.pos + 2 * roll >= race.track.length,
+    choose: (race, me, roll: number) => landing(race, me.pos + 2 * roll) - 3.5 >= landing(race, me.pos + roll),
     base(race, me, roll, base) {
       if (!race.choose(me, "Rocket Scientist", roll)) return base;
       race.afterMain.push(() => race.trip(me));

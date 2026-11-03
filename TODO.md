@@ -39,9 +39,9 @@
       42.5% of wins.
 - [x] Smarter choices by playing out each option (`Race.playout`, `playouts.ts`): close to the
       hand-written choices on the Mild Mile, far better on the Wild Wilds.
-- [ ] Track-aware choices: score the space each option lands on (star, rock, arrow) in Legs,
-      Alchemist, Rocket Scientist, Suckerfish, Cheerleader and Flip Flop, which playouts show is
-      worth up to 1.7 points a race on the Wild Wilds.
+- [x] Track-aware choices (`landing` in `racers.ts`) for Legs, Alchemist, Rocket Scientist,
+      Cheerleader and Flip Flop: +0.1 to +0.6 points a race on the Wild Wilds. Suckerfish is
+      better off ignoring them.
 - [x] `sim.ts` on every core, like the other scripts. `--csv` and `--log` still run on one core.
 - [x] Points distributions per racer, not just averages, for when you need to catch up
       (`spread.ts`).

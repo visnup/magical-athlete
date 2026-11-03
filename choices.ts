@@ -12,12 +12,13 @@ const farthest = (race: Race, me: Racer, gap: (o: Racer) => boolean) =>
   race.onTrack().filter((o) => o.player !== me.player && gap(o)).sort((a, b) => b.pos - a.pos)[0] ?? null;
 
 const variants: Partial<Record<Name, Record<string, Partial<Policy>>>> = {
-  "Alchemist": { never: { choose: { Alchemist: () => false } } },
+  "Alchemist": { "always (previous)": { choose: { Alchemist: () => true } }, never: { choose: { Alchemist: () => false } } },
   "Cheerleader": {
     always: { choose: { Cheerleader: () => true } },
     never: { choose: { Cheerleader: () => false } },
   },
   "Flip Flop": {
+    "farthest 4+ ahead (previous)": { choose: { "Flip Flop": (race, me) => farthest(race, me, (o) => o.pos - me.pos >= 4 && !race.powers(o).includes("Copycat")) } },
     "2 or more ahead": { choose: { "Flip Flop": (race, me) => farthest(race, me, (o) => o.pos - me.pos >= 2 && !race.powers(o).includes("Copycat")) } },
     "6 or more ahead": { choose: { "Flip Flop": (race, me) => farthest(race, me, (o) => o.pos - me.pos >= 6 && !race.powers(o).includes("Copycat")) } },
     never: { choose: { "Flip Flop": () => null } },
@@ -28,13 +29,14 @@ const variants: Partial<Record<Name, Record<string, Partial<Policy>>>> = {
     "7 or more ahead": { choose: { Hypnotist: (race, me) => farthest(race, me, (o) => o.pos - me.pos > 6) } },
     never: { choose: { Hypnotist: () => null } },
   },
-  "Legs": { never: { choose: { Legs: () => false } } },
+  "Legs": { "always (previous)": { choose: { Legs: () => true } }, never: { choose: { Legs: () => false } } },
   "Magician": {
     "reroll 1–3": { reroll: (race, r, roll, left) => (race.has(r, "Magician") ? roll <= 3 : defaultPolicy.reroll(race, r, roll, left)) },
     "reroll 1–2": { reroll: (race, r, roll, left) => (race.has(r, "Magician") ? roll <= 2 : defaultPolicy.reroll(race, r, roll, left)) },
     "reroll 1–5, then 1–3": { reroll: (race, r, roll, left) => (race.has(r, "Magician") ? roll <= (left >= 2 ? 5 : 3) : defaultPolicy.reroll(race, r, roll, left)) },
   },
   "Rocket Scientist": {
+    "4 or more (previous)": { choose: { "Rocket Scientist": (race, me, roll: number) => roll >= 4 || me.pos + 2 * roll >= race.track.length } },
     always: { choose: { "Rocket Scientist": () => true } },
     "3 or more": { choose: { "Rocket Scientist": (race, me, roll: number) => roll >= 3 || me.pos + 2 * roll >= race.track.length } },
     "5 or more": { choose: { "Rocket Scientist": (race, me, roll: number) => roll >= 5 || me.pos + 2 * roll >= race.track.length } },
