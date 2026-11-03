@@ -15,6 +15,7 @@ const players = Number(args.players);
 
 const variants: { name: string; rules: Partial<Rules> }[] = [
   { name: "main moves can go backwards", rules: { backwards: true } },
+  { name: "triggers queue and resolve even if the board changed", rules: { queue: true } },
 ];
 
 for (const race of [0, 1]) {

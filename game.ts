@@ -165,9 +165,15 @@ export type Rules = {
    * was capped at 0: https://boardgamegeek.com/thread/3598754
    */
   backwards: boolean;
+  /**
+   * Powers a stop or pass triggers are all checked first, then resolve in turn order even if the
+   * board has changed, as Richard Garfield plays it (by his own account, not a ruling):
+   * https://boardgamegeek.com/thread/3635297/article/47086150
+   */
+  queue: boolean;
 };
 
-const RULES: Rules = { backwards: false };
+const RULES: Rules = { backwards: false, queue: false };
 
 export type RaceResult = {
   racers: Racer[];
@@ -473,16 +479,29 @@ export class Race {
     if (space?.star) this.bronze(r, 1);
     if (space?.trip) this.trip(r);
     if (space?.arrow) this.once(`${r.seat}:arrow`, () => this.move(r, space.arrow!));
-    for (const [o, , h] of this.all()) {
-      if (!this.active(o)) continue;
-      h.onArrive?.(this, o, r, at, together);
-      h.onPass?.(this, o, r, passed);
-    }
+    this.resolve((o, h) => [h.onArrive?.(this, o, r, at, together), h.onPass?.(this, o, r, passed)]);
   }
 
   /** Lets passing powers react to `r` having passed `passed`. */
   pass(r: Racer, passed: Racer[]) {
-    for (const [o, , h] of this.all()) if (this.active(o)) h.onPass?.(this, o, r, passed);
+    this.resolve((o, h) => [h.onPass?.(this, o, r, passed)]);
+  }
+
+  /**
+   * Resolves the powers an event triggers, in turn order. Each checks its condition just before
+   * its effect, or with `rules.queue`, all are checked first and then all resolve.
+   */
+  resolve(trigger: (o: Racer, h: Powers) => ((() => void) | void)[]) {
+    const queued: (() => void)[] = [];
+    for (const [o, , h] of this.all()) {
+      if (!this.active(o)) continue;
+      for (const effect of trigger(o, h)) {
+        if (!effect) continue;
+        if (this.rules.queue) queued.push(effect);
+        else effect();
+      }
+    }
+    for (const effect of queued) effect();
   }
 
   beforeRace() {

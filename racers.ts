@@ -30,10 +30,13 @@ export type Powers = {
   base?(race: Race, me: Racer, roll: number, base: number): number;
   /** Added to anyone's main move. */
   modify?(race: Race, me: Racer, mover: Racer, start: number): number;
-  /** After `mover` stops on `at`, having arrived at the same time as `together`. */
-  onArrive?(race: Race, me: Racer, mover: Racer, at: number, together: Racer[]): void;
-  /** After `mover` passes `passed`. */
-  onPass?(race: Race, me: Racer, mover: Racer, passed: Racer[]): void;
+  /**
+   * After `mover` stops on `at`, having arrived at the same time as `together`. Returns the effect
+   * if it triggers, so the engine can resolve it at once or queue it (`Rules.queue`).
+   */
+  onArrive?(race: Race, me: Racer, mover: Racer, at: number, together: Racer[]): (() => void) | void;
+  /** After `mover` passes `passed`. Returns the effect, like `onArrive`. */
+  onPass?(race: Race, me: Racer, mover: Racer, passed: Racer[]): (() => void) | void;
   /** After `mover`'s turn, which ended `moved` spaces from where it started. */
   endTurn?(race: Race, me: Racer, mover: Racer, moved: number): void;
   /** After another racer's power happens. */
@@ -99,9 +102,9 @@ export const RACERS: Record<Name, Powers> = {
       if (!race.stays(mover, at)) return;
       if (mover === me) {
         const qs = others(race, me);
-        if (qs.length) race.use(me, "Baba Yaga", () => qs.forEach((q) => race.trip(q)));
+        if (qs.length) return () => race.use(me, "Baba Yaga", () => qs.forEach((q) => race.trip(q)));
       } else if (me.pos === at) {
-        race.use(me, "Baba Yaga", () => race.trip(mover));
+        return () => race.use(me, "Baba Yaga", () => race.trip(mover));
       }
     },
   },
@@ -119,7 +122,7 @@ export const RACERS: Record<Name, Powers> = {
    */
   "Banana": {
     onPass(race, me, mover, passed) {
-      if (passed.includes(me)) race.use(me, "Banana", () => race.trip(mover));
+      if (passed.includes(me)) return () => race.use(me, "Banana", () => race.trip(mover));
     },
   },
 
@@ -143,7 +146,9 @@ export const RACERS: Record<Name, Powers> = {
   "Centaur": {
     onPass(race, me, mover, passed) {
       if (mover !== me) return;
-      for (const q of passed) if (race.active(q)) race.use(me, "Centaur", () => race.move(q, -2));
+      return () => {
+        for (const q of passed) if (race.active(q)) race.use(me, "Centaur", () => race.move(q, -2));
+      };
     },
   },
 
@@ -252,7 +257,8 @@ export const RACERS: Record<Name, Powers> = {
     },
     onArrive(race, me, mover, at) {
       if (!race.stays(mover, at)) return;
-      for (const q of mover === me ? others(race, me) : me.pos === at ? [mover] : []) duel(race, me, q);
+      const qs = mover === me ? others(race, me) : me.pos === at ? [mover] : [];
+      return () => qs.forEach((q) => duel(race, me, q));
     },
   },
 
@@ -407,11 +413,12 @@ export const RACERS: Record<Name, Powers> = {
       if (mover !== me || !race.stays(me, at) || at === 0) return;
       const qs = others(race, me);
       if (!qs.length) return;
-      race.use(me, "Huge Baby", () => {
-        for (const q of qs) q.pos = at - 1;
-        for (const q of qs) race.arrive(q, [], qs);
-        race.pass(me, qs);
-      });
+      return () =>
+        race.use(me, "Huge Baby", () => {
+          for (const q of qs) q.pos = at - 1;
+          for (const q of qs) race.arrive(q, [], qs);
+          race.pass(me, qs);
+        });
     },
   },
 
@@ -562,7 +569,7 @@ export const RACERS: Record<Name, Powers> = {
     onArrive(race, me, mover, at, together) {
       if (mover !== me) return;
       const q = stoppedWith(race, me, at, together);
-      if (q) race.use(me, "M.O.U.T.H.", () => race.eliminate(q));
+      if (q) return () => race.use(me, "M.O.U.T.H.", () => race.eliminate(q));
     },
   },
 
@@ -623,7 +630,7 @@ export const RACERS: Record<Name, Powers> = {
    */
   "Romantic": {
     onArrive(race, me, mover, at, together) {
-      if (stoppedWith(race, mover, at, together)) race.use(me, "Romantic", () => race.move(me, 2));
+      if (stoppedWith(race, mover, at, together)) return () => race.use(me, "Romantic", () => race.move(me, 2));
     },
   },
 
