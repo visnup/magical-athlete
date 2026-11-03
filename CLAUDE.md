@@ -17,6 +17,7 @@ simultaneous arrivals, and fixed Sisyphus's misprinted note.
 - `sim.ts`: Monte Carlo. `node sim.ts --n 100000 --players 5` prints per-racer odds;
   `--mode game` runs whole games; `--csv` prints one row per racer per race (or per player per
   game) instead; `--log` prints every event.
+- `players.ts`: each racer's points as a multiple of a fair share at 3 to 6 players.
 - `sensitivity.ts`: reruns the points table with each unsettled rule (`Rules` in `game.ts`) read
   the other way and lists the racers that move.
 - `node --test` runs `game.test.ts`, which includes the rulebook's Romantic/Scoocher/Banana

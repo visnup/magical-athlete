@@ -52,6 +52,42 @@ Race 2, Wild Wilds (4/3; a fair share is 1.40):
 Whole games (`--mode game`, 20,000 games of 5): a team with Scoocher wins 44.9%, against a fair
 share of 20%. Lovable Loser's teams win 32.6%, Romantic's 29.4% and Sisyphus's 28.8%.
 
+## Player count
+
+`node players.ts` (100,000 races at each count). Points per race as a multiple of a fair share,
+so counts compare directly; selected racers:
+
+| racer | Mild 3p | 4p | 5p | 6p | Wild 3p | 4p | 5p | 6p |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| Lovable Loser | 3.35 | 3.25 | 3.14 | 2.98 | 2.86 | 2.79 | 2.72 | 2.67 |
+| Sisyphus | 1.64 | 2.25 | 2.88 | 3.54 | 1.55 | 2.07 | 2.62 | 3.18 |
+| Scoocher | 1.24 | 1.77 | 2.37 | 2.98 | 1.86 | 3.14 | 5.15 | 7.86 |
+| Romantic | 1.15 | 1.55 | 2.06 | 2.53 | 1.27 | 1.62 | 2.07 | 2.57 |
+| Legs | 1.50 | 1.60 | 1.52 | 1.37 | 1.36 | 1.47 | 1.44 | 1.39 |
+| Stickler | 1.24 | 1.24 | 1.13 | 0.99 | 1.45 | 1.55 | 1.57 | 1.52 |
+| Cheerleader | 1.26 | 1.03 | 0.76 | 0.57 | 1.46 | 1.37 | 1.29 | 1.25 |
+| M.O.U.T.H. | 1.19 | 1.09 | 0.89 | 0.67 | 1.47 | 1.52 | 1.43 | 1.30 |
+| Hypnotist | 1.16 | 1.12 | 0.94 | 0.78 | 1.53 | 1.65 | 1.64 | 1.60 |
+| Third Wheel | 0.71 | 0.71 | 0.82 | 0.86 | 0.99 | 1.06 | 1.23 | 1.40 |
+| Mastermind | 0.76 | 0.50 | 0.39 | 0.30 | 1.04 | 0.92 | 0.91 | 0.92 |
+
+**Scoocher's dominance is a big-table effect.** At 3 players it earns 1.24 fair shares on the
+Mild Mile, behind Lovable Loser, Sisyphus, Legs, Flip Flop and Cheerleader. Each extra racer is
+another power going off every turn, so by 6 players it's 3 fair shares on the Mild Mile and 7.9
+on the Wild Wilds. Romantic, Suckerfish, Dicemonger and Heckler also feed on traffic and climb
+with the count.
+
+**Bronze racers look better at big tables partly by arithmetic.** Sisyphus's 4 chips are worth
+the same at any count while a fair share of gold and silver shrinks, so its multiple doubles from
+3 to 6 players. Lovable Loser slips slightly instead: being alone in last gets harder in a crowd.
+
+**Some racers want small tables.** Cheerleader, M.O.U.T.H., Hypnotist, Banana, Alchemist,
+Coach, Magician and Gunk all lose ground as the count rises. Cheerleader is the starkest on the
+Mild Mile (1.26 to 0.57), since with more racers it's rarely the one in last place.
+
+**At 3 players the field flattens.** Most racers sit between 0.8 and 1.3 fair shares. Only Lovable
+Loser stands out, and Twin, Mastermind, Third Wheel and Huge Baby trail.
+
 ## Findings
 
 **Winning isn't the measure; points are.** Lovable Loser and Sisyphus almost never place but top
