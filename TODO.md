@@ -25,8 +25,10 @@
       in `ANALYSIS.md`).
 - [ ] Better choices for optional powers: decide by playing out a few hundred random finishes per
       option, and compare against `defaultPolicy`.
-- [ ] Race order: a team's value is its best assignment of four racers to four races (24
-      orderings). A draft pick's value is how much it raises that.
+- [x] Race order: a team's value is its best assignment of four racers to four races (24
+      orderings). A draft pick's value is how much it raises that (`lineup.ts`).
+- [ ] Use `lineup.ts`'s values in `playGame`: draft by draft value and play the best order, then
+      check whole games against the estimate.
 - [x] Points distributions per racer, not just averages, for when you need to catch up
       (`spread.ts`).
 - [x] Seat order: what going first is worth, and so what the last-place-starts rule is worth

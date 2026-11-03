@@ -129,6 +129,42 @@ racers like Legs and Skipper less than it helps their opponents.
 **Huge Baby is safe from M.O.U.T.H.** Nothing can stop on Huge Baby's space, so M.O.U.T.H. can't
 eat it, while it eats the racers around it.
 
+## Race order and the draft
+
+`node lineup.ts` takes each racer's points in each of the four races (100,000 races of 5 each),
+then values a team as its best assignment of four racers to four races. A racer's draft value is
+the average value of random teams it's on, against the average team (8.54 points a game).
+
+| racer | race 1 (Mild 3/2) | race 2 (Wild 4/3) | race 3 (Mild 4/3) | race 4 (Wild 5/4) | usually played in | draft value |
+| --- | --- | --- | --- | --- | --- | --- |
+| Scoocher | 2.37 | 7.20 | 3.22 | 7.92 | 4 (always) | +4.55 |
+| Lovable Loser | 3.14 | 3.80 | 3.28 | 3.96 | 1 | +1.46 |
+| Sisyphus | 2.88 | 3.67 | 2.90 | 3.69 | 1 | +1.24 |
+| Suckerfish | 1.62 | 3.57 | 2.28 | 4.21 | 4 | +1.16 |
+| Dicemonger | 1.59 | 3.48 | 2.20 | 3.97 | 4 | +1.00 |
+| Romantic | 2.06 | 2.90 | 2.81 | 3.57 | 3 | +0.87 |
+| Heckler | 1.53 | 3.03 | 2.11 | 3.73 | 4 | +0.71 |
+| Legs | 1.52 | 2.02 | 2.12 | 2.54 | 3 | +0.21 |
+| … | | | | | | |
+| Centaur | 0.53 | 1.37 | 0.75 | 1.60 | 1 | −0.88 |
+| Mastermind | 0.39 | 1.28 | 0.57 | 1.50 | 1 | −1.02 |
+| Twin | 0.29 | 1.08 | 0.42 | 1.24 | 1 | −1.14 |
+
+**The Wild Wilds races are worth more than the Mild Mile races for everyone.** Stars add bronze,
+and race 2 (4/3) on the Wild Wilds out-earns race 3 (4/3) on the Mild Mile at the same chip
+values. Race 4 is the jackpot.
+
+**Put Scoocher in race 4, and the bronze racers in race 1.** Lovable Loser's and Sisyphus's points
+barely change from race to race, so they cost the least to spend on the cheapest race.
+
+**Some racers prefer the Mild Mile.** Romantic, Legs, Hare, Lackey and Magician usually go to race
+3: they're about as good on the Mild Mile as on the Wild Wilds, while others gain more from the
+stars. Inchworm, Huge Baby, Hypnotist and Cheerleader go to race 2 for the opposite reason.
+
+**In the draft, Scoocher is worth about 4.5 points a game over an average pick,** three times the
+next racer. After it come Lovable Loser, Sisyphus, Suckerfish, Dicemonger, Romantic and Heckler.
+Twin, Mastermind and Egg are underrated here, since they pick at random; see the next section.
+
 ## Spread of points
 
 `node spread.ts` (race 4 by default, 100,000 races of 5). An average hides how a racer gets there.
