@@ -38,7 +38,7 @@ TypeScript directly.
 - Bronze chips run out: the box holds 43 points of them (16 ones, 9 threes) for the whole game,
   and Sisyphus's lost chips go back. Without the cap, Scoocher and Suckerfish riding each other
   around the Wild Wilds' 12–16 cycle (16's arrow goes back to 12) farm the star on 13 for about
-  21 bronze per race.
+  21 bronze per race. Game-breaking pairs like that one stay as the rules make them, not tuned.
 - A tripped racer skips "before my main move" powers too.
 - Heckler counts its own turns.
 - Hare doesn't skip when it's the only racer left, which would otherwise never end.
