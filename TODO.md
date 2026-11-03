@@ -31,7 +31,7 @@
       orderings). A draft pick's value is how much it raises that (`lineup.ts`).
 - [x] Whole games played well (`games.ts`, `endgame.ts`): drafting by rating and playing the best
       race order. Choosing a safe or swingy racer by score loses a quarter point a game.
-- [x] Draft simulation (`games.ts`, `draft.ts`): the first two picks win 61% of games between them,
+- [x] Draft simulation (`games.ts`, `draft.ts`): the first two picks win 59% of games between them,
       and no strategy tried beats taking the highest-rated racer left.
 - [x] Counter-drafting (`endgame.ts`): M.O.U.T.H. against a Scoocher player wins less, not more.
 - [x] The 2-player and 3-player double-racer variants (`playGame({ double: true })`,
