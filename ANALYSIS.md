@@ -420,7 +420,26 @@ earlier winner. Its author also found a Scoocher–Copycat loop on the Mild Mile
 first turn, which MagSim leaves out of its data. MagSim has its own rules readings, so the two
 agreeing is evidence the ranking doesn't hinge on ours.
 
-Not done: comparing per-racer numbers with MagSim's dataset, or with logged real games.
+**Per racer, the two simulators agree closely.** MagSim publishes its dataset
+(`docs/results/*.parquet`, about 8,000 5-player races per track). Comparing each racer's chance of
+1st at 5 players with ours (200,000 races per track):
+
+| | rank correlation | within 3 points | biggest differences |
+| --- | --- | --- | --- |
+| Mild Mile | 0.85 | 30 of 36 racers | Twin −36.9, Copycat +13.3, Flip Flop −7.0, Suckerfish +6.8 |
+| Wild Wilds | 0.87 | 29 of 36 racers | Twin −27.1, Copycat +12.7, Legs −5.3, Suckerfish +5.0 |
+
+Scoocher matches almost exactly (64.8% against 64.0% on the Mild Mile). With about 1,100 races
+per racer in MagSim's data, differences of 3 points are within its noise. The large ones have
+explanations:
+- **Twin:** MagSim always gives it three earlier winners to copy; a standalone race here gives it
+  none (see "Racers that pick racers").
+- **Copycat:** MagSim's data has no Mild Mile races with both Copycat and Scoocher (about 130
+  expected) and only 68 on the Wild Wilds, because it drops the Scoocher–Copycat first-turn loop.
+  Copycat does very well alongside Scoocher, so leaving those races out lowers its numbers.
+- **Suckerfish and Flip Flop:** each follows a different choice heuristic in the two simulators.
+
+Not done: comparing with logged real games.
 
 ## What's still unsettled, and how much it matters
 

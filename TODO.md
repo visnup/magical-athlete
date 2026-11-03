@@ -16,8 +16,9 @@
 - [x] Compare against real play: BoardGameGeek players and an independent simulator (MagSim) agree
       on the ranking, Scoocher's dominance at bigger tables, and the Wild Wilds star farm. In
       `ANALYSIS.md`.
-- [ ] Compare per-racer numbers with MagSim's published dataset, and look at its Scoocher–Copycat
-      first-turn loop on the Mild Mile.
+- [x] Compare per-racer numbers with MagSim's published dataset: rank correlation 0.85–0.87, and
+      the big gaps (Twin, Copycat) come from how each simulator sets up races.
+- [ ] Log some real games and compare.
 
 ## Analysis
 
