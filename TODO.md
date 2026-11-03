@@ -33,6 +33,9 @@
       (`spread.ts`).
 - [x] Seat order: what going first is worth, and so what the last-place-starts rule is worth
       (`seats.ts`).
-- [ ] Twin: rate racers by points per race, then give Twin k − 1 earlier winners drawn from the
-      winner distribution and left out of the lineup. Iterate until the order stops changing.
+- [x] Twin: rate racers by points per race, then give Twin k − 1 earlier winners drawn from the
+      winner distribution and left out of the lineup (`twin.ts`). One pass; the order outside the
+      pickers barely moves, so iterating further isn't worth it.
+- [ ] Give `defaultPolicy.rating` a built-in table from these runs, so Egg, Mastermind, Copycat and
+      Twin pick sensibly everywhere, and rerun the tables.
 - [x] Wild Wilds: layout from the board.

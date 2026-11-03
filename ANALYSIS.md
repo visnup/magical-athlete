@@ -165,6 +165,34 @@ stars. Inchworm, Huge Baby, Hypnotist and Cheerleader go to race 2 for the oppos
 next racer. After it come Lovable Loser, Sisyphus, Suckerfish, Dicemonger, Romantic and Heckler.
 Twin, Mastermind and Egg are underrated here, since they pick at random; see the next section.
 
+## Racers that pick racers
+
+`node twin.ts` reruns Twin, Egg, Mastermind and Copycat with a rating to choose by (each racer's
+points in that race) and, for Twin, earlier winners to copy. The earlier winners are drawn from
+earlier races' chances of 1st, leaving out this race's lineup. Points per race, 100,000 races of
+5:
+
+| racer | race 1 | race 2 | race 3 | race 4 |
+| --- | --- | --- | --- | --- |
+| Twin | 0.31 → 0.29 | 1.10 → 2.79 | 0.45 → 2.11 | 1.26 → 4.57 |
+| Egg | 1.17 → 1.68 | 2.29 → 3.15 | 1.58 → 2.11 | 2.70 → 3.66 |
+| Mastermind | 0.38 → 0.90 | 1.25 → 1.86 | 0.55 → 1.30 | 1.45 → 2.33 |
+| Copycat | 1.29 → 1.35 | 2.85 → 3.12 | 1.81 → 1.90 | 3.33 → 3.76 |
+
+**Twin is a late-race racer, and in race 4 it's the second best of all,** behind only Scoocher.
+With three earlier winners to choose from, it can usually copy a strong one, often Scoocher,
+which wins half the races it's in. In race 1 it has nothing to copy. In the draft it's worth far
+more than `lineup.ts` shows, since that table has Twin with nothing to copy.
+
+**Egg and Mastermind gain about half a point to a point a race from choosing well.** Egg moves
+into the top 10 in every race. Mastermind does better predicting the strongest racer in the
+lineup than predicting itself, though it stays below average.
+
+**Copycat barely changes:** it only picks when the lead is tied.
+
+The rest of the order hardly moves (rank correlation 0.81–0.97 against the unrated tables). Most
+of the movement is these four racers changing places with their neighbors.
+
 ## Spread of points
 
 `node spread.ts` (race 4 by default, 100,000 races of 5). An average hides how a racer gets there.
@@ -246,12 +274,9 @@ also starves everyone else's stars.
 scored lower (race-1 points over 200,000 races): always 0.99, declining against racers a loss
 would carry across the line 0.88, also declining late in the race 0.76, never 0.32.
 
-**Some racers look weak because of the simulation, not the card.**
-- Twin has no previous winners to copy in a standalone race.
-- Mastermind predicts itself by default.
-- Egg and Copycat pick at random, because no rating is set yet.
-
-The Twin rating pass in `TODO.md` fixes the first, and the same ratings fix the rest.
+**Some racers look weak in the other tables because of the simulation, not the card.** Twin has
+no earlier winners to copy in a standalone race, and Egg, Mastermind and Copycat pick at random
+without a rating. "Racers that pick racers" above measures them properly.
 
 ## What's still unsettled, and how much it matters
 
