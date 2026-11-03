@@ -616,8 +616,9 @@ export const RACERS: Record<Name, Powers> = {
    *
    * If I roll more than 4 sixes, I continue to lose points, assuming I have any.
    *
-   * I still get my main move after warping. (Word for word Third Wheel's note, and contradicts the
-   * card. Not modeled; see CLAUDE.md.)
+   * I still get my main move after warping. (A misprint copied from Third Wheel. The designer,
+   * Alex Hague, 2025-09-23: "Whoops that's an error in the rulebook—you warp back instead of
+   * getting your move.")
    */
   "Sisyphus": {
     beforeRace(race, me) {

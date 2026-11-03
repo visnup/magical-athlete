@@ -4,7 +4,8 @@
 
 - [x] Check every racer against its card and the rulebook's notes, with a test per racer
       (`racers.test.ts`). Fixed Duelist at the Start and Romantic with Suckerfish.
-- [ ] Settle Sisyphus: does it still get its main move after a 6 warps it to Start?
+- [x] Settle Sisyphus: no main move after a 6 warps it to Start. The note saying otherwise is a
+      misprint, per the designer.
 - [x] A better default duel policy: always dueling beat every alternative tried.
 - [ ] Rule-reading sensitivity: flip each interpretation in `CLAUDE.md` one at a time and rerun
       the points table. Any reading that moves a racer a lot needs settling.

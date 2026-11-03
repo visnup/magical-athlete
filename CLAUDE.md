@@ -15,6 +15,7 @@ TypeScript directly.
   example, `racers.test.ts`, one test per card named for its text, plus the rulebook's notes, and
   `terms.test.ts`, one per term and Wild Wilds space on p. 21.
 - `TODO.md` is the plan: checking the model first, then the analysis.
+- `ANALYSIS.md` is what the simulator has shown so far. Update its tables when the model changes.
 
 ## Not in the rulebook
 
@@ -43,7 +44,8 @@ TypeScript directly.
 - Heckler counts its own turns.
 - Hare doesn't skip when it's the only racer left, which would otherwise never end.
 - Sisyphus follows its card: a 6 warps it to Start instead of moving. The rulebook's note under it,
-  "I still get my main move after warping", is word for word Third Wheel's and contradicts the card.
+  "I still get my main move after warping", is a misprint copied from Third Wheel's; the designer,
+  Alex Hague, confirmed on 2025-09-23 that "you warp back instead of getting your move."
 - A Duelist duels everyone it shares the Start with before the first turn.
 - Some races deadlock under the rules, like four racers on space 29 with Coach (+1) and Stickler
   (exact finishes only). They stop after 1,000 turns and count as `stalled`.
