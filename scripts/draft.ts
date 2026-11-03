@@ -1,7 +1,7 @@
 import { parseArgs } from "node:util";
-import { assign, mulberry32, type Name, playGame } from "./game.ts";
-import { parallel } from "./parallel.ts";
-import RATINGS from "./ratings.json" with { type: "json" };
+import { assign, mulberry32, type Name, playGame } from "../src/game.ts";
+import { parallel } from "../src/parallel.ts";
+import RATINGS from "../src/ratings.json" with { type: "json" };
 
 /**
  * Drafting strategies for one player, against opponents who take the highest-rated racer left.

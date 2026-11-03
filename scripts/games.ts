@@ -1,6 +1,6 @@
 import { parseArgs } from "node:util";
-import { assign, mulberry32, playGame } from "./game.ts";
-import { parallel } from "./parallel.ts";
+import { assign, mulberry32, playGame } from "../src/game.ts";
+import { parallel } from "../src/parallel.ts";
 
 /**
  * Whole games, drafted by rating and played in each team's best race order: what each draft

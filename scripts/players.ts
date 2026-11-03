@@ -1,6 +1,6 @@
 import { parseArgs } from "node:util";
-import { GOLD, MILD_MILE, NAMES, type Name, SILVER, WILD_WILDS } from "./game.ts";
-import { table } from "./tables.ts";
+import { GOLD, MILD_MILE, NAMES, type Name, SILVER, WILD_WILDS } from "../src/game.ts";
+import { table } from "../src/tables.ts";
 
 /**
  * Each racer's points per race at 3 to 6 players, as a multiple of a fair share, so counts compare

@@ -1,7 +1,7 @@
 import { writeFileSync } from "node:fs";
 import { parseArgs } from "node:util";
-import { assign, GOLD, mulberry32, NAMES, type Name, shuffle, SILVER } from "./game.ts";
-import { table } from "./tables.ts";
+import { assign, GOLD, mulberry32, NAMES, type Name, shuffle, SILVER } from "../src/game.ts";
+import { table } from "../src/tables.ts";
 
 /**
  * Which race to play each racer in, and what a racer is worth in the draft. A team's value is its
@@ -60,5 +60,5 @@ if (args.write) {
     points: Object.fromEntries(NAMES.map((name) => [name, table4[name].map(round)])),
     draft: Object.fromEntries(NAMES.map((name) => [name, round(draft.get(name)! - mean)])),
   };
-  writeFileSync(new URL("./ratings.json", import.meta.url), JSON.stringify(ratings, null, 2) + "\n");
+  writeFileSync(new URL("../src/ratings.json", import.meta.url), JSON.stringify(ratings, null, 2) + "\n");
 }

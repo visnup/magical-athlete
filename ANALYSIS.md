@@ -14,7 +14,7 @@ Points per race = gold × P(1st) + silver × P(2nd) + bronze chips. Gold and sil
 4/3 and 5/4 for races 1 to 4, and races alternate Mild Mile and Wild Wilds. A fair share is
 (gold + silver) / players.
 
-Reproduce with `node sim.ts --n 100000 --race k` (5 players, seed 1). The tables below are from
+Reproduce with `node scripts/sim.ts --n 100000 --race k` (5 players, seed 1). The tables below are from
 2026-11-03.
 
 ## Points per race
@@ -60,7 +60,7 @@ they chose by the built-in ratings.
 
 ## Player count
 
-`node players.ts` (100,000 races at each count). Points per race as a multiple of a fair share,
+`node scripts/players.ts` (100,000 races at each count). Points per race as a multiple of a fair share,
 so counts compare directly; selected racers:
 
 | racer | Mild 3p | 4p | 5p | 6p | Wild 3p | 4p | 5p | 6p |
@@ -96,7 +96,7 @@ Loser stands out, and Twin, Mastermind, Third Wheel and Huge Baby trail.
 
 ## Matchups
 
-`node matchups.ts` (a million races of 5 per track) compares each racer's points when another
+`node scripts/matchups.ts` (a million races of 5 per track) compares each racer's points when another
 racer is in the race with when it isn't. Largest effects, in race-1 or race-2 points:
 
 | racer | with | Mild Mile | Wild Wilds |
@@ -137,7 +137,7 @@ eat it, while it eats the racers around it.
 
 ## Race order and the draft
 
-`node lineup.ts` takes each racer's points in each of the four races (100,000 races of 5 each),
+`node scripts/lineup.ts` takes each racer's points in each of the four races (100,000 races of 5 each),
 then values a team as its best assignment of four racers to four races. A racer's draft value is
 the average value of random teams it's on, against the average team (8.96 points a game). Twin
 copies earlier winners drawn from the earlier races, and the pickers choose by these ratings,
@@ -178,7 +178,7 @@ Sisyphus.
 
 ## Optional powers
 
-`node choices.ts` races each racer with an optional power in every race (100,000 races of 5) and
+`node scripts/choices.ts` races each racer with an optional power in every race (100,000 races of 5) and
 compares its current choice with alternatives. Points per race, race 1 / race 2:
 
 | racer | current choice | alternatives |
@@ -209,7 +209,7 @@ Hypnotist themselves noticeably.
 
 ### By playing out each option
 
-`node playouts.ts` decides each choice by replaying the turn up to it, forcing each option, and
+`node scripts/playouts.ts` decides each choice by replaying the turn up to it, forcing each option, and
 playing the race out 20 times per option, then compares with the hand-written choice (4,000 races
 of 5 per racer; differences under about 0.1 are noise):
 
@@ -246,7 +246,7 @@ turn's snapshot or outside `choose`.
 
 ## Racers that pick racers
 
-`node twin.ts` reruns Twin, Egg, Mastermind and Copycat with a rating to choose by (each racer's
+`node scripts/twin.ts` reruns Twin, Egg, Mastermind and Copycat with a rating to choose by (each racer's
 points in that race) and, for Twin, earlier winners to copy. The earlier winners are drawn from
 earlier races' chances of 1st, leaving out this race's lineup. Points per race, 100,000 races of
 5:
@@ -274,7 +274,7 @@ of the movement is these four racers changing places with their neighbors.
 
 ## Whole games
 
-`node games.ts` plays 100,000 games of 5 where everyone drafts the highest-rated racer left and
+`node scripts/games.ts` plays 100,000 games of 5 where everyone drafts the highest-rated racer left and
 plays each team in its best race order (`ratings.json`).
 
 | first-round pick | score | wins |
@@ -299,7 +299,7 @@ random opponents rather than drafted, stronger ones.
 
 ## The two-racer variants
 
-`node games.ts --double --players 2` (or 3) plays the variants: everyone drafts 8 racers and races
+`node scripts/games.ts --double --players 2` (or 3) plays the variants: everyone drafts 8 racers and races
 two at a time. 100,000 games each, with standard 3-player games for comparison:
 
 | game | 1st pick wins | 2nd pick | 3rd pick | best estimated team wins |
@@ -325,7 +325,7 @@ more to luck.
 
 ## Drafting strategy
 
-`node draft.ts` gives one randomly seated player a different drafting strategy against
+`node scripts/draft.ts` gives one randomly seated player a different drafting strategy against
 opponents who take the highest-rated racer left (100,000 games of 5 each):
 
 | my draft | wins | score |
@@ -341,7 +341,7 @@ draft.
 
 ## Choosing racers during the game
 
-`node endgame.ts` lets one randomly seated player choose its racer before each race differently
+`node scripts/endgame.ts` lets one randomly seated player choose its racer before each race differently
 from the opponents, who play their best race order (100,000 games of 5 each):
 
 | my choices | wins | score | my M.O.U.T.H. met their Scoocher | wins in those games |
@@ -359,7 +359,7 @@ as you, while it costs you a better draft pick and M.O.U.T.H.'s own best race.
 
 ## Spread of points
 
-`node spread.ts` (race 4 by default, 100,000 races of 5). An average hides how a racer gets there.
+`node scripts/spread.ts` (race 4 by default, 100,000 races of 5). An average hides how a racer gets there.
 Race 4 on the Wild Wilds (5/4), selected:
 
 | racer | mean | sd | 0 points | at least gold |
@@ -384,7 +384,7 @@ safest and the likeliest to win, so it's the best racer whichever position you'r
 
 ## Seat order
 
-`node seats.ts` (200,000 races at each count). Points by seat, seat 1 going first:
+`node scripts/seats.ts` (200,000 races at each count). Points by seat, seat 1 going first:
 
 | players | seat 1 | seat 2 | seat 3 | seat 4 | seat 5 | seat 6 | seat 1 − average |
 | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -487,7 +487,7 @@ Not done: comparing with logged real games.
 
 ## What's still unsettled, and how much it matters
 
-`node sensitivity.ts` reruns races 1 and 2 with each open reading flipped. None matters beyond its
+`node scripts/sensitivity.ts` reruns races 1 and 2 with each open reading flipped. None matters beyond its
 own racer:
 
 | reading | race 1 | race 2 |

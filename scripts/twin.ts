@@ -1,6 +1,6 @@
 import { parseArgs } from "node:util";
-import { NAMES, type Name } from "./game.ts";
-import { forced, type Options, type Row, table } from "./tables.ts";
+import { NAMES, type Name } from "../src/game.ts";
+import { forced, type Options, type Row, table } from "../src/tables.ts";
 
 /**
  * The racers that pick other racers (Twin, Egg, Mastermind, Copycat) with a rating to pick by, and

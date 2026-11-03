@@ -3,24 +3,26 @@
 A simulator of the CMYK board game Magical Athlete. No dependencies; Node 24 runs the TypeScript
 directly.
 
-The rules are the August 2026 printing, `magical-athlete-2026-08.pdf` (from the game's
-BoardGameGeek files). `magical-athlete.pdf` is the 2025 first printing
+The rules are the August 2026 printing, `rules/magical-athlete-2026-08.pdf` (from the game's
+BoardGameGeek files). `rules/magical-athlete.pdf` is the 2025 first printing
 (https://bghub.org/r/magical-athlete.pdf). Neither is committed. Where they differ, the 2026
 printing wins: it rewrote tripping, "before my main move" powers, backward passing and
 simultaneous arrivals, and fixed Sisyphus's misprinted note.
+
+The engine is in `src/`, scripts to run in `scripts/`, tests in `test/`.
 
 - `racers.ts`: each racer's rules as hooks, with its default choice and everything the rulebook
   says about it (flavor text, card, notes, and passages elsewhere that name it), plus official
   rulings from BoardGameGeek with links.
 - `game.ts`: the engine, which calls those hooks. `Race` runs one race, `playGame` drafts and
   runs four.
-- `sim.ts`: Monte Carlo. `node sim.ts --n 100000 --players 5` prints per-racer odds;
+- `sim.ts`: Monte Carlo. `node scripts/sim.ts --n 100000 --players 5` prints per-racer odds;
   `--mode game` runs whole games; `--csv` prints one row per racer per race (or per player per
   game) instead; `--log` prints every event. `--csv` and `--log` run on one core with `--seed`.
 - `ratings.json`: each racer's points per race and draft value, from `lineup.ts --write`. The
   engine drafts, orders races and picks racers (Egg, Twin, Mastermind, Copycat) by it, so
   regenerate it after a change that moves racers' points.
-- Analysis scripts, each run as `node <script>.ts` and written up in `ANALYSIS.md`:
+- Analysis scripts, each run as `node scripts/<script>.ts` and written up in `ANALYSIS.md`:
   - `players.ts`: each racer's points as a multiple of a fair share at 3 to 6 players.
   - `matchups.ts`: how each racer's points change with each other racer in the race; `--csv` for
     every pair.

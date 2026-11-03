@@ -1,8 +1,8 @@
 import { parseArgs } from "node:util";
-import { defaultPolicy, mulberry32, NAMES, type Name, type Policy, Race, type Racer, shuffle } from "./game.ts";
-import { parallel } from "./parallel.ts";
-import { RACERS } from "./racers.ts";
-import { points, trackFor } from "./tables.ts";
+import { defaultPolicy, mulberry32, NAMES, type Name, type Policy, Race, type Racer, shuffle } from "../src/game.ts";
+import { parallel } from "../src/parallel.ts";
+import { RACERS } from "../src/racers.ts";
+import { points, trackFor } from "../src/tables.ts";
 
 /**
  * Compares each optional power's current choice (`choose` in racers.ts) with alternatives, over the

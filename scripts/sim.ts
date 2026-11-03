@@ -1,6 +1,6 @@
 import { parseArgs } from "node:util";
-import { GOLD, MILD_MILE, mulberry32, NAMES, type Name, playGame, Race, shuffle, SILVER, WILD_WILDS } from "./game.ts";
-import { parallel } from "./parallel.ts";
+import { GOLD, MILD_MILE, mulberry32, NAMES, type Name, playGame, Race, shuffle, SILVER, WILD_WILDS } from "../src/game.ts";
+import { parallel } from "../src/parallel.ts";
 
 type Stats = { n: number; first: number; second: number; bronze: number; trips: number; uses: number; out: number; turns: number; score: number; wins: number };
 

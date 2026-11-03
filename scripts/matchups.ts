@@ -1,7 +1,7 @@
 import { parseArgs } from "node:util";
-import { GOLD, mulberry32, NAMES, Race, shuffle, SILVER } from "./game.ts";
-import { parallel } from "./parallel.ts";
-import { points, trackFor } from "./tables.ts";
+import { GOLD, mulberry32, NAMES, Race, shuffle, SILVER } from "../src/game.ts";
+import { parallel } from "../src/parallel.ts";
+import { points, trackFor } from "../src/tables.ts";
 
 /**
  * How each racer's points per race change when another racer is in the race, against when it

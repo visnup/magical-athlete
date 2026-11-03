@@ -1,6 +1,6 @@
 import { parseArgs } from "node:util";
-import { MILD_MILE, NAMES, type Rules, WILD_WILDS } from "./game.ts";
-import { table } from "./tables.ts";
+import { MILD_MILE, NAMES, type Rules, WILD_WILDS } from "../src/game.ts";
+import { table } from "../src/tables.ts";
 
 /** Reruns the points table with each unsettled rule read the other way, and prints what moves. */
 const { values: args } = parseArgs({

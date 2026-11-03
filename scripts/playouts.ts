@@ -1,8 +1,8 @@
 import { parseArgs } from "node:util";
-import { mulberry32, NAMES, type Name, type Policy, Race, type Racer, shuffle } from "./game.ts";
-import { parallel } from "./parallel.ts";
-import { RACERS } from "./racers.ts";
-import { points, trackFor } from "./tables.ts";
+import { mulberry32, NAMES, type Name, type Policy, Race, type Racer, shuffle } from "../src/game.ts";
+import { parallel } from "../src/parallel.ts";
+import { RACERS } from "../src/racers.ts";
+import { points, trackFor } from "../src/tables.ts";
 
 /**
  * Each optional power decided by playing out every option to the end of the race, against its

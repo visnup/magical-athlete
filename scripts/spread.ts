@@ -1,7 +1,7 @@
 import { parseArgs } from "node:util";
-import { GOLD, mulberry32, NAMES, type Name, Race, shuffle, SILVER } from "./game.ts";
-import { parallel } from "./parallel.ts";
-import { points, trackFor } from "./tables.ts";
+import { GOLD, mulberry32, NAMES, type Name, Race, shuffle, SILVER } from "../src/game.ts";
+import { parallel } from "../src/parallel.ts";
+import { points, trackFor } from "../src/tables.ts";
 
 /**
  * How spread out each racer's points are in one race, not just the average: for picking a safe

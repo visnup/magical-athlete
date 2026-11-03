@@ -1,7 +1,7 @@
 import { parseArgs } from "node:util";
-import { GOLD, mulberry32, NAMES, Race, shuffle, SILVER } from "./game.ts";
-import { parallel } from "./parallel.ts";
-import { points, trackFor } from "./tables.ts";
+import { GOLD, mulberry32, NAMES, Race, shuffle, SILVER } from "../src/game.ts";
+import { parallel } from "../src/parallel.ts";
+import { points, trackFor } from "../src/tables.ts";
 
 /** What each seat in turn order is worth, the first player's especially, at 3 to 6 players. */
 export function seatTask(race: number, players: number, seed: number, n: number) {
