@@ -9,7 +9,7 @@ BoardGameGeek files). `rules/magical-athlete.pdf` is the 2025 first printing
 printing wins: it rewrote tripping, "before my main move" powers, backward passing and
 simultaneous arrivals, and fixed Sisyphus's misprinted note.
 
-The engine is in `src/`, scripts to run in `scripts/`, tests in `test/`.
+The engine and its tests are in `src/`, scripts to run in `scripts/`.
 
 - `racers.ts`: each racer's rules as hooks, with its default choice and everything the rulebook
   says about it (flavor text, card, notes, and passages elsewhere that name it), plus official

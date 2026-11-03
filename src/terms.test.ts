@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { mulberry32, type Name, Race, type RaceOptions, WILD_WILDS } from "../src/game.ts";
+import { mulberry32, type Name, Race, type RaceOptions, WILD_WILDS } from "./game.ts";
 
 function setup(names: Name[], pos: number[], dice: number[] = [], o: Partial<RaceOptions> = {}) {
   const race = new Race({ racers: names, dice, rng: mulberry32(1), ...o });
