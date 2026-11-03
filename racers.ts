@@ -12,12 +12,10 @@ export type Powers = {
   beforeRace?(race: Race, me: Racer): void;
   /** Once everyone's powers are set, before the first turn. */
   start?(race: Race, me: Racer): void;
-  /** Own. */
-  startTurn?(race: Race, me: Racer): void;
-  /** Own. Whether to skip the main move this turn. */
+  /** Own. Whether to skip the main move this turn, decided as the turn starts. */
   skipsMain?(race: Race, me: Racer): boolean;
-  /** Own. */
-  beforeMain?(race: Race, me: Racer): void;
+  /** Own. At the start of my turn, even if I'm tripped. */
+  startTurn?(race: Race, me: Racer): void;
   /** Own. `true` if the main move is done, or a number to move instead of rolling. */
   replaceMain?(race: Race, me: Racer): boolean | number;
   /** Own. Rerolls of the main move. */
@@ -32,8 +30,10 @@ export type Powers = {
   base?(race: Race, me: Racer, roll: number, base: number): number;
   /** Added to anyone's main move. */
   modify?(race: Race, me: Racer, mover: Racer, start: number): number;
-  /** After `mover` stops on `at`, having passed `passed`. */
-  onArrive?(race: Race, me: Racer, mover: Racer, at: number, passed: Racer[]): void;
+  /** After `mover` stops on `at`, having arrived at the same time as `together`. */
+  onArrive?(race: Race, me: Racer, mover: Racer, at: number, together: Racer[]): void;
+  /** After `mover` passes `passed`. */
+  onPass?(race: Race, me: Racer, mover: Racer, passed: Racer[]): void;
   /** After `mover`'s turn, which ended `moved` spaces from where it started. */
   endTurn?(race: Race, me: Racer, mover: Racer, moved: number): void;
   /** After another racer's power happens. */
@@ -54,6 +54,13 @@ export type Powers = {
 
 const others = (race: Race, me: Racer, at = me.pos) => race.at(at).filter((q) => q !== me);
 
+/** The one other racer `me` stopped with, unless they arrived at the same time (Fiddly details 2). */
+function stoppedWith(race: Race, mover: Racer, at: number, together: Racer[]) {
+  if (!race.stays(mover, at)) return null;
+  const qs = others(race, mover, at);
+  return qs.length === 1 && !(together.includes(mover) && together.includes(qs[0])) ? qs[0] : null;
+}
+
 function duel(race: Race, me: Racer, q: Racer) {
   if (me.pos !== q.pos || !race.active(me) || !race.active(q) || !race.choose(me, "Duelist", q)) return;
   race.use(me, "Duelist", () => {
@@ -63,8 +70,10 @@ function duel(race: Race, me: Racer, q: Racer) {
   });
 }
 
-// Each racer's flavor text, card (power name: text), the rulebook's notes on pages 22–25, and
-// anything else in the rulebook that names it.
+// Each racer's flavor text, card (power name: text), and notes from the August 2026 printing of the
+// rulebook (`magical-athlete-2026-08.pdf`, pp. 24–27), then anything else in it that names the
+// racer, and official rulings on BoardGameGeek from Richard Garfield (designer) and Alex Hague
+// (CMYK).
 export const RACERS: Record<Name, Powers> = {
   /**
    * Forever seeking the ancient secret of turning This into That.
@@ -102,11 +111,14 @@ export const RACERS: Record<Name, Powers> = {
    *
    * THE SLIP: I trip any racer that passes me.
    *
-   * Rulebook example, p. 16: Banana's power is to trip any racer that passes them, so after the
-   * Romantic finishes their full main move, they trip! That means they skip their next main move.
+   * Under Huge Baby: If I stop on Banana's space and move them back, it counts as passing them and
+   * I trip.
+   *
+   * Example, p. 16: Banana's power is to trip any racer that passes them, so after the Romantic
+   * finishes their full main move, they trip! That means they skip their next main move.
    */
   "Banana": {
-    onArrive(race, me, mover, _at, passed) {
+    onPass(race, me, mover, passed) {
       if (passed.includes(me)) race.use(me, "Banana", () => race.trip(mover));
     },
   },
@@ -124,14 +136,12 @@ export const RACERS: Record<Name, Powers> = {
   /**
    * Here's the kicker.
    *
-   * HOOFWHACK: When I pass a racer, they move -2.
+   * HOOFWHACK: When I pass a racer, they move backwards 2.
    *
    * A racer can't be hoofwhacked any farther back than the Start space.
-   *
-   * Rulebook, p. 6: "I kick racers backwards when I pass them."
    */
   "Centaur": {
-    onArrive(race, me, mover, _at, passed) {
+    onPass(race, me, mover, passed) {
       if (mover !== me) return;
       for (const q of passed) if (race.active(q)) race.use(me, "Centaur", () => race.move(q, -2));
     },
@@ -140,17 +150,17 @@ export const RACERS: Record<Name, Powers> = {
   /**
    * A being of pure pep.
    *
-   * RAH RAH: Before my main move, I can make the racer(s) in last place move 2. If I do, I move 1.
+   * RAH RAH: At the start of my turn, I can make the racers in last place move 2. If I do, I
+   * move 1.
    *
-   * If there is more than one racer in last place, you have to cheer for all of them.
+   * If there is more than one racer in last place, they all move. But I only move 1 regardless of
+   * how many racers are in last.
    *
-   * You only move +1 regardless of how many racers are in last.
-   *
-   * If you cheer yourself, those are two separate moves: move 2 then move 1.
+   * If I cheer for myself, those are two separate moves: move 2 then move 1.
    */
   "Cheerleader": {
     choose: (race, me) => race.last().includes(me),
-    beforeMain(race, me) {
+    startTurn(race, me) {
       const last = race.last();
       if (!race.choose(me, "Cheerleader")) return;
       race.use(me, "Cheerleader", () => {
@@ -165,7 +175,7 @@ export const RACERS: Record<Name, Powers> = {
    *
    * GOOD HUSTLE: Everyone on my space gets +1 to their main move, including me.
    *
-   * Remember that I get my power's benefit too!
+   * I get my power's benefit too!
    *
    * Under Legs: My power counts as my main move, so can be gooped by Gunk or get the hustle bonus
    * from Coach.
@@ -179,12 +189,16 @@ export const RACERS: Record<Name, Powers> = {
    *
    * COPY THAT: I have the power of the racer currently in the lead. If there's a tie, I pick.
    *
-   * I persistently have the power of the lead racer, not just on my turn.
+   * I persistently have the power of the lead racer, not just on my turn. If there's ever a
+   * contradiction between me and the racer I'm copying, their power takes priority. I never copy
+   * "before my race" powers. If there's a tied lead, I can't switch my power mid-action.
    *
-   * If there's ever a contradiction between me and the racer I'm copying—like with Huge Baby—their
-   * power takes priority.
+   * Fiddly details 8, p. 23: If there's a tie for the lead or last place, and a power like Copy
+   * Cat's would target them, they pick which to target.
    *
-   * I never copy "before my race" powers.
+   * Alex Hague, 2026-01-02: "you can't switch your power 'mid-action' but mid turn is OK if they
+   * have separate moments where they would trigger"
+   * https://boardgamegeek.com/thread/3637654/article/47097397
    */
   "Copycat": {
     copies(race, me) {
@@ -199,7 +213,9 @@ export const RACERS: Record<Name, Powers> = {
    * DICEY DEALS: Anyone can reroll their main move once per turn. When another racer does it, I
    * move 1.
    *
-   * Under Scoocher: With Dicemonger, you move for each reroll.
+   * If someone else rerolls, I move before they move.
+   *
+   * Under Scoocher: With Dicemonger, I move for each reroll.
    */
   "Dicemonger": {
     onReroll(race, me, roller) {
@@ -214,15 +230,17 @@ export const RACERS: Record<Name, Powers> = {
    * highest moves 2. I win ties.
    *
    * I can duel multiple times in a turn, including when it's not my turn. I just need to be
-   * sharing a space to immediately declare a duel.
-   *
-   * I can't interrupt actions in progress, like between a roll and a move.
+   * sharing a space to immediately declare a duel. I can't interrupt actions in progress, like
+   * between a roll and a move.
    *
    * Under Baba Yaga: If I share a space with the Duelist, we can duel, but the Duelist will still
    * trip.
    *
    * Under Stickler: This includes any movement from main moves, powers, etc. For example, if the
    * Duelist wins a duel on the final space before the finish line, they don't cross.
+   *
+   * Richard Garfield, 2025-11-26, on dueling your own other racer in the variants: "Yes"
+   * https://boardgamegeek.com/thread/3617971/article/46942516
    */
   "Duelist": {
     // A 58% win always pays: declining near the finish, or against racers a loss would carry
@@ -242,9 +260,7 @@ export const RACERS: Record<Name, Powers> = {
    *
    * SCRAMBLE: Before my race, draw 3 new racers from the deck and pick one. I have its powers.
    *
-   * You should still use my racer token!
-   *
-   * I still get any "before race" powers.
+   * You should still use my racer token! I still get any "before race" powers.
    */
   "Egg": {
     choose: (race, _me, options: Name[]) => race.best(options),
@@ -262,13 +278,10 @@ export const RACERS: Record<Name, Powers> = {
    *
    * FLOP FLIP: I can skip rolling for my main move and swap spaces with another racer instead.
    *
-   * My flop flip is a warp: it doesn't count as a move and I don't roll.
+   * My flop flip is a warp: it doesn't count as a move and I don't roll. I never occupy the same
+   * space as a racer I switch places with. We flop flip simultaneously.
    *
-   * I never occupy the same space as a racer I switch places with.
-   *
-   * We flop flip simultaneously.
-   *
-   * Terms, p. 21, Stopping on a space: Racers are stopped on a space after they've finished moving
+   * Terms, p. 23, Stopping on a space: Racers are stopped on a space after they've finished moving
    * onto it, or otherwise arriving there by other means, like through Flip Flop's warping power.
    */
   "Flip Flop": {
@@ -293,16 +306,26 @@ export const RACERS: Record<Name, Powers> = {
   /**
    * And yet a fool in the ways of love.
    *
-   * THINK GOOD: I can predict what number I'll roll for my main move. If I'm right, I take
-   * another turn after this one.
+   * THINK GOOD: I can predict what number I'll roll for my main move. If I'm right, I take an
+   * extra turn.
+   *
+   * If I'm racing against Skipper and I predict a 1, Skipper steals the next turn, since their
+   * power triggers after mine.
+   *
+   * When playing with multiple racers, if I predict right, I get an extra turn but not my other
+   * racer(s).
+   *
+   * Alex Hague, 2025-10-19: "Scoocher works with wrong predictions, since it's still using the
+   * power, just missing the bonus."
+   * https://boardgamegeek.com/thread/3595157/article/46761348
    */
   "Genius": {
     choose: () => 6,
     beforeRoll(race, me) {
-      me.guess = race.choose(me, "Genius");
+      race.use(me, "Genius", () => (me.guess = race.choose(me, "Genius")));
     },
     onRoll(race, me, roller, roll) {
-      if (me === roller && roll === me.guess) race.use(me, "Genius", () => race.queue.unshift(me));
+      if (me === roller && roll === me.guess) race.queue.unshift(me);
     },
   },
 
@@ -317,8 +340,11 @@ export const RACERS: Record<Name, Powers> = {
    * Under Legs: My power counts as my main move, so can be gooped by Gunk or get the hustle bonus
    * from Coach.
    *
-   * Under Scoocher: When Gunk is on the board, you scooch 1 for every -1 that affects a racer's
-   * main move.
+   * Under Scoocher: When Gunk is on the board, I scooch 1 for every -1 that affects a racer's main
+   * move.
+   *
+   * Fiddly details 7, p. 23: If multiple powers change the value of a move—like Rocket Scientist
+   * and Gunk—resolve in turn order.
    */
   "Gunk": {
     modify: (_race, me, mover) => (mover === me ? 0 : -1),
@@ -328,12 +354,16 @@ export const RACERS: Record<Name, Powers> = {
    * The only thing he can't outrun is hubris.
    *
    * HUBRIS: I get +2 to my main move. When I start my turn alone in the lead, I skip my main move.
+   *
+   * Richard Garfield, 2025-09-27, asked whether Scoocher moves every time Hare gets its +2: "Rule
+   * of thumb: If the board changes in a way that would not happen if you had a racer with no
+   * power, then a power has been used."
+   * https://boardgamegeek.com/thread/3582942/article/46664996
    */
   "Hare": {
     skipsMain(race, me) {
       const lead = race.lead();
-      // A Hare left alone on the track would never move again.
-      return lead.length === 1 && lead[0] === me && race.onTrack().length > 1;
+      return lead.length === 1 && lead[0] === me;
     },
     modify: (_race, me, mover) => (mover === me ? 2 : 0),
   },
@@ -344,6 +374,13 @@ export const RACERS: Record<Name, Powers> = {
    * SCHADENFREUDE: When a racer ends their turn within 1 space of where they started, I move 2.
    *
    * My power works for racers recovering from tripping.
+   *
+   * Alex Hague, 2025-09-25: "Heckler triggers himself and that's true for any 'a racer' power"
+   * https://boardgamegeek.com/thread/3582124/article/46658473
+   *
+   * Richard Garfield, 2025-12-09, asked whether it counts racers standing up, racers that don't
+   * move at all, and Heckler itself: "Yes. Heckler is often quite good."
+   * https://boardgamegeek.com/thread/3624534/article/46999371
    */
   "Heckler": {
     endTurn(race, me, _mover, moved) {
@@ -358,15 +395,10 @@ export const RACERS: Record<Name, Powers> = {
    * put the racer on the space behind me instead.
    *
    * I'm a unique case: when other racers are put behind me because of my power, that doesn't
-   * count as a move: it's like they just stopped on that space instead.
-   *
-   * Under Copycat: If there's ever a contradiction between me and the racer I'm copying—like with
-   * Huge Baby—their power takes priority.
+   * count as a move: it's like they just stopped on that space instead. If I stop on Banana's space
+   * and move them back, it counts as passing them and I trip.
    *
    * Under Party Animal: If Huge Baby parties onto my space, everyone there gets put 1 space back.
-   *
-   * Fiddly details 8, p. 21: If you run into an infinite loop—for example, Scoocher stopping on
-   * the Huge Baby—complete the loop once in the order it takes place, then end it.
    */
   "Huge Baby": {
     blocks: (race, me, mover, pos) => mover !== me && me.pos === pos && pos > 0 && pos < race.track.length,
@@ -375,10 +407,9 @@ export const RACERS: Record<Name, Powers> = {
       const qs = others(race, me);
       if (!qs.length) return;
       race.use(me, "Huge Baby", () => {
-        for (const q of qs) {
-          q.pos = at - 1;
-          race.arrive(q);
-        }
+        for (const q of qs) q.pos = at - 1;
+        for (const q of qs) race.arrive(q, [], qs);
+        race.pass(me, qs);
       });
     },
   },
@@ -386,7 +417,7 @@ export const RACERS: Record<Name, Powers> = {
   /**
    * Implanted this false bio himself.
    *
-   * HSSSSST: Before my main move, I can warp a racer to my space.
+   * HSSSSST: At the start of my turn, I can warp a racer to my space.
    *
    * Under Baba Yaga: The Hypnotist can cast their spell on me, but they still trip.
    */
@@ -396,7 +427,7 @@ export const RACERS: Record<Name, Powers> = {
       const ahead = race.onTrack().filter((o) => o.seat !== me.seat && o.pos - me.pos > 3);
       return ahead.sort((a, b) => b.pos - a.pos)[0] ?? null;
     },
-    beforeMain(race, me) {
+    startTurn(race, me) {
       const t: Racer | null = race.choose(me, "Hypnotist");
       if (t) race.use(me, "Hypnotist", () => race.warp(t, me.pos));
     },
@@ -421,7 +452,9 @@ export const RACERS: Record<Name, Powers> = {
   /**
    * If you're happy, he's happy.
    *
-   * VERY GOOD SIRE: When another racer rolls a 6 for their main move, I move 2 before they move.
+   * VERY GOOD SIRE: When another racer rolls a 6 for their main move, I move 2.
+   *
+   * I do my move before the other racer, if it matters.
    *
    * Under Gunk: My goop reduces the move amount, not the die roll number. So it doesn't make a 6
    * into a 5 and keep the Lackey from doing their job.
@@ -435,12 +468,12 @@ export const RACERS: Record<Name, Powers> = {
   /**
    * Frequently seen from below.
    *
-   * JUMPFROG: While moving, I skip spaces with other racers on them.
+   * JUMPFROG: I skip spaces with other racers on them.
    *
-   * Under Scoocher: With Leaptoad, you move for each space skipped. If they jumpfrog over 2
-   * consecutive occupied spaces, you move 1 twice.
+   * Yes, even if I'm moving backwards.
    *
-   * Rulebook, p. 5: "I skip spaces with other racers on them!"
+   * Under Scoocher: With Leaptoad, I move for each space skipped. If they jumpfrog over 2
+   * consecutive occupied spaces, I move 1 twice.
    */
   "Leaptoad": {
     path(race, me, from, dist) {
@@ -466,8 +499,6 @@ export const RACERS: Record<Name, Powers> = {
    * JOG: I can skip rolling for my main move and move 5 instead.
    *
    * My power counts as my main move, so can be gooped by Gunk or get the hustle bonus from Coach.
-   *
-   * Rulebook, p. 7: "I can just... move 5?!?!"
    */
   "Legs": {
     choose: () => true,
@@ -477,10 +508,10 @@ export const RACERS: Record<Name, Powers> = {
   /**
    * Top of her class at Loser Academy. Which is bad.
    *
-   * D'AWW: Before my main move, I get 1 bronze point chip if I'm alone in last place.
+   * D'AWW: At the start of my turn, I get 1 point chip if I'm alone in last place.
    */
   "Lovable Loser": {
-    beforeMain(race, me) {
+    startTurn(race, me) {
       const last = race.last();
       if (last.length === 1 && last[0] === me) race.use(me, "Lovable Loser", () => race.bronze(me, 1));
     },
@@ -502,8 +533,8 @@ export const RACERS: Record<Name, Powers> = {
   /**
    * The one scheme he can't pull off is getting his parents back together.
    *
-   * KNOW-IT-ALL: At the start of my first turn, I predict which racer will win the race. If I'm
-   * right, the race ends immediately and I finish 2nd.
+   * KNOW-IT-ALL: At the start of my first turn, I predict which racer will win. If I'm right, the
+   * race ends immediately and I finish 2nd.
    *
    * If I predict myself, I can win both 1st and 2nd.
    */
@@ -520,29 +551,32 @@ export const RACERS: Record<Name, Powers> = {
    *
    * CHOMP: When I stop on a space with exactly one other racer, they're eliminated from the race.
    *
-   * If I chomp so many racers that no one crosses the finish line second, no one gets those points
-   * and you can discard that race's silver rosette.
+   * Fiddly details 2, p. 23: Powers involving stopping on a space together don't trigger if racers
+   * arrive at the same time.
    */
   "M.O.U.T.H.": {
-    onArrive(race, me, mover, at) {
-      if (mover !== me || !race.stays(me, at)) return;
-      const qs = others(race, me);
-      if (qs.length === 1) race.use(me, "M.O.U.T.H.", () => race.eliminate(qs[0]));
+    onArrive(race, me, mover, at, together) {
+      if (mover !== me) return;
+      const q = stoppedWith(race, me, at, together);
+      if (q) race.use(me, "M.O.U.T.H.", () => race.eliminate(q));
     },
   },
 
   /**
    * They put a hat on an animal and this happened.
    *
-   * ANIMAL MAGNETISM: Before my main move, all racers move 1 space towards me. Each other racer on
-   * my space gives me +1 to my main move.
+   * ANIMAL MAGNETISM: At the start of my turn, all racers move 1 space towards me. Each other
+   * racer on my space gives me +1 to my main move.
    *
    * If Huge Baby parties onto my space, everyone there gets put 1 space back.
+   *
+   * Under Romantic: If two racers move together simultaneously, like with the Party Animal or
+   * Suckerfish, my power doesn't trigger.
    */
   "Party Animal": {
-    beforeMain(race, me) {
+    startTurn(race, me) {
       race.use(me, "Party Animal", () => {
-        for (const q of race.byPriority()) if (q !== me) race.move(q, Math.sign(me.pos - q.pos));
+        race.moveTogether(race.byPriority().filter((q) => q !== me).map((q) => [q, Math.sign(me.pos - q.pos)]));
       });
     },
     modify: (race, me, mover) => (mover === me ? others(race, me).length : 0),
@@ -551,10 +585,12 @@ export const RACERS: Record<Name, Powers> = {
   /**
    * Moonlights as a brain surgeon.
    *
-   * KABLOOEY: When I roll for my main move, I can move double that number. If I do, I trip after
-   * moving.
+   * KABLOOEY: I can double my main move roll. When I do, I trip.
    *
    * I roll THEN decide whether to kablooey.
+   *
+   * Fiddly details 7, p. 23: If multiple powers change the value of a move—like Rocket Scientist
+   * and Gunk—resolve in turn order.
    */
   "Rocket Scientist": {
     choose: (race, me, roll: number) => roll >= 4 || me.pos + 2 * roll >= race.track.length,
@@ -570,16 +606,20 @@ export const RACERS: Record<Name, Powers> = {
    *
    * AH, LOVE!: When anyone stops on a space with exactly one other racer, I move 2.
    *
-   * If two racers move together, like with the Suckerfish, my power triggers twice.
+   * If two racers move together simultaneously, like with the Party Animal or Suckerfish, my
+   * power doesn't trigger.
    *
-   * Rulebook example, p. 16: It's the Romantic's turn, and they roll a 5 for their main move.
-   * While they move 5 spaces, they pass Scoocher and Banana. … Now the Romantic is thrilled,
-   * because their ability is that when exactly 2 racers are stopped on a space, they get to move 2.
-   * Even though they're tripped, they can still use their power.
+   * Fiddly details 2, p. 23: Powers involving stopping on a space together don't trigger if racers
+   * arrive at the same time.
+   *
+   * Example, p. 16: It's the Romantic's turn, and they roll a 5 for their main move. While they
+   * move 5 spaces, they pass Scoocher and Banana. … Now the Romantic is thrilled, because their
+   * power is that when exactly 2 racers are stopped on a space, they get to move 2. Even though
+   * they're tripped, they can still use their power.
    */
   "Romantic": {
-    onArrive(race, me, mover, at) {
-      if (race.stays(mover, at) && race.at(at).length === 2) race.use(me, "Romantic", () => race.move(me, 2));
+    onArrive(race, me, mover, at, together) {
+      if (stoppedWith(race, mover, at, together)) race.use(me, "Romantic", () => race.move(me, 2));
     },
   },
 
@@ -588,19 +628,30 @@ export const RACERS: Record<Name, Powers> = {
    *
    * SCOOCH SCOOCH: When another racer's power happens, I move 1.
    *
-   * When Gunk is on the board, you scooch 1 for every -1 that affects a racer's main move. With
-   * Dicemonger, you move for each reroll. With Leaptoad, you move for each space skipped. If they
-   * jumpfrog over 2 consecutive occupied spaces, you move 1 twice. I scooch 1 on each Magician
+   * When Gunk is on the board, I scooch 1 for every -1 that affects a racer's main move. With
+   * Dicemonger, I move for each reroll. With Leaptoad, I move for each space skipped. If they
+   * jumpfrog over 2 consecutive occupied spaces, I move 1 twice. I scooch 1 on each Magician
    * reroll, even if it's not used.
    *
-   * Rulebook example, p. 16: Scoocher is thrilled, because their power is moving 1 whenever
-   * anyone's ability happens. So they move 1 and stop on the same space as Banana. … Of course,
-   * since another power is triggered, Scoocher moves another 1.
+   * Fiddly details 1, p. 23: If you reroll for any reason, treat the previous number you rolled as
+   * if it never happened. The reroll action itself can still trigger powers like Scoocher.
    *
-   * Fiddly details 8, p. 21: If you run into an infinite loop—for example, Scoocher stopping on
-   * the Huge Baby—complete the loop once in the order it takes place, then end it. Note that some
-   * powers can interact many times, like Scoocher and Suckerfish, which doesn't count as a loop.
-   * You can keep doing those!
+   * Fiddly details 5, p. 23: If you run into an infinite loop, complete it once in order, then
+   * stop. Some powers can interact many times but aren't a loop, like Scoocher/Suckerfish. If you
+   * ever enter a loop where no one can finish or move at all, the race ends immediately: no one
+   * gets the remaining points unless they've already finished.
+   *
+   * Example, p. 16: Scoocher is thrilled, because their power is moving 1 whenever anyone's power
+   * happens. So they move 1 and stop on the same space as Banana. … Of course, since another power
+   * is triggered, Scoocher moves another 1.
+   *
+   * Richard Garfield, 2025-09-27: "Rule of thumb: If the board changes in a way that would not
+   * happen if you had a racer with no power, then a power has been used."
+   * https://boardgamegeek.com/thread/3582942/article/46664996
+   *
+   * Alex Hague, 2025-10-19: "Scoocher works with wrong predictions, since it's still using the
+   * power, just missing the bonus."
+   * https://boardgamegeek.com/thread/3595157/article/46761348
    */
   "Scoocher": {
     onPower(race, me, owner) {
@@ -614,11 +665,8 @@ export const RACERS: Record<Name, Powers> = {
    * KEEP ROLLIN': Before my race, I take 4 point chips. When I roll a 6 for my main move, instead
    * of moving, I warp to the Start and lose 1 point chip.
    *
-   * If I roll more than 4 sixes, I continue to lose points, assuming I have any.
-   *
-   * I still get my main move after warping. (A misprint copied from Third Wheel. The designer,
-   * Alex Hague, 2025-09-23: "Whoops that's an error in the rulebook—you warp back instead of
-   * getting your move.")
+   * If I roll more than 4 sixes, I continue to lose points, assuming I have any. I don't get my
+   * main move after warping.
    */
   "Sisyphus": {
     beforeRace(race, me) {
@@ -643,10 +691,13 @@ export const RACERS: Record<Name, Powers> = {
    *
    * Under Inchworm: If another racer rolls a 1 and the Skipper is also on the track with me, I
    * wriggle 1 and then the Skipper takes their turn.
+   *
+   * Under Genius: If I'm racing against Skipper and I predict a 1, Skipper steals the next turn,
+   * since their power triggers after mine.
    */
   "Skipper": {
     onRoll(race, me, _roller, roll) {
-      if (roll === 1) race.use(me, "Skipper", () => race.queue.push(me));
+      if (roll === 1) race.use(me, "Skipper", () => (race.queue = [me]));
     },
   },
 
@@ -666,17 +717,17 @@ export const RACERS: Record<Name, Powers> = {
   /**
    * Has abandonment issues.
    *
-   * SUCKER!: When a racer on my space moves, I can move to their new space.
+   * SUCKER!: When a racer starts a move on my space, I can move with them.
    *
-   * If I start moving with a racer, I can't stop until they finish that move.
+   * If I start moving with a racer, I can't stop until they finish their full move. I can cross
+   * the finish line using my power. I arrive at the space at the same time, but for finishing and
+   * triggering powers, the racer I'm moving with resolves first.
    *
-   * I can cross the finish line using my power.
+   * Under Romantic: If two racers move together simultaneously, like with the Party Animal or
+   * Suckerfish, my power doesn't trigger.
    *
-   * Under Romantic: If two racers move together, like with the Suckerfish, my power triggers
-   * twice.
-   *
-   * Fiddly details 8, p. 21: Note that some powers can interact many times, like Scoocher and
-   * Suckerfish, which doesn't count as a loop. You can keep doing those!
+   * Fiddly details 5, p. 23: Some powers can interact many times but aren't a loop, like
+   * Scoocher/Suckerfish.
    */
   "Suckerfish": {
     // Riding another player's Scoocher home only ever finishes 2nd behind it, so within a roll of
@@ -689,7 +740,7 @@ export const RACERS: Record<Name, Powers> = {
   /**
    * Searching for her throther half.
    *
-   * ROLL THROUGH: Before my main move, I can warp to any space with exactly 2 racers on it.
+   * ROLL THROUGH: At the start of my turn, I can warp to any space with exactly 2 racers on it.
    *
    * I still get my main move after warping.
    */
@@ -700,7 +751,7 @@ export const RACERS: Record<Name, Powers> = {
       const pairs = [...counts].filter(([pos, n]) => n === 2 && pos > me.pos).map(([pos]) => pos);
       return pairs.length ? Math.max(...pairs) : null;
     },
-    beforeMain(race, me) {
+    startTurn(race, me) {
       const pos: number | null = race.choose(me, "Third Wheel");
       if (pos !== null) race.use(me, "Third Wheel", () => race.warp(me, pos));
     },
@@ -712,9 +763,7 @@ export const RACERS: Record<Name, Powers> = {
    * DOUBLE DIP: Before my race, I can pick a racer who won a previous race and race with their
    * powers.
    *
-   * You should still use my racer token!
-   *
-   * I still get any "before race" powers.
+   * You should still use my racer token! I still get any "before race" powers.
    */
   "Twin": {
     choose: (race, _me, options: Name[]) => race.best(options),

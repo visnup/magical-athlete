@@ -7,8 +7,14 @@
 - [x] Settle Sisyphus: no main move after a 6 warps it to Start. The note saying otherwise is a
       misprint, per the designer.
 - [x] A better default duel policy: always dueling beat every alternative tried.
-- [ ] Rule-reading sensitivity: flip each interpretation in `CLAUDE.md` one at a time and rerun
-      the points table. Any reading that moves a racer a lot needs settling.
+- [x] Official rulings: the August 2026 printing and Garfield's and Hague's BoardGameGeek posts
+      settled Scoocher's triggers, tripping, Heckler, Copycat and trigger order (see `racers.ts`).
+- [x] Rule-reading sensitivity (`sensitivity.ts`): of what's still open, backward main moves move
+      no racer by 0.1 points. Settled: Duelist duels on the Start (worth 0.15 to it), and Blimp's
+      second corner is 15 (12 would cost it about 0.2).
+- [ ] Untested reading: Garfield queues triggers and resolves them even if the board has changed
+      since; the engine re-checks each one. Testing it means splitting hooks into a condition and
+      an effect.
 - [ ] Compare against what players report on BoardGameGeek. Scoocher and Romantic winning over 60%
       of 5-player races is the first thing to explain.
 

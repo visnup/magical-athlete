@@ -10,7 +10,7 @@ function setup(names: Name[], pos: number[], dice: number[] = [], o: Partial<Rac
 
 const names = (rs: { name: Name }[]) => rs.map((r) => r.name);
 
-// Terms, rulebook p. 21.
+// Terms, p. 23 of the August 2026 printing.
 
 test("Ahead/Behind: if racers share a space, they're neither ahead nor behind each other", () => {
   let race = setup(["Alchemist", "Banana"], [3, 3], [3]);
@@ -65,6 +65,13 @@ test("Passing: when a racer starts a move behind a racer and ends the same move 
   assert.equal(race.racers[0].tripped, true);
 });
 
+test("Passing: or if they're moving backwards, they start ahead and end behind", () => {
+  const race = setup(["Centaur", "Legs", "Banana"], [0, 3, 2], [5]);
+  race.turn(race.racers[0]);
+  assert.equal(race.racers[1].pos, 1);
+  assert.equal(race.racers[1].tripped, true);
+});
+
 test("Sharing a space: temporarily occupying the same space while moving doesn't count", () => {
   const race = setup(["M.O.U.T.H.", "Banana"], [0, 2], [4]);
   race.turn(race.racers[0]);
@@ -85,7 +92,7 @@ test("Stopping on a space: arriving by other means, like warping, counts", () =>
   assert.equal(race.racers[1].tripped, true);
 });
 
-test("Trip: skip your next main move without rolling, and finish the current move completely", () => {
+test("Trip: skip your next main move without rolling, recover on it, and finish the current move", () => {
   let race = setup(["Banana", "Legs"], [0, 20], [6]);
   race.racers[0].tripped = true;
   race.turn(race.racers[0]);
@@ -106,7 +113,15 @@ test('Warp: don\'t count it as "moving" for triggering powers, passing racers, e
   assert.equal(race.racers[1].pos, 0);
 });
 
-// Wild Wilds track, rulebook p. 21.
+// Fiddly details, p. 23.
+
+test("Fiddly details 6: if there is ever only one racer left, the race ends and that racer places", () => {
+  const race = setup(["M.O.U.T.H.", "Banana"], [0, 3], [3]);
+  race.turn(race.racers[0]);
+  assert.equal(race.racers[0].place, 1);
+});
+
+// Track info, p. 23.
 
 test("Arrows: move the number shown, as a separate move that's never part of your main move", () => {
   let race = setup(["Banana", "Gunk"], [2, 20], [6], { track: WILD_WILDS });

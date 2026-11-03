@@ -101,11 +101,18 @@ const cards: Record<Name, () => void> = {
     assert.deepEqual(race.racers.map((r) => r.pos), [10, 0]);
   },
   "Genius"() {
-    // I can predict what number I'll roll for my main move. If I'm right, I take another turn
-    // after this one.
-    const race = setup(["Genius", "Banana"], [0, 20], [6]);
+    // I can predict what number I'll roll for my main move. If I'm right, I take an extra turn.
+    let race = setup(["Genius", "Banana"], [0, 20], [6]);
     race.turn(race.racers[0]);
     assert.equal(race.queue[0], race.racers[0]);
+    // If I'm racing against Skipper and I predict a 1, Skipper steals the next turn.
+    race = setup(["Genius", "Skipper"], [0, 20], [1], { policy: { choose: { Genius: () => 1 } } });
+    race.turn(race.racers[0]);
+    assert.deepEqual(race.queue, [race.racers[1]]);
+    // Alex Hague: Scoocher works with wrong predictions.
+    race = setup(["Genius", "Scoocher"], [0, 20], [3]);
+    race.turn(race.racers[0]);
+    assert.equal(race.racers[1].pos, 21);
   },
   "Gunk"() {
     // Other racers get -1 to their main move.
@@ -139,15 +146,26 @@ const cards: Record<Name, () => void> = {
     let race = setup(["Legs", "Huge Baby"], [0, 5]);
     race.turn(race.racers[0]);
     assert.equal(race.racers[0].pos, 4);
+    // If I stop on Banana's space and move them back, it counts as passing them and I trip.
     race = setup(["Huge Baby", "Banana"], [0, 3], [3]);
     race.turn(race.racers[0]);
     assert.deepEqual(race.racers.map((r) => r.pos), [3, 2]);
+    assert.equal(race.racers[0].tripped, true);
   },
   "Hypnotist"() {
-    // Before my main move, I can warp a racer to my space.
-    const race = setup(["Hypnotist", "Banana"], [0, 10], [1]);
+    // At the start of my turn, I can warp a racer to my space.
+    let race = setup(["Hypnotist", "Banana"], [0, 10], [1]);
     race.turn(race.racers[0]);
     assert.deepEqual(race.racers.map((r) => r.pos), [1, 0]);
+    // Under Baba Yaga: the Hypnotist can cast their spell on me, but they still trip, and skip
+    // this turn's main move (Alex Hague, BGG 2025-09-16).
+    race = setup(["Hypnotist", "Baba Yaga", "Banana"], [0, 10, 20], [6], {
+      policy: { choose: { Hypnotist: (r) => r.racers[1] } },
+    });
+    race.turn(race.racers[0]);
+    assert.deepEqual(race.racers.map((r) => r.pos), [0, 0, 20]);
+    assert.equal(race.racers[0].tripped, false);
+    assert.deepEqual(race.dice, [6]);
   },
   "Inchworm"() {
     // When another racer rolls a 1 for their main move, they skip that move and I move 1.
@@ -175,10 +193,13 @@ const cards: Record<Name, () => void> = {
     assert.equal(race.racers[0].pos, 5);
   },
   "Lovable Loser"() {
-    // Before my main move, I get 1 bronze point chip if I'm alone in last place.
+    // At the start of my turn, I get 1 point chip if I'm alone in last place. Even tripped.
     const race = setup(["Lovable Loser", "Banana"], [0, 5], [1]);
     race.turn(race.racers[0]);
     assert.equal(race.racers[0].bronze, 1);
+    race.racers[0].tripped = true;
+    race.turn(race.racers[0]);
+    assert.equal(race.racers[0].bronze, 2);
   },
   "Magician"() {
     // I can reroll my main move up to two times. I must use whatever my last roll is.
@@ -201,11 +222,15 @@ const cards: Record<Name, () => void> = {
     assert.notEqual(race.racers[1].eliminated, null);
   },
   "Party Animal"() {
-    // Before my main move, all racers move 1 space towards me. Each other racer on my space
+    // At the start of my turn, all racers move 1 space towards me. Each other racer on my space
     // gives me +1 to my main move.
-    const race = setup(["Party Animal", "Legs", "Banana"], [5, 4, 10], [1]);
+    let race = setup(["Party Animal", "Legs", "Banana"], [5, 4, 10], [1]);
     race.turn(race.racers[0]);
     assert.deepEqual(race.racers.map((r) => r.pos), [7, 5, 9]);
+    // They move at the same time, so M.O.U.T.H. doesn't arrive alone with me and eat me.
+    race = setup(["Party Animal", "M.O.U.T.H.", "Legs"], [5, 4, 6], [1]);
+    race.turn(race.racers[0]);
+    assert.ok(race.racers.every((r) => r.eliminated === null));
   },
   "Rocket Scientist"() {
     // When I roll for my main move, I can move double that number. If I do, I trip after moving.
@@ -219,10 +244,12 @@ const cards: Record<Name, () => void> = {
     let race = setup(["Legs", "Romantic", "Banana"], [0, 0, 5]);
     race.turn(race.racers[0]);
     assert.equal(race.racers[1].pos, 2);
-    // If two racers move together, like with the Suckerfish, my power triggers twice.
+    // If two racers move together simultaneously, like with the Party Animal or Suckerfish, my
+    // power doesn't trigger.
     race = setup(["Legs", "Suckerfish", "Romantic"], [0, 0, 10]);
     race.turn(race.racers[0]);
-    assert.equal(race.racers[2].pos, 14);
+    assert.equal(race.racers[1].pos, 5);
+    assert.equal(race.racers[2].pos, 10);
   },
   "Scoocher"() {
     // When another racer's power happens, I move 1.
@@ -249,7 +276,7 @@ const cards: Record<Name, () => void> = {
   "Stickler"() {
     // Other racers can only cross the finish line by moving the exact amount they need. If they
     // overshoot, they don't move.
-    const race = setup(["Banana", "Stickler"], [27, 0], [5, 3]);
+    const race = setup(["Banana", "Stickler", "Legs"], [27, 0, 0], [5, 3]);
     race.turn(race.racers[0]);
     assert.equal(race.racers[0].pos, 27);
     race.turn(race.racers[0]);

@@ -128,7 +128,19 @@ export type RaceOptions = {
   supply?: number;
   first?: number;
   log?: boolean;
+  rules?: Partial<Rules>;
 };
+
+/** Readings of rules that are still unsettled, for `sensitivity.ts`. */
+export type Rules = {
+  /**
+   * A main move pushed below 0 moves backwards. Alex Hague said yes, Richard Garfield thought it
+   * was capped at 0: https://boardgamegeek.com/thread/3598754
+   */
+  backwards: boolean;
+};
+
+const RULES: Rules = { backwards: false };
 
 export type RaceResult = {
   racers: Racer[];
@@ -155,6 +167,7 @@ export class Race {
   deck: Name[];
   bank: number[];
   supply: number;
+  rules: Rules;
   log: string[] | null;
   current: Racer;
   finishers: Racer[] = [];
@@ -176,6 +189,7 @@ export class Race {
     this.deck = o.deck ?? NAMES.filter((n) => !o.racers.includes(n));
     this.bank = o.bank ?? o.racers.map(() => 0);
     this.supply = o.supply ?? BRONZE;
+    this.rules = { ...RULES, ...o.rules };
     this.log = o.log ? [] : null;
     this.racers = o.racers.map((name, seat) => ({
       name, seat, pos: 0, tripped: false, place: null, eliminated: null,
@@ -317,6 +331,13 @@ export class Race {
   eliminate(r: Racer) {
     r.eliminated = this.eliminations++;
     this.say(`${r.name} is eliminated`);
+    this.lastOneLeft();
+  }
+
+  /** Fiddly details 6: the last racer left ends the race, taking 1st or 2nd. */
+  lastOneLeft() {
+    const on = this.onTrack();
+    if (on.length === 1 && this.finishers.length < 2) this.finish(on[0]);
   }
 
   finish(r: Racer) {
@@ -334,6 +355,7 @@ export class Race {
       }
     }
     if (this.finishers.length >= 2) throw new RaceOver();
+    this.lastOneLeft();
   }
 
   /** The power that keeps `r` off `pos`, if any. */
@@ -353,46 +375,70 @@ export class Race {
   }
 
   move(r: Racer, dist: number) {
-    if (!this.active(r) || dist === 0) return;
-    const n = this.track.length;
-    const from = r.pos;
-    const path = this.own(r).find(([, h]) => h.path);
-    let { to, skipped } = path?.[1].path!(this, r, from, dist) ?? { to: Math.max(0, from + dist), skipped: 0 };
-    if (to > n) {
-      const s = this.all().find(([o, , h]) => h.stopsOvershoot?.(this, o, r));
-      if (s) {
-        this.say(`${r.name} overshoots`);
-        this.use(s[0], s[1]);
-        return;
-      }
-    }
-    const b = to < n ? this.blocker(r, to) : undefined;
-    if (b) to--;
-    const passed = this.onTrack().filter((o) => o !== r && o.pos > from && (to >= n || o.pos < to));
-    const riders = this.all().filter(([o, p, h]) => h.rides && o !== r && o.pos === from && this.choose(o, p, Math.min(to, n), r));
-    this.say(`${r.name} moves ${from} → ${Math.min(to, n)}`);
-    // Riders arrive together with the racer they ride, so Romantic sees both stops.
-    if (to >= n) {
-      this.finish(r);
-      for (const [s, p] of riders) this.use(s, p, () => this.finish(s));
-    } else {
-      for (const [s] of riders) s.pos = to;
-      r.pos = to;
-      this.arrive(r, passed);
-      for (const [s, p] of riders) this.use(s, p, () => this.arrive(s, passed));
-    }
-    if (b) this.use(b[0], b[1]);
-    if (path) for (let i = 0; i < skipped; i++) this.use(r, path[0]);
+    this.moveTogether([[r, dist]]);
   }
 
-  arrive(r: Racer, passed: Racer[] = []) {
+  /**
+   * Moves racers at the same time, like Party Animal does. Racers that arrive together, including
+   * Suckerfish riding along, don't count as stopping with each other.
+   */
+  moveTogether(moves: [Racer, number][]) {
+    const n = this.track.length;
+    const landed: { r: Racer; passed: Racer[]; riders: [Racer, Name][]; b?: Hook; path?: [Name, Powers]; skipped: number }[] = [];
+    for (const [r, dist] of moves) {
+      if (!this.active(r) || dist === 0) continue;
+      const from = r.pos;
+      const path = this.own(r).find(([, h]) => h.path);
+      let { to, skipped } = path?.[1].path!(this, r, from, dist) ?? { to: Math.max(0, from + dist), skipped: 0 };
+      if (to > n) {
+        const s = this.all().find(([o, , h]) => h.stopsOvershoot?.(this, o, r));
+        if (s) {
+          this.say(`${r.name} overshoots`);
+          this.use(s[0], s[1]);
+          continue;
+        }
+      }
+      const b = to < n ? this.blocker(r, to) : undefined;
+      if (b) to--;
+      const passed = this.onTrack().filter((o) =>
+        o !== r && (to > from ? o.pos > from && (to >= n || o.pos < to) : o.pos < from && o.pos > to)
+      );
+      const riders = this.all().filter(([o, p, h]) => h.rides && o !== r && o.pos === from && this.choose(o, p, Math.min(to, n), r));
+      this.say(`${r.name} moves ${from} → ${Math.min(to, n)}`);
+      if (to >= n) this.finish(r);
+      else for (const q of [r, ...riders.map(([s]) => s)]) q.pos = to;
+      landed.push({ r, passed, riders, b, path, skipped });
+    }
+    const together = landed.flatMap(({ r, riders }) => [r, ...riders.map(([s]) => s)]);
+    for (const { r, passed, riders, b, path, skipped } of landed) {
+      // Riders arrive with the racer they ride, which resolves first.
+      if (r.place !== null) for (const [s, p] of riders) this.use(s, p, () => this.finish(s));
+      else {
+        this.arrive(r, passed, together);
+        for (const [s, p] of riders) this.use(s, p, () => this.arrive(s, passed, together));
+      }
+      if (b) this.use(b[0], b[1]);
+      if (path) for (let i = 0; i < skipped; i++) this.use(r, path[0]);
+    }
+  }
+
+  arrive(r: Racer, passed: Racer[] = [], together: Racer[] = []) {
     if (!this.active(r)) return;
     const at = r.pos;
     const space = this.track.spaces[at];
     if (space?.star) this.bronze(r, 1);
     if (space?.trip) this.trip(r);
     if (space?.arrow) this.once(`${r.seat}:arrow`, () => this.move(r, space.arrow!));
-    for (const [o, , h] of this.all()) if (this.active(o)) h.onArrive?.(this, o, r, at, passed);
+    for (const [o, , h] of this.all()) {
+      if (!this.active(o)) continue;
+      h.onArrive?.(this, o, r, at, together);
+      h.onPass?.(this, o, r, passed);
+    }
+  }
+
+  /** Lets passing powers react to `r` having passed `passed`. */
+  pass(r: Racer, passed: Racer[]) {
+    for (const [o, , h] of this.all()) if (this.active(o)) h.onPass?.(this, o, r, passed);
   }
 
   beforeRace() {
@@ -405,17 +451,13 @@ export class Race {
     const start = r.pos;
     r.turns++;
     this.say(`— ${r.name}'s turn at ${start}`);
-    for (const [, h] of this.own(r)) h.startTurn?.(this, r);
-    if (r.tripped) {
-      r.tripped = false;
-    } else {
-      const skip = this.own(r).find(([, h]) => h.skipsMain?.(this, r));
-      if (skip) this.use(r, skip[0]);
-      else {
-        for (const [, h] of this.own(r)) if (this.active(r)) h.beforeMain?.(this, r);
-        if (this.active(r)) this.main(r, start);
-      }
-    }
+    const skip = this.own(r).find(([, h]) => h.skipsMain?.(this, r));
+    for (const [, h] of this.own(r)) if (this.active(r)) h.startTurn?.(this, r);
+    if (!this.active(r)) return;
+    // A tripped racer recovers at its main move, even if it tripped earlier this turn.
+    if (r.tripped) r.tripped = false;
+    else if (skip) this.use(r, skip[0]);
+    else this.main(r, start);
     if (!this.active(r)) return;
     const moved = Math.abs(r.pos - start);
     for (const [o, , h] of this.all()) if (this.active(o)) h.endTurn?.(this, o, r, moved);
@@ -473,7 +515,7 @@ export class Race {
     }
     for (const [o, p] of used) this.use(o, p);
     if (!this.active(r)) return;
-    this.move(r, Math.max(0, dist));
+    this.move(r, this.rules.backwards ? dist : Math.max(0, dist));
     for (const f of this.afterMain) f();
   }
 
