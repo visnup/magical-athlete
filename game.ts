@@ -108,7 +108,8 @@ export function shuffle<T>(xs: T[], rng: () => number): T[] {
   return a;
 }
 
-class RaceOver extends Error {}
+// Not an Error, so throwing it doesn't capture a stack trace every race.
+class RaceOver {}
 
 export type RaceOptions = {
   /** One racer per seat, in clockwise order. */
@@ -179,6 +180,7 @@ export class Race {
   eliminations = 0;
   seen = new Set<string>();
   depth = 0;
+  hooks = new Map<string, Hook[]>();
 
   constructor(o: RaceOptions) {
     this.track = o.track ?? MILD_MILE;
@@ -238,8 +240,12 @@ export class Race {
   /** Active racers, starting with the current player and going clockwise. */
   byPriority() {
     const n = this.racers.length;
-    const c = this.current.seat;
-    return this.onTrack().sort((a, b) => ((a.seat - c + n) % n) - ((b.seat - c + n) % n));
+    const order: Racer[] = [];
+    for (let i = 0; i < n; i++) {
+      const r = this.racers[(this.current.seat + i) % n];
+      if (this.active(r)) order.push(r);
+    }
+    return order;
   }
 
   powers(r: Racer, depth = 0): Name[] {
@@ -262,9 +268,20 @@ export class Race {
     return this.powers(r).map((p) => [p, RACERS[p]]);
   }
 
-  /** Every power on the track, in priority order. */
+  /** Every power on the track, in priority order. Don't mutate the result: it's cached. */
   all(): Hook[] {
-    return this.byPriority().flatMap((o) => this.powers(o).map((p): Hook => [o, p, RACERS[p]]));
+    // Powers depend only on whose turn it is, who's still racing, and the lead, for copiers.
+    let key = `${this.current.seat}:`;
+    for (const r of this.racers) key += this.active(r) ? "1" : "0";
+    if (this.racers.some((r) => [r.name, ...r.copied].some((p) => RACERS[p].copies))) {
+      key += `:${this.lead().map((r) => r.seat)}`;
+    }
+    let hooks = this.hooks.get(key);
+    if (!hooks) {
+      hooks = this.byPriority().flatMap((o) => this.powers(o).map((p): Hook => [o, p, RACERS[p]]));
+      this.hooks.set(key, hooks);
+    }
+    return hooks;
   }
 
   choose(me: Racer, p: Name, ...args: any[]): any {
@@ -278,6 +295,7 @@ export class Race {
   gain(r: Racer, p: Name) {
     if (r.copied.length >= 2) return;
     r.copied.push(p);
+    this.hooks.clear();
     this.say(`${r.name} gains ${p}`);
     RACERS[p].beforeRace?.(this, r);
   }
