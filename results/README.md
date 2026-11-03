@@ -49,7 +49,8 @@ configs:
 
 # Magical Athlete simulations
 
-Raw output of a Monte Carlo simulator of the board game Magical Athlete (CMYK), following the
+Raw output of a Monte Carlo simulator of the board game
+[Magical Athlete](https://www.cmyk.games/products/magical-athlete) (CMYK), following the
 August 2026 rulebook and official rulings: https://github.com/visnup/magical-athlete. Its README
 is the write-up these files back, and `make` there regenerates them.
 

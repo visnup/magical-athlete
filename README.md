@@ -1,6 +1,7 @@
 # Magical Athlete
 
-A simulator of the board game Magical Athlete, and what it says so far. Every number is from the
+A simulator of the board game [Magical Athlete](https://www.cmyk.games/products/magical-athlete),
+and what it says so far. Every number is from the
 model, which follows the August 2026 printing of the rulebook and the official rulings in
 `racers.ts`, and plays optional powers with simple greedy choices. It agrees with an independent
 simulator and with what players report (see "Against real play"), but hasn't been checked against
@@ -174,15 +175,15 @@ eat it, while it eats the racers around it.
 `node scripts/lineup.ts` takes each racer's points in each of the four races from the dataset,
 except Twin's, which is raced again with earlier winners drawn from the earlier races. It values a
 team as its best assignment of four racers to four races. A racer's draft value is the average
-value of random teams it's on, against the average team (8.94 points a game). `lineup.ts --write`
+value of random teams it's on, against the average team (8.95 points a game). `lineup.ts --write`
 saves these to `ratings.json` for the engine to play by.
 
 | racer | race 1 (Mild 3/2) | race 2 (Wild 4/3) | race 3 (Mild 4/3) | race 4 (Wild 5/4) | usually played in | draft value |
 | --- | --- | --- | --- | --- | --- | --- |
 | Scoocher | 2.38 | 7.52 | 3.24 | 8.22 | 4 | +4.68 |
-| Twin | 0.29 | 2.88 | 2.14 | 4.69 | 4 (always) | +1.44 |
+| Twin | 0.29 | 2.86 | 2.15 | 4.71 | 4 (always) | +1.46 |
 | Lovable Loser | 3.08 | 3.75 | 3.20 | 3.89 | 1 | +1.33 |
-| Suckerfish | 1.62 | 3.85 | 2.27 | 4.49 | 4 | +1.28 |
+| Suckerfish | 1.62 | 3.85 | 2.27 | 4.49 | 4 | +1.27 |
 | Sisyphus | 2.91 | 3.69 | 2.93 | 3.71 | 1 | +1.19 |
 | Romantic | 2.03 | 2.87 | 2.77 | 3.53 | 3 | +0.75 |
 | Copycat | 1.49 | 3.29 | 2.08 | 3.85 | 4 | +0.73 |
@@ -244,7 +245,7 @@ Yaga onto your own space trips you, which stalled races when it repeated; so Hyp
 `node scripts/playouts.ts` decides each choice by replaying the turn up to it, forcing each option,
 and playing the race out 20 times per option, then compares with the hand-written choice (4,000
 races of 5 per racer; differences under about 0.1 are noise). A decision on the same board in the
-same turn is reused: Suckerfish riding Scoocher around the Wild Wilds' 12–16 cycle can decide
+same turn is reused, as long as the box still has bronze or still doesn't: Suckerfish riding Scoocher around the Wild Wilds' 12–16 cycle can decide
 hundreds of times in one turn, and each playout replays every decision before it.
 
 | racer | race 1, Mild Mile | race 2, Wild Wilds |
@@ -253,7 +254,7 @@ hundreds of times in one turn, and each playout replays every decision before it
 | Mastermind | 0.85 → 1.15 (+0.31) | 1.78 → 2.20 (+0.42) |
 | Rocket Scientist | 0.87 → 0.97 (+0.10) | 2.19 → 2.49 (+0.30) |
 | Cheerleader | 1.07 → 1.03 | 2.39 → 2.68 (+0.29) |
-| Suckerfish | 1.61 → 1.68 | 3.70 → 3.98 (+0.27) |
+| Suckerfish | 1.61 → 1.68 | 3.70 → 3.99 (+0.29) |
 | Alchemist | 0.65 → 0.66 | 1.32 → 1.45 (+0.13) |
 | Hypnotist | 0.98 → 0.93 | 2.35 → 2.48 (+0.13) |
 | Duelist | 0.98 → 0.83 (−0.15) | 1.67 → 1.67 |
@@ -292,10 +293,10 @@ earlier winners are averaged over both races on the track:
 
 | racer | race 1 | race 2 | race 3 | race 4 |
 | --- | --- | --- | --- | --- |
-| Twin | 0.93 → 0.28 | 3.46 → 2.86 | 1.28 → 2.12 | 3.99 → 4.69 |
-| Egg | 1.56 → 1.68 | 3.12 → 3.25 | 2.00 → 2.14 | 3.55 → 3.84 |
-| Mastermind | 0.87 → 0.88 | 1.85 → 1.81 | 1.28 → 1.27 | 2.27 → 2.29 |
-| Copycat | 1.49 → 1.49 | 3.29 → 3.25 | 2.08 → 2.09 | 3.85 → 3.94 |
+| Twin | 0.93 → 0.28 | 3.46 → 2.86 | 1.28 → 2.13 | 3.99 → 4.73 |
+| Egg | 1.56 → 1.68 | 3.12 → 3.25 | 2.00 → 2.13 | 3.55 → 3.86 |
+| Mastermind | 0.87 → 0.88 | 1.85 → 1.82 | 1.28 → 1.28 | 2.27 → 2.28 |
+| Copycat | 1.49 → 1.49 | 3.29 → 3.25 | 2.08 → 2.10 | 3.85 → 3.94 |
 
 ![Racers that pick racers, with ratings and earlier winners](charts/twin.svg)
 

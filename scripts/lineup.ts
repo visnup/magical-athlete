@@ -25,7 +25,7 @@ const players = Number(args.players);
 const teams = Number(args.teams);
 const games = [0, 1, 2, 3];
 const tables = await Promise.all(games.map((race) =>
-  query(`select racer, avg(${pointsSql(race)}) points, avg(gold) first from ${races(race, players)} group by racer`)));
+  query(`select racer, avg(${pointsSql(race)}) points, avg(gold) first from ${races(race, players)} group by racer order by racer`)));
 const twin = [];
 for (const race of games) {
   const earlier = tables.slice(0, race).map((rows) => Object.fromEntries(rows.map((r) => [r.racer, r.first])));

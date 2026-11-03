@@ -31,7 +31,7 @@ const options: Partial<Record<Name, (race: Race, me: Racer) => unknown[]>> = {
 
 /**
  * A policy where `name` decides by playouts, each option played `k` times. A decision repeats
- * within a turn when the board does: Suckerfish riding Scoocher around the Wild Wilds' 12–16 cycle
+ * within a turn when the board does and the box still has bronze or still doesn't: Suckerfish riding Scoocher around the Wild Wilds' 12–16 cycle
  * decides hundreds of times in one turn, and each playout replays every decision before it.
  */
 function playing(name: Name, race: number, k: number): Partial<Policy> {
@@ -44,7 +44,7 @@ function playing(name: Name, race: number, k: number): Partial<Policy> {
         const opts = options[name]!(r, me);
         if (opts.length < 2) return fallback();
         if (!decided.has(r)) decided.set(r, new Map());
-        const key = [r.turns, r.racers.map((x) => x.pos), args.map((a) => (a && typeof a === "object" && "seat" in a ? `seat ${a.seat}` : a))].join("|");
+        const key = [r.turns, r.supply > 0, r.racers.map((x) => x.pos), args.map((a) => (a && typeof a === "object" && "seat" in a ? `seat ${a.seat}` : a))].join("|");
         const memo = decided.get(r)!;
         if (memo.has(key)) return memo.get(key);
         let best = opts[0];

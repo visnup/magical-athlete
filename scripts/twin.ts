@@ -16,7 +16,7 @@ const pickers: Name[] = ["Twin", "Egg", "Mastermind", "Copycat"];
 const games = [0, 1, 2, 3];
 
 const base = await Promise.all(games.map((race) =>
-  query(`select racer, avg(${pointsSql(race)}) points, avg(gold) first from ${races(race)} group by racer`)));
+  query(`select racer, avg(${pointsSql(race)}) points, avg(gold) first from ${races(race)} group by racer order by racer`)));
 const rated = (race: number): Options => ({
   n,
   ratings: Object.fromEntries(base[race].map((r) => [r.racer, r.points])),

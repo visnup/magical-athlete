@@ -100,7 +100,7 @@ save("places", {
 // Player count: average points per race by number of players, with 95% intervals.
 const byPlayers = await query(`
   select track, players, racer, avg(points) mean, 1.96 * stddev_samp(points) / sqrt(count(*)) e
-  from (${scored(`${players()} players, racer`, "*")}) group by all`);
+  from (${scored(`${players()} players, racer`, "*")}) group by all order by players`);
 save("players", {
   width: 720,
   marginRight: 90,

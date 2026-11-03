@@ -214,7 +214,9 @@ export class Race {
   eliminations = 0;
   seen = new Set<string>();
   depth = 0;
-  hooks = new Map<string, Hook[]>();
+  hooks = new Map<number, Hook[]>();
+  /** Whether any racer copies powers, so `all()` depends on the lead. */
+  copying?: boolean;
   /** For `playout`: the race as this turn started, and the dice and choices since. */
   playouts: boolean;
   snapshot: Race | null = null;
@@ -352,17 +354,25 @@ export class Race {
 
   /** `r`'s own powers. */
   own(r: Racer): [Name, Powers][] {
-    return this.powers(r).map((p) => [p, RACERS[p]]);
+    const own: [Name, Powers][] = [];
+    for (const [o, p, h] of this.all()) if (o === r) own.push([p, h]);
+    return own;
   }
 
   /** Every power on the track, in priority order. Don't mutate the result: it's cached. */
   all(): Hook[] {
     // Powers depend only on whose turn it is, who's still racing, and the lead, for copiers.
-    let key = `${this.current.seat}:`;
-    for (const r of this.racers) key += this.active(r) ? "1" : "0";
-    if (this.racers.some((r) => [r.name, ...r.copied].some((p) => RACERS[p].copies))) {
-      key += `:${this.lead().map((r) => r.seat)}`;
+    this.copying ??= this.racers.some((r) => [r.name, ...r.copied].some((p) => RACERS[p].copies));
+    let active = 0;
+    let lead = 0;
+    let max = -Infinity;
+    for (const r of this.racers) {
+      if (!this.active(r)) continue;
+      active |= 1 << r.seat;
+      if (r.pos > max) [max, lead] = [r.pos, 0];
+      if (r.pos === max) lead |= 1 << r.seat;
     }
+    const key = (this.current.seat * 256 + active) * 256 + (this.copying ? lead : 0);
     let hooks = this.hooks.get(key);
     if (!hooks) {
       hooks = this.byPriority().flatMap((o) => this.powers(o).map((p): Hook => [o, p, RACERS[p]]));
@@ -387,6 +397,7 @@ export class Race {
     if (r.copied.length >= 2) return;
     r.copied.push(p);
     this.hooks.clear();
+    this.copying = undefined;
     this.say(`${r.name} gains ${p}`);
     RACERS[p].beforeRace?.(this, r);
   }

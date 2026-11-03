@@ -34,8 +34,10 @@ The engine and its tests are in `src/`, scripts to run in `scripts/`, their raw 
   `rowPoints`). For Twin, each race gets the earlier winners of one of its track's two races at
   random (0 or 2 on the Mild Mile, 1 or 3 on the Wild Wilds), so Twin averages over them. Scripts summarize with DuckDB (`query` in
   `results.ts`), which reads the files directly; so can `duckdb` or pandas.
-  `make` reruns whatever a change in `src/` or `scripts/` made stale, then the charts (about an
-  hour from scratch). A fresh clone's file times are arbitrary, so it may rerun everything.
+  `make` reruns whatever a change in `scripts/` made stale, then the charts (about 20 minutes
+  from scratch). For `src/`, it first hashes the engine's results on a fixed sample
+  (`fingerprint.ts`, into `engine.sha`) and reruns only if they changed, so a refactor that
+  leaves results alone reruns nothing. A fresh clone's file times are arbitrary, so it may rerun everything.
 - Scripts that read the race dataset, each run as `node scripts/<script>.ts`:
   - `points.ts --race k`: the headline points table.
   - `players.ts`: each racer's points as a multiple of a fair share at 3 to 6 players.
