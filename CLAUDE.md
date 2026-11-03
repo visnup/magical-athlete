@@ -32,6 +32,7 @@ simultaneous arrivals, and fixed Sisyphus's misprinted note.
   - `games.ts`: whole games, by draft position and estimated team value.
   - `draft.ts`: drafting strategies for one player against greedy opponents.
   - `endgame.ts`: choosing racers during a game by score, and countering Scoocher.
+  - `playouts.ts`: each optional power decided by playing out every option (`Race.playout`).
 - `parallel.ts` splits a script's races across a worker thread per core (`worker.ts`) and adds up
   the results. A task is an exported function of a module that does nothing at the top level, so
   scripts guard their main code with `if (import.meta.main)`. Results vary with the core count,

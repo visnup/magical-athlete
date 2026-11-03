@@ -37,8 +37,11 @@
 - [x] The 2-player and 3-player double-racer variants (`playGame({ double: true })`,
       `games.ts --double`): the 2-player draft is fair, the 3-player one gives the first pick
       42.5% of wins.
-- [ ] Smarter choices by playing out each option, rather than comparing hand-written ones. Needs
-      the engine to save and restore a race in the middle of a turn.
+- [x] Smarter choices by playing out each option (`Race.playout`, `playouts.ts`): close to the
+      hand-written choices on the Mild Mile, far better on the Wild Wilds.
+- [ ] Track-aware choices: score the space each option lands on (star, rock, arrow) in Legs,
+      Alchemist, Rocket Scientist, Suckerfish, Cheerleader and Flip Flop, which playouts show is
+      worth up to 1.7 points a race on the Wild Wilds.
 - [x] `sim.ts` on every core, like the other scripts. `--csv` and `--log` still run on one core.
 - [x] Points distributions per racer, not just averages, for when you need to catch up
       (`spread.ts`).

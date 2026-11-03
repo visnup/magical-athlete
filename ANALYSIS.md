@@ -200,6 +200,36 @@ power at all: "never" costs 0.4 to 2.5 points a race.
 The other tables in this file predate these two changes, which affect only Cheerleader and
 Hypnotist themselves noticeably.
 
+### By playing out each option
+
+`node playouts.ts` decides each choice by replaying the turn up to it, forcing each option, and
+playing the race out 20 times per option, then compares with the hand-written choice (4,000 races
+of 5 per racer; differences under about 0.1 are noise):
+
+| racer | race 1, Mild Mile | race 2, Wild Wilds |
+| --- | --- | --- |
+| Flip Flop | 1.40 → 1.89 (+0.49) | 2.52 → 4.18 (+1.66) |
+| Legs | 1.45 → 1.43 | 1.95 → 2.64 (+0.69) |
+| Suckerfish | 1.64 → 1.66 | 3.70 → 4.18 (+0.48) |
+| Cheerleader | 1.07 → 1.06 | 2.31 → 2.71 (+0.40) |
+| Rocket Scientist | 0.85 → 1.00 (+0.14) | 2.05 → 2.44 (+0.39) |
+| Mastermind | 0.85 → 1.20 (+0.35) | 1.82 → 2.20 (+0.38) |
+| Alchemist | 0.62 → 0.66 | 1.25 → 1.54 (+0.29) |
+| Hypnotist | 0.98 → 0.92 | 2.42 → 2.56 (+0.14) |
+| Genius, Duelist, Third Wheel | within ±0.1 | within ±0.1 |
+
+**On the Mild Mile the hand-written choices are close to the best.** The exceptions are Flip Flop,
+whose best swap depends on more than distance, and Mastermind, which does better predicting the
+likely winner of this particular race than the best-rated racer.
+
+**On the Wild Wilds they leave a lot behind, because they ignore the track.** Moving 5 or the roll,
+4 or the roll, double or not, riding or not, swapping with whom: each lands on a different space,
+and a star, a rock or an arrow there is worth more than a space or two of distance. Playouts see
+that; the heuristics don't. A cheap fix is to score where each option lands.
+
+Not covered: Magician's rerolls and the before-race picks (Egg, Twin), which happen outside a
+turn's snapshot or outside `choose`.
+
 ## Racers that pick racers
 
 `node twin.ts` reruns Twin, Egg, Mastermind and Copycat with a rating to choose by (each racer's
