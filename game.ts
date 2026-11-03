@@ -1,4 +1,5 @@
 import { type Powers, RACERS } from "./racers.ts";
+import RATINGS from "./ratings.json" with { type: "json" };
 
 export const NAMES = [
   "Alchemist", "Baba Yaga", "Banana", "Blimp", "Centaur", "Cheerleader",
@@ -77,7 +78,8 @@ export type Policy = {
 };
 
 export const defaultPolicy: Policy = {
-  rating: () => 0,
+  // Draft value from `lineup.ts --write`: points a game over an average pick.
+  rating: (name) => RATINGS.draft[name],
   reroll(race, r, roll, left) {
     if (race.has(r, "Alchemist") && roll <= 2) return false;
     if (race.has(r, "Sisyphus") && roll === 6) return true;
@@ -88,6 +90,25 @@ export const defaultPolicy: Policy = {
 
 function best(names: Name[], rating: (n: Name) => number): Name {
   return names.reduce((a, b) => (rating(b) > rating(a) ? b : a));
+}
+
+const ORDERS: number[][] = [];
+const permute = (xs: number[], rest: number[]): unknown =>
+  rest.length ? rest.forEach((x) => permute([...xs, x], rest.filter((y) => y !== x))) : ORDERS.push(xs);
+permute([], [0, 1, 2, 3]);
+
+/**
+ * The best assignment of a team of four to the four races, by points per race (`ratings.json`
+ * by default): `order[i]` is the race `team[i]` plays in.
+ */
+export function assign(team: Name[], points: Record<Name, number[]> = RATINGS.points) {
+  let value = -Infinity;
+  let order = ORDERS[0];
+  for (const o of ORDERS) {
+    const v = o.reduce((s, race, i) => s + points[team[i]][race], 0);
+    if (v > value) [value, order] = [v, o];
+  }
+  return { value, order };
 }
 
 export function mulberry32(seed: number) {
@@ -587,18 +608,24 @@ export type GameOptions = {
 
 export type GameResult = {
   teams: Name[][];
+  /** Players in the order they picked in the first draft round, if drafted. */
+  drafters: number[];
   scores: number[];
   races: RaceResult[];
   logs: string[][];
 };
 
-/** Snake drafts twice (or uses `teams`), then runs four races and scores them. */
+/**
+ * Snake drafts twice by rating (or uses `teams`), plays each team in its best race order, then
+ * runs four races and scores them.
+ */
 export function playGame(o: GameOptions): GameResult {
   const rng = o.rng ?? Math.random;
   const policy = { ...defaultPolicy, ...o.policy };
   const schedule = o.schedule ?? [MILD_MILE, WILD_WILDS, MILD_MILE, WILD_WILDS];
   let deck = shuffle([...NAMES], rng);
   let teams = o.teams;
+  let drafters: number[] = [];
   if (teams) {
     deck = deck.filter((n) => !teams!.flat().includes(n));
   } else {
@@ -607,6 +634,7 @@ export function playGame(o: GameOptions): GameResult {
     for (let round = 0; round < 2; round++) {
       const row = deck.splice(0, 2 * o.players);
       const order = Array.from({ length: o.players }, (_, i) => (first + i) % o.players);
+      if (round === 0) drafters = [...order];
       for (const p of [...order, ...order.reverse()]) {
         const pick = best(shuffle(row, rng), policy.rating);
         row.splice(row.indexOf(pick), 1);
@@ -614,7 +642,10 @@ export function playGame(o: GameOptions): GameResult {
       }
       first = (first + 1) % o.players;
     }
-    teams = drafted.map((t) => shuffle(t, rng));
+    teams = drafted.map((t) => {
+      const { order } = assign(t);
+      return [0, 1, 2, 3].map((race) => t[order.indexOf(race)]);
+    });
   }
   const scores = teams.map(() => 0);
   const races: RaceResult[] = [];
@@ -649,5 +680,5 @@ export function playGame(o: GameOptions): GameResult {
     races.push(result);
     logs.push(race.log ?? []);
   }
-  return { teams, scores, races, logs };
+  return { teams, drafters, scores, races, logs };
 }

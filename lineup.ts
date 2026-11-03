@@ -1,38 +1,31 @@
+import { writeFileSync } from "node:fs";
 import { parseArgs } from "node:util";
-import { GOLD, mulberry32, NAMES, type Name, shuffle, SILVER } from "./game.ts";
+import { assign, GOLD, mulberry32, NAMES, type Name, shuffle, SILVER } from "./game.ts";
 import { table } from "./tables.ts";
 
 /**
  * Which race to play each racer in, and what a racer is worth in the draft. A team's value is its
  * best assignment of four racers to the four races; a racer's draft value is the average value of
- * teams that include it.
+ * teams that include it. `--write` saves both to ratings.json, which the engine plays by.
  */
 const { values: args } = parseArgs({
   options: {
     n: { type: "string", default: "100000" },
     players: { type: "string", default: "5" },
     teams: { type: "string", default: "20000" },
+    write: { type: "boolean", default: false },
   },
 });
 const players = Number(args.players);
 const tables = [];
-for (const race of [0, 1, 2, 3]) tables.push(await table(race, { n: Number(args.n), players }));
-const pts = (name: Name, race: number) => tables[race].get(name)!.points;
-
-const orders: number[][] = [];
-const permute = (xs: number[], rest: number[]) => (rest.length ? rest.forEach((x) => permute([...xs, x], rest.filter((y) => y !== x))) : orders.push(xs));
-permute([], [0, 1, 2, 3]);
-
-/** The best assignment of a team (one racer per race) and its total. */
-function best(team: Name[]) {
-  let top = -Infinity;
-  let order = orders[0];
-  for (const o of orders) {
-    const v = o.reduce((s, race, i) => s + pts(team[i], race), 0);
-    if (v > top) [top, order] = [v, o];
-  }
-  return { value: top, order };
+for (const race of [0, 1, 2, 3]) {
+  // Twin copies an earlier winner, so each race draws them from the races before it.
+  const earlier = tables.map((rows) => Object.fromEntries([...rows].map(([name, row]) => [name, row.first])));
+  tables.push(await table(race, { n: Number(args.n), players, earlier }));
 }
+const table4 = Object.fromEntries(NAMES.map((name) => [name, tables.map((t) => t.get(name)!.points)])) as Record<Name, number[]>;
+const pts = (name: Name, race: number) => table4[name][race];
+const best = (team: Name[]) => assign(team, table4);
 
 console.log(`Points per race at ${players} players (races alternate Mild Mile and Wild Wilds):\n`);
 console.log(`| racer | race 1 (${GOLD[0]}/${SILVER[0]}) | race 2 (${GOLD[1]}/${SILVER[1]}) | race 3 (${GOLD[2]}/${SILVER[2]}) | race 4 (${GOLD[3]}/${SILVER[3]}) | best race | draft value |`);
@@ -60,3 +53,12 @@ for (const name of [...NAMES].sort((a, b) => draft.get(b)! - draft.get(a)!)) {
   console.log(`| ${name} | ${cells.join(" | ")} | ${where + 1} (${((100 * slots[where]) / Number(args.teams)).toFixed(0)}%) | ${(draft.get(name)! - mean >= 0 ? "+" : "")}${(draft.get(name)! - mean).toFixed(2)} |`);
 }
 console.log(`\nDraft value: a team's best total with this racer, against the average team (${mean.toFixed(2)}). Best race: where its best team plays it most.`);
+
+if (args.write) {
+  const round = (x: number) => Math.round(x * 100) / 100;
+  const ratings = {
+    points: Object.fromEntries(NAMES.map((name) => [name, table4[name].map(round)])),
+    draft: Object.fromEntries(NAMES.map((name) => [name, round(draft.get(name)! - mean)])),
+  };
+  writeFileSync(new URL("./ratings.json", import.meta.url), JSON.stringify(ratings, null, 2) + "\n");
+}
