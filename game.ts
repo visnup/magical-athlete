@@ -92,22 +92,21 @@ function best(names: Name[], rating: (n: Name) => number): Name {
   return names.reduce((a, b) => (rating(b) > rating(a) ? b : a));
 }
 
-const ORDERS: number[][] = [];
-const permute = (xs: number[], rest: number[]): unknown =>
-  rest.length ? rest.forEach((x) => permute([...xs, x], rest.filter((y) => y !== x))) : ORDERS.push(xs);
-permute([], [0, 1, 2, 3]);
-
 /**
- * The best assignment of a team of four to the four races, by points per race (`ratings.json`
- * by default): `order[i]` is the race `team[i]` plays in.
+ * The best assignment of racers to races, one each, by points per race (`ratings.json` by
+ * default): `order[i]` is the race `team[i]` plays in.
  */
-export function assign(team: Name[], points: Record<Name, number[]> = RATINGS.points) {
+export function assign(team: Name[], points: Record<Name, number[]> = RATINGS.points, races = [0, 1, 2, 3].slice(4 - team.length)) {
   let value = -Infinity;
-  let order = ORDERS[0];
-  for (const o of ORDERS) {
-    const v = o.reduce((s, race, i) => s + points[team[i]][race], 0);
-    if (v > value) [value, order] = [v, o];
-  }
+  let order: number[] = [];
+  const go = (i: number, left: number[], v: number, o: number[]) => {
+    if (i === team.length) {
+      if (v > value) [value, order] = [v, o];
+      return;
+    }
+    for (const race of left) go(i + 1, left.filter((x) => x !== race), v + points[team[i]][race], [...o, race]);
+  };
+  go(0, races, 0, []);
   return { value, order };
 }
 
@@ -604,6 +603,11 @@ export type GameOptions = {
   teams?: Name[][];
   /** A player's draft pick from `row`, given every team so far; undefined picks by rating. */
   pick?: (player: number, row: Name[], teams: Name[][]) => Name | undefined;
+  /**
+   * A player's racer for race `race` (0–3) from `hands[player]`, given everyone's remaining hands
+   * and the scores so far; undefined plays the best race order for the rest of the hand.
+   */
+  choose?: (player: number, hands: Name[][], race: number, scores: number[]) => Name | undefined;
   schedule?: Track[];
   log?: boolean;
 };
@@ -618,8 +622,9 @@ export type GameResult = {
 };
 
 /**
- * Snake drafts twice by rating (or uses `teams`), plays each team in its best race order, then
- * runs four races and scores them.
+ * Snake drafts twice by rating (or uses `teams`, in race order), then runs four races, each
+ * player choosing a racer before each one, and scores them. `teams` in the result is the order
+ * racers were played in.
  */
 export function playGame(o: GameOptions): GameResult {
   const rng = o.rng ?? Math.random;
@@ -644,11 +649,10 @@ export function playGame(o: GameOptions): GameResult {
       }
       first = (first + 1) % o.players;
     }
-    teams = drafted.map((t) => {
-      const { order } = assign(t);
-      return [0, 1, 2, 3].map((race) => t[order.indexOf(race)]);
-    });
+    teams = drafted;
   }
+  const hands = teams.map((t) => [...t]);
+  const played: Name[][] = teams.map(() => []);
   const scores = teams.map(() => 0);
   const races: RaceResult[] = [];
   const logs: string[][] = [];
@@ -656,8 +660,20 @@ export function playGame(o: GameOptions): GameResult {
   let supply = BRONZE;
   let first = Math.floor(rng() * o.players);
   for (let i = 0; i < schedule.length; i++) {
+    // Everyone reveals at once, so each choice sees only the hands and scores so far.
+    const picks = hands.map((hand, p) => {
+      if (o.teams) return hand[0];
+      const pick = o.choose?.(p, hands, i, scores);
+      if (pick) return pick;
+      const { order } = assign(hand, RATINGS.points, [0, 1, 2, 3].slice(i));
+      return hand[order.indexOf(i)];
+    });
+    picks.forEach((pick, p) => {
+      hands[p].splice(hands[p].indexOf(pick), 1);
+      played[p].push(pick);
+    });
     const race = new Race({
-      racers: teams.map((t) => t[i]),
+      racers: picks,
       track: schedule[i],
       rng,
       policy,
@@ -682,5 +698,5 @@ export function playGame(o: GameOptions): GameResult {
     races.push(result);
     logs.push(race.log ?? []);
   }
-  return { teams, drafters, scores, races, logs };
+  return { teams: played, drafters, scores, races, logs };
 }
