@@ -43,6 +43,26 @@ test("random races finish, except rare rules deadlocks", () => {
   assert.equal(seen.size, NAMES.length);
 });
 
+test("variants: your second racer counts as another racer, but not as another player's", () => {
+  // Inchworm eats its own teammate's 1.
+  let race = setup(["Banana", "Inchworm"], [0, 0], [1], { players: [0, 0] });
+  race.turn(race.racers[0]);
+  assert.deepEqual(race.racers.map((r) => r.pos), [0, 1]);
+  // Hypnotist doesn't pull back its own player's racer.
+  race = setup(["Hypnotist", "Banana"], [0, 10], [1], { players: [0, 0] });
+  race.turn(race.racers[0]);
+  assert.deepEqual(race.racers.map((r) => r.pos), [1, 10]);
+});
+
+test("variants draft 8 racers each and race two at a time", () => {
+  for (const players of [2, 3]) {
+    const game = playGame({ players, double: true, rng: mulberry32(players) });
+    assert.ok(game.teams.every((t) => t.length === 8));
+    assert.ok(game.races.every((r) => r.racers.length === 2 * players));
+    assert.equal(new Set(game.teams.flat()).size, 8 * players);
+  }
+});
+
 test("full games score four races", () => {
   const rng = mulberry32(7);
   for (let i = 0; i < 500; i++) {

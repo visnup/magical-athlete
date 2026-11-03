@@ -616,6 +616,8 @@ export type GameOptions = {
   choose?: (player: number, hands: Name[][], race: number, scores: number[]) => Name | undefined;
   schedule?: Track[];
   log?: boolean;
+  /** The 2-player and 3-player variants: each player drafts 8 and races two at a time. */
+  double?: boolean;
 };
 
 export type GameResult = {
@@ -644,11 +646,16 @@ export function playGame(o: GameOptions): GameResult {
   } else {
     const drafted: Name[][] = Array.from({ length: o.players }, () => []);
     let first = Math.floor(rng() * o.players);
-    for (let round = 0; round < 2; round++) {
-      const row = deck.splice(0, 2 * o.players);
+    // Snake drafts of rows of 2 per player, or in the variants, 8 cards twice for 2 players and 6
+    // cards four times for 3.
+    const rows = !o.double ? [2, 2].map((k) => k * o.players) : o.players === 2 ? [8, 8] : [6, 6, 6, 6];
+    for (const [round, size] of rows.entries()) {
+      const row = deck.splice(0, size);
       const order = Array.from({ length: o.players }, (_, i) => (first + i) % o.players);
       if (round === 0) drafters = [...order];
-      for (const p of [...order, ...order.reverse()]) {
+      const snake = [...order, ...[...order].reverse()];
+      for (let k = 0; row.length; k++) {
+        const p = snake[k % snake.length];
         const pick = o.pick?.(p, row, drafted) ?? best(shuffle(row, rng), policy.rating);
         row.splice(row.indexOf(pick), 1);
         drafted[p].push(pick);
@@ -657,6 +664,7 @@ export function playGame(o: GameOptions): GameResult {
     }
     teams = drafted;
   }
+  const each = o.double ? 2 : 1;
   const hands = teams.map((t) => [...t]);
   const played: Name[][] = teams.map(() => []);
   const scores = teams.map(() => 0);
@@ -668,18 +676,20 @@ export function playGame(o: GameOptions): GameResult {
   for (let i = 0; i < schedule.length; i++) {
     // Everyone reveals at once, so each choice sees only the hands and scores so far.
     const picks = hands.map((hand, p) => {
-      if (o.teams) return hand[0];
-      const pick = o.choose?.(p, hands, i, scores);
-      if (pick) return pick;
-      const { order } = assign(hand, RATINGS.points, [0, 1, 2, 3].slice(i));
-      return hand[order.indexOf(i)];
+      if (o.teams) return hand.slice(0, each);
+      const pick = each === 1 ? o.choose?.(p, hands, i, scores) : undefined;
+      if (pick) return [pick];
+      const races = [0, 1, 2, 3].slice(i).flatMap((race) => Array(each).fill(race));
+      const { order } = assign(hand, RATINGS.points, races);
+      return hand.filter((_, k) => order[k] === i);
     });
-    picks.forEach((pick, p) => {
-      hands[p].splice(hands[p].indexOf(pick), 1);
-      played[p].push(pick);
+    picks.forEach((ps, p) => {
+      for (const pick of ps) hands[p].splice(hands[p].indexOf(pick), 1);
+      played[p].push(...ps);
     });
     const race = new Race({
-      racers: picks,
+      racers: picks.flat(),
+      players: picks.flatMap((ps, p) => ps.map(() => p)),
       track: schedule[i],
       rng,
       policy,
@@ -687,20 +697,29 @@ export function playGame(o: GameOptions): GameResult {
       deck,
       bank: scores,
       supply,
-      first,
+      first: first * each,
       log: o.log,
     });
     const result = race.run();
     deck = race.deck;
     supply = race.supply;
+    const gained = teams.map(() => 0);
     result.finishers.forEach((seat, place) => {
-      scores[seat] += [GOLD, SILVER][place]?.[i] ?? 0;
+      gained[result.racers[seat].player] += [GOLD, SILVER][place]?.[i] ?? 0;
     });
-    for (const r of result.racers) scores[r.seat] += r.bronze;
+    for (const r of result.racers) gained[r.player] += r.bronze;
+    gained.forEach((g, p) => (scores[p] += g));
     const winner = result.racers.find((r) => r.place === 1);
     if (winner) winners.push(winner.name);
-    const out = result.racers.filter((r) => r.eliminated !== null).sort((a, b) => a.eliminated! - b.eliminated!);
-    first = (out[0] ?? result.racers.filter((r) => r.place === null).sort((a, b) => a.pos - b.pos)[0] ?? result.racers[0]).seat;
+    if (o.double) {
+      // The player with fewer points in the last race goes first; ties roll off.
+      const low = Math.min(...gained);
+      const tied = gained.map((g, p) => [g, p]).filter(([g]) => g === low).map(([, p]) => p);
+      first = tied[Math.floor(rng() * tied.length)];
+    } else {
+      const out = result.racers.filter((r) => r.eliminated !== null).sort((a, b) => a.eliminated! - b.eliminated!);
+      first = (out[0] ?? result.racers.filter((r) => r.place === null).sort((a, b) => a.pos - b.pos)[0] ?? result.racers[0]).player;
+    }
     races.push(result);
     logs.push(race.log ?? []);
   }
