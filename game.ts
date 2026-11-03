@@ -22,12 +22,30 @@ export type Track = {
 
 export const MILD_MILE: Track = { name: "Mild Mile", length: 30, corner2: 15, spaces: {} };
 
-// The rulebook doesn't print the Wild Wilds layout (arrows, rocks, stars), so
-// it's left for the caller to supply as a Track.
+/** From the board; the rulebook doesn't show it. Arrows point back along the bottom row at 16 and 24. */
+export const WILD_WILDS: Track = {
+  name: "Wild Wilds",
+  length: 30,
+  corner2: 15,
+  spaces: {
+    1: { star: true },
+    5: { trip: true },
+    7: { arrow: 3 },
+    11: { arrow: 1 },
+    13: { star: true },
+    16: { arrow: -4 },
+    17: { trip: true },
+    23: { arrow: 2 },
+    24: { arrow: -2 },
+    26: { trip: true },
+  },
+};
 
 /** Gold and silver chip values, by race. */
 export const GOLD = [3, 4, 4, 5];
 export const SILVER = [2, 3, 3, 4];
+/** Points in bronze chips in the box, shared by the whole game: 16 one-point and 9 three-point. */
+export const BRONZE = 16 + 9 * 3;
 
 export type Racer = {
   name: Name;
@@ -106,6 +124,8 @@ export type RaceOptions = {
   deck?: Name[];
   /** Points each seat already has, so Sisyphus can't lose chips that don't exist. */
   bank?: number[];
+  /** Bronze points left in the box. */
+  supply?: number;
   first?: number;
   log?: boolean;
 };
@@ -134,6 +154,7 @@ export class Race {
   winners: Name[];
   deck: Name[];
   bank: number[];
+  supply: number;
   log: string[] | null;
   current: Racer;
   finishers: Racer[] = [];
@@ -154,6 +175,7 @@ export class Race {
     this.winners = o.winners ?? [];
     this.deck = o.deck ?? NAMES.filter((n) => !o.racers.includes(n));
     this.bank = o.bank ?? o.racers.map(() => 0);
+    this.supply = o.supply ?? BRONZE;
     this.log = o.log ? [] : null;
     this.racers = o.racers.map((name, seat) => ({
       name, seat, pos: 0, tripped: false, place: null, eliminated: null,
@@ -250,9 +272,9 @@ export class Race {
     return this.racers.map((r) => `${r.pos}${r.tripped ? "t" : ""}${this.active(r) ? "" : "x"}`).join(",");
   }
 
-  /** Runs a power and lets others react to it, completing an infinite loop only once. */
-  use(owner: Racer, p: Name, effect: () => void = () => {}) {
-    const key = `${owner.seat}:${p}:${this.state()}`;
+  /** Runs `effect` unless it would repeat itself, completing an infinite loop only once. */
+  once(key: string, effect: () => void) {
+    key = `${key}:${this.state()}`;
     if (this.seen.has(key) || this.depth > MAX_DEPTH) {
       this.loops++;
       return;
@@ -261,14 +283,28 @@ export class Race {
     this.seen.add(key);
     this.depth++;
     try {
-      owner.uses++;
-      this.say(`${owner.name}: ${p}`);
       effect();
-      for (const [o, , h] of this.all()) if (this.active(o)) h.onPower?.(this, o, owner);
     } finally {
       this.seen.delete(key);
       this.depth--;
     }
+  }
+
+  /** Runs a power and lets others react to it. */
+  use(owner: Racer, p: Name, effect: () => void = () => {}) {
+    this.once(`${owner.seat}:${p}`, () => {
+      owner.uses++;
+      this.say(`${owner.name}: ${p}`);
+      effect();
+      for (const [o, , h] of this.all()) if (this.active(o)) h.onPower?.(this, o, owner);
+    });
+  }
+
+  /** Takes up to `n` bronze points from the box, or returns -`n`. */
+  bronze(r: Racer, n: number) {
+    n = Math.min(n, this.supply);
+    r.bronze += n;
+    this.supply -= n;
   }
 
   trip(r: Racer) {
@@ -353,9 +389,9 @@ export class Race {
     if (!this.active(r)) return;
     const at = r.pos;
     const space = this.track.spaces[at];
-    if (space?.star) r.bronze++;
+    if (space?.star) this.bronze(r, 1);
     if (space?.trip) this.trip(r);
-    if (space?.arrow) this.move(r, space.arrow);
+    if (space?.arrow) this.once(`${r.seat}:arrow`, () => this.move(r, space.arrow!));
     for (const [o, , h] of this.all()) if (this.active(o)) h.onArrive?.(this, o, r, at, passed);
   }
 
@@ -500,7 +536,7 @@ export type GameResult = {
 export function playGame(o: GameOptions): GameResult {
   const rng = o.rng ?? Math.random;
   const policy = { ...defaultPolicy, ...o.policy };
-  const schedule = o.schedule ?? [MILD_MILE, MILD_MILE, MILD_MILE, MILD_MILE];
+  const schedule = o.schedule ?? [MILD_MILE, WILD_WILDS, MILD_MILE, WILD_WILDS];
   let deck = shuffle([...NAMES], rng);
   let teams = o.teams;
   if (teams) {
@@ -524,6 +560,7 @@ export function playGame(o: GameOptions): GameResult {
   const races: RaceResult[] = [];
   const logs: string[][] = [];
   const winners: Name[] = [];
+  let supply = BRONZE;
   let first = Math.floor(rng() * o.players);
   for (let i = 0; i < schedule.length; i++) {
     const race = new Race({
@@ -534,11 +571,13 @@ export function playGame(o: GameOptions): GameResult {
       winners,
       deck,
       bank: scores,
+      supply,
       first,
       log: o.log,
     });
     const result = race.run();
     deck = race.deck;
+    supply = race.supply;
     result.finishers.forEach((seat, place) => {
       scores[seat] += [GOLD, SILVER][place]?.[i] ?? 0;
     });

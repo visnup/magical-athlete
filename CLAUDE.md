@@ -12,13 +12,15 @@ TypeScript directly.
   `--mode game` runs whole games; `--csv` prints one row per racer per race (or per player per
   game) instead; `--log` prints every event.
 - `node --test` runs `game.test.ts`, which includes the rulebook's Romantic/Scoocher/Banana
-  example, and `racers.test.ts`, one test per card named for its text, plus the rulebook's notes.
+  example, `racers.test.ts`, one test per card named for its text, plus the rulebook's notes, and
+  `terms.test.ts`, one per term and Wild Wilds space on p. 21.
 - `TODO.md` is the plan: checking the model first, then the analysis.
 
 ## Not in the rulebook
 
-- **Wild Wilds layout.** The rules describe arrows, rocks and stars but never show where they are,
-  so every race defaults to the Mild Mile. Pass a `Track` in `schedule` once the layout is known.
+- **Wild Wilds layout.** The rules describe arrows, rocks and stars but never show where they are.
+  `WILD_WILDS` is read from a photo of the board. Games alternate Mild, Wild, Mild, Wild, and
+  `sim.ts --race k` races on race k's track.
 - **Chip values.** Gold 3/4/4/5 and silver 2/3/3/4 by race, from the physical chips.
 - **Mild Mile geometry.** Start is space 0, 29 is the last space, and 30 is across the finish.
   Blimp's second corner is space 15.
@@ -31,8 +33,12 @@ TypeScript directly.
   partway through the reactions doesn't also react with its new power.
 - Scoocher moves after every other racer's power, including passive ones every turn (Blimp, Hare,
   Coach, Gunk per -1, Party Animal) and each Leaptoad skip.
-- An infinite loop is a power repeating with identical positions within its own chain of
-  triggers. That's cut after one pass (`loops` counts them).
+- An infinite loop is a power or track arrow repeating with identical positions within its own
+  chain of triggers. That's cut after one pass (`loops` counts them).
+- Bronze chips run out: the box holds 43 points of them (16 ones, 9 threes) for the whole game,
+  and Sisyphus's lost chips go back. Without the cap, Scoocher and Suckerfish riding each other
+  around the Wild Wilds' 12–16 cycle (16's arrow goes back to 12) farm the star on 13 for about
+  21 bronze per race.
 - A tripped racer skips "before my main move" powers too.
 - Heckler counts its own turns.
 - Hare doesn't skip when it's the only racer left, which would otherwise never end.

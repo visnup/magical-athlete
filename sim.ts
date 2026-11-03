@@ -1,5 +1,5 @@
 import { parseArgs } from "node:util";
-import { GOLD, mulberry32, NAMES, type Name, playGame, Race, shuffle, SILVER } from "./game.ts";
+import { GOLD, MILD_MILE, mulberry32, NAMES, type Name, playGame, Race, shuffle, SILVER, WILD_WILDS } from "./game.ts";
 
 const { values: args } = parseArgs({
   options: {
@@ -17,6 +17,7 @@ const players = Number(args.players);
 const rng = mulberry32(Number(args.seed));
 const gold = GOLD[Number(args.race) - 1];
 const silver = SILVER[Number(args.race) - 1];
+const track = [MILD_MILE, WILD_WILDS][(Number(args.race) - 1) % 2];
 
 type Stats = { n: number; first: number; second: number; bronze: number; trips: number; uses: number; out: number; turns: number; score: number; wins: number };
 const stats = new Map<Name, Stats>(
@@ -33,7 +34,7 @@ if (args.csv) {
 
 for (let i = 0; i < n; i++) {
   if (args.mode === "race") {
-    const race = new Race({ racers: shuffle([...NAMES], rng).slice(0, players), rng, first: 0, log: args.log });
+    const race = new Race({ racers: shuffle([...NAMES], rng).slice(0, players), track, rng, first: 0, log: args.log });
     const result = race.run();
     if (args.log) console.log(race.log!.join("\n"));
     loops += result.loops;
@@ -81,7 +82,7 @@ if (!args.csv && !args.log) {
   const avg = (x: number, d: number) => (x / d).toFixed(2).padStart(6);
   const rows = [...stats].filter(([, s]) => s.n);
   if (args.mode === "race") {
-    console.log(`${n} races of ${players}, scored as race ${args.race} (${gold}/${silver}); an even share is ${avg((gold + silver) / players, 1)} points\n`);
+    console.log(`${n} races of ${players} on the ${track.name}, scored as race ${args.race} (${gold}/${silver}); an even share is ${avg((gold + silver) / players, 1)} points\n`);
     console.log(`${"racer".padEnd(17)}points   1st    2nd  bronze  trips   uses  out  turns`);
     for (const [name, s] of rows.sort(([, a], [, b]) => b.score / b.n - a.score / a.n)) {
       console.log(`${name.padEnd(17)}${avg(s.score, s.n)}${pct(s.first, s.n)} ${pct(s.second, s.n)} ${avg(s.bronze, s.n)} ${avg(s.trips, s.n)} ${avg(s.uses, s.n)} ${pct(s.out, s.n)} ${avg(s.turns, s.n)}`);

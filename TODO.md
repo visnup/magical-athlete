@@ -23,4 +23,4 @@
 - [ ] Seat order: what going first is worth, and so what the last-place-starts rule is worth.
 - [ ] Twin: rate racers by points per race, then give Twin k − 1 earlier winners drawn from the
       winner distribution and left out of the lineup. Iterate until the order stops changing.
-- [ ] Wild Wilds: needs the layout of arrows, rocks and stars from the board.
+- [x] Wild Wilds: layout from the board.

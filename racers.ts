@@ -482,7 +482,7 @@ export const RACERS: Record<Name, Powers> = {
   "Lovable Loser": {
     beforeMain(race, me) {
       const last = race.last();
-      if (last.length === 1 && last[0] === me) race.use(me, "Lovable Loser", () => me.bronze++);
+      if (last.length === 1 && last[0] === me) race.use(me, "Lovable Loser", () => race.bronze(me, 1));
     },
   },
 
@@ -620,13 +620,13 @@ export const RACERS: Record<Name, Powers> = {
    * card. Not modeled; see CLAUDE.md.)
    */
   "Sisyphus": {
-    beforeRace(_race, me) {
-      me.bronze += 4;
+    beforeRace(race, me) {
+      race.bronze(me, 4);
     },
     onRoll(race, me, roller, roll) {
       if (me !== roller || roll !== 6) return;
       race.use(me, "Sisyphus", () => {
-        if (race.bank[me.seat] + me.bronze > 0) me.bronze--;
+        if (race.bank[me.seat] + me.bronze > 0) race.bronze(me, -1);
         race.warp(me, 0);
       });
       return true;
