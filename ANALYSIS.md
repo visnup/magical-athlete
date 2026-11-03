@@ -372,6 +372,30 @@ would carry across the line 0.88, also declining late in the race 0.76, never 0.
 no earlier winners to copy in a standalone race, and Egg, Mastermind and Copycat pick at random
 without a rating. "Racers that pick racers" above measures them properly.
 
+## Against real play and another simulator
+
+What players report on BoardGameGeek agrees with the model on the main points:
+
+- **Scoocher is the strongest racer, more so at bigger tables.** In
+  ["Is Scoocher OP?"](https://boardgamegeek.com/thread/3635824), players describe it running away
+  with races and "worse with higher player counts", but beatable with Hypnotist or Flip Flop
+  around. One player names Mastermind, Centaur and Third Wheel as "really quite bad" and Scoocher,
+  Gunk and Suckerfish as "game-warpingly good."
+- **The Wild Wilds star farm happens at real tables.** In the same thread, a Scoocher stuck
+  around the −4 arrow kept scooching onto the star and "amassed a whopping 14 points."
+- **The spread is deliberate.** Richard Garfield, in that thread: "the intent was to keep a pretty
+  big spread in power … Balanced for boredom, not power."
+
+An independent simulator, [MagSim](https://github.com/pschonev/magsim) by Philipp Schoneville
+([thread](https://boardgamegeek.com/thread/3673716)), reaches the same ranking: Scoocher far
+ahead, then Romantic, Lovable Loser and Sisyphus; Heckler, Flip Flop and Legs strong; Blimp,
+Banana and Alchemist weak; and Twin the best of the racers that copy, since it copies a strong
+earlier winner. Its author also found a Scoocher–Copycat loop on the Mild Mile that wins on the
+first turn, which MagSim leaves out of its data. MagSim has its own rules readings, so the two
+agreeing is evidence the ranking doesn't hinge on ours.
+
+Not done: comparing per-racer numbers with MagSim's dataset, or with logged real games.
+
 ## What's still unsettled, and how much it matters
 
 `node sensitivity.ts` reruns races 1 and 2 with each open reading flipped. None matters beyond its

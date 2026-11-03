@@ -15,9 +15,11 @@
 - [ ] Untested reading: Garfield queues triggers and resolves them even if the board has changed
       since; the engine re-checks each one. Testing it means splitting hooks into a condition and
       an effect.
-- [ ] Compare against real play: what BoardGameGeek players say about the strongest racers, or a
-      few logged real games. Scoocher winning 66% of 5-player Mild Mile races is the first thing
-      to explain.
+- [x] Compare against real play: BoardGameGeek players and an independent simulator (MagSim) agree
+      on the ranking, Scoocher's dominance at bigger tables, and the Wild Wilds star farm. In
+      `ANALYSIS.md`.
+- [ ] Compare per-racer numbers with MagSim's published dataset, and look at its Scoocher–Copycat
+      first-turn loop on the Mild Mile.
 
 ## Analysis
 
