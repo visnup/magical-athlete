@@ -156,6 +156,8 @@ export type RaceOptions = {
   first?: number;
   log?: boolean;
   rules?: Partial<Rules>;
+  /** Snapshot each turn so choices can be decided by `Race.playout`. */
+  playouts?: boolean;
 };
 
 /** Readings of rules that are still unsettled, for `sensitivity.ts`. */
@@ -213,6 +215,13 @@ export class Race {
   seen = new Set<string>();
   depth = 0;
   hooks = new Map<string, Hook[]>();
+  /** For `playout`: the race as this turn started, and the dice and choices since. */
+  playouts: boolean;
+  snapshot: Race | null = null;
+  rolled: number[] = [];
+  chosen: (readonly [seat: number, power: Name, choice: unknown])[] = [];
+  /** Choices a playout replays or forces, used in order. */
+  forced: (readonly [seat: number, power: Name, choice: unknown])[] = [];
 
   constructor(o: RaceOptions) {
     this.track = o.track ?? MILD_MILE;
@@ -224,6 +233,7 @@ export class Race {
     this.bank = o.bank ?? o.racers.map(() => 0);
     this.supply = o.supply ?? BRONZE;
     this.rules = { ...RULES, ...o.rules };
+    this.playouts = o.playouts ?? false;
     this.log = o.log ? [] : null;
     this.racers = o.racers.map((name, seat) => ({
       name, seat, player: o.players?.[seat] ?? seat, pos: 0, tripped: false, place: null, eliminated: null,
@@ -233,7 +243,52 @@ export class Race {
   }
 
   d6() {
-    return this.dice.shift() ?? 1 + Math.floor(this.rng() * 6);
+    const roll = this.dice.shift() ?? 1 + Math.floor(this.rng() * 6);
+    if (this.playouts) this.rolled.push(roll);
+    return roll;
+  }
+
+  /** A copy of this race to play on, with its own random numbers and no dice scripted. */
+  clone(rng: () => number): Race {
+    const c: Race = Object.assign(Object.create(Race.prototype), this);
+    c.racers = this.racers.map((r) => ({ ...r, copied: [...r.copied] }));
+    const same = (r: Racer) => c.racers[r.seat];
+    c.current = same(this.current);
+    c.finishers = this.finishers.map(same);
+    c.queue = this.queue.map(same);
+    c.rng = rng;
+    c.dice = [];
+    c.winners = [...this.winners];
+    c.deck = [...this.deck];
+    c.bank = [...this.bank];
+    c.afterMain = [];
+    c.seen = new Set();
+    c.depth = 0;
+    c.hooks = new Map();
+    c.log = null;
+    c.playouts = false;
+    c.snapshot = null;
+    c.forced = [];
+    return c;
+  }
+
+  /**
+   * Plays the rest of the race `k` times from the start of this turn: the same dice and choices
+   * up to now, then `me` choosing `choice` the next time its power `p` asks, then fresh dice and
+   * default choices. Returns `value` of each result, averaged.
+   */
+  playout(me: Racer, p: Name, choice: unknown, k: number, value: (result: RaceResult, me: Racer) => number) {
+    let total = 0;
+    for (let i = 0; i < k; i++) {
+      const sim = this.snapshot!.clone(mulberry32(Math.floor(this.rng() * 2 ** 32)));
+      // A choice of racer means the same seat in the copy.
+      const own = (x: unknown) => (x && typeof x === "object" && "seat" in x ? sim.racers[(x as Racer).seat] : x);
+      sim.dice = [...this.rolled];
+      sim.forced = [...this.chosen, [me.seat, p, choice] as const].map(([seat, q, c]) => [seat, q, own(c)] as const);
+      const result = sim.race(sim.current);
+      total += value(result, result.racers[me.seat]);
+    }
+    return total / k;
   }
 
   say(s: string) {
@@ -317,7 +372,11 @@ export class Race {
   }
 
   choose(me: Racer, p: Name, ...args: any[]): any {
-    return (this.policy.choose[p] ?? RACERS[p].choose)!(this, me, ...args);
+    const i = this.forced.findIndex(([seat, q]) => seat === me.seat && q === p);
+    if (i >= 0) return this.forced.splice(i, 1)[0][2];
+    const choice = (this.policy.choose[p] ?? RACERS[p].choose)!(this, me, ...args);
+    if (this.playouts) this.chosen.push([me.seat, p, choice]);
+    return choice;
   }
 
   best(names: Name[]) {
@@ -511,6 +570,11 @@ export class Race {
 
   turn(r: Racer) {
     this.current = r;
+    if (this.playouts) {
+      this.snapshot = this.clone(this.rng);
+      this.rolled = [];
+      this.chosen = [];
+    }
     const start = r.pos;
     r.turns++;
     this.say(`— ${r.name}'s turn at ${start}`);
@@ -583,17 +647,28 @@ export class Race {
   }
 
   run(): RaceResult {
-    let stalled = false;
     try {
       this.beforeRace();
+    } catch (e) {
+      if (!(e instanceof RaceOver)) throw e;
+    }
+    return this.race();
+  }
+
+  /** Runs turns until the race ends, starting with `next`'s turn if given. */
+  race(next?: Racer): RaceResult {
+    let stalled = false;
+    try {
       let seat = this.current.seat;
       const n = this.racers.length;
-      while (this.onTrack().length) {
+      // A race can end before the first turn, from Duelist's duels on the Start.
+      while (this.onTrack().length && this.finishers.length < 2) {
         if (++this.turns > MAX_TURNS) {
           stalled = true;
           break;
         }
-        let r = this.queue.shift();
+        let r = next ?? this.queue.shift();
+        next = undefined;
         while (r && !this.active(r)) r = this.queue.shift();
         if (!r) {
           for (let i = 0; i < n; i++) {

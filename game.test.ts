@@ -63,6 +63,25 @@ test("variants draft 8 racers each and race two at a time", () => {
   }
 });
 
+test("playouts replay this turn, force a choice, and play the rest out", () => {
+  let wins: number[] = [];
+  const race = new Race({
+    racers: ["Legs", "Banana"],
+    rng: mulberry32(3),
+    playouts: true,
+    policy: {
+      choose: {
+        Legs: (r, me) => {
+          if (r.snapshot && !wins.length) wins = [true, false].map((c) => r.playout(me, "Legs", c, 200, (_, x) => +(x.place === 1)));
+          return true;
+        },
+      },
+    },
+  });
+  race.run();
+  assert.ok(wins[0] > wins[1], `${wins}`);
+});
+
 test("full games score four races", () => {
   const rng = mulberry32(7);
   for (let i = 0; i < 500; i++) {
