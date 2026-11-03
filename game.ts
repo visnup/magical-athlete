@@ -602,6 +602,8 @@ export type GameOptions = {
   policy?: Partial<Policy>;
   /** Racers per player in race order. Drafted when omitted. */
   teams?: Name[][];
+  /** A player's draft pick from `row`, given every team so far; undefined picks by rating. */
+  pick?: (player: number, row: Name[], teams: Name[][]) => Name | undefined;
   schedule?: Track[];
   log?: boolean;
 };
@@ -636,7 +638,7 @@ export function playGame(o: GameOptions): GameResult {
       const order = Array.from({ length: o.players }, (_, i) => (first + i) % o.players);
       if (round === 0) drafters = [...order];
       for (const p of [...order, ...order.reverse()]) {
-        const pick = best(shuffle(row, rng), policy.rating);
+        const pick = o.pick?.(p, row, drafted) ?? best(shuffle(row, rng), policy.rating);
         row.splice(row.indexOf(pick), 1);
         drafted[p].push(pick);
       }

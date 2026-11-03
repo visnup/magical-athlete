@@ -38,7 +38,7 @@
       Scoocher" check only matters here.
 - [ ] Smarter choices by playing out each option, rather than comparing hand-written ones. Needs
       the engine to save and restore a race in the middle of a turn.
-- [ ] `sim.ts` on every core, like the other scripts (its `--csv` and `--log` output stream).
+- [x] `sim.ts` on every core, like the other scripts. `--csv` and `--log` still run on one core.
 - [x] Points distributions per racer, not just averages, for when you need to catch up
       (`spread.ts`).
 - [x] Seat order: what going first is worth, and so what the last-place-starts rule is worth
@@ -46,6 +46,7 @@
 - [x] Twin: rate racers by points per race, then give Twin k − 1 earlier winners drawn from the
       winner distribution and left out of the lineup (`twin.ts`). One pass; the order outside the
       pickers barely moves, so iterating further isn't worth it.
-- [ ] Give `defaultPolicy.rating` a built-in table from these runs, so Egg, Mastermind, Copycat and
-      Twin pick sensibly everywhere, and rerun the tables.
+- [x] Give `defaultPolicy.rating` a built-in table from these runs, so Egg, Mastermind, Copycat and
+      Twin pick sensibly everywhere (`ratings.json`). The tables in `ANALYSIS.md` other than race
+      order and whole games predate it.
 - [x] Wild Wilds: layout from the board.
