@@ -21,7 +21,8 @@
 ## Analysis
 
 - [x] Player count: the points table for 3 to 6 players (`players.ts`, in `ANALYSIS.md`).
-- [ ] Matchups: each racer's points with and without each other racer in the race (630 pairs).
+- [x] Matchups: each racer's points with and without each other racer in the race (`matchups.ts`,
+      in `ANALYSIS.md`).
 - [ ] Better choices for optional powers: decide by playing out a few hundred random finishes per
       option, and compare against `defaultPolicy`.
 - [ ] Race order: a team's value is its best assignment of four racers to four races (24

@@ -18,6 +18,8 @@ simultaneous arrivals, and fixed Sisyphus's misprinted note.
   `--mode game` runs whole games; `--csv` prints one row per racer per race (or per player per
   game) instead; `--log` prints every event.
 - `players.ts`: each racer's points as a multiple of a fair share at 3 to 6 players.
+- `matchups.ts`: how each racer's points change with each other racer in the race; `--csv` for
+  every pair.
 - `sensitivity.ts`: reruns the points table with each unsettled rule (`Rules` in `game.ts`) read
   the other way and lists the racers that move.
 - `node --test` runs `game.test.ts`, which includes the rulebook's Romantic/Scoocher/Banana

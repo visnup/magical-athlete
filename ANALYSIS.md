@@ -88,6 +88,47 @@ Mild Mile (1.26 to 0.57), since with more racers it's rarely the one in last pla
 **At 3 players the field flattens.** Most racers sit between 0.8 and 1.3 fair shares. Only Lovable
 Loser stands out, and Twin, Mastermind, Third Wheel and Huge Baby trail.
 
+## Matchups
+
+`node matchups.ts` (a million races of 5 per track) compares each racer's points when another
+racer is in the race with when it isn't. Largest effects, in race-1 or race-2 points:
+
+| racer | with | Mild Mile | Wild Wilds |
+| --- | --- | --- | --- |
+| Suckerfish | Scoocher | | +6.14 (2.87 → 9.01) |
+| Scoocher | Suckerfish | | +5.04 (6.59 → 11.63) |
+| Copycat | Scoocher | +0.53 | +5.01 (2.29 → 7.31) |
+| Scoocher | Gunk | +0.57 | +3.65 |
+| Copycat | Flip Flop | +0.77 (1.20 → 1.97) | |
+| Heckler | Gunk, Banana, Baba Yaga | +0.61 to +0.76 | |
+| Lovable Loser | Gunk, Hypnotist | +0.63 to +0.76 | |
+| Huge Baby | M.O.U.T.H. | +0.71 (0.41 → 1.12) | |
+| Lovable Loser | Sisyphus | −1.50 (3.31 → 1.81) | −1.29 |
+| Scoocher | M.O.U.T.H. | −0.58 | −2.75 (7.47 → 4.72) |
+| Dicemonger | Scoocher | −0.80 (1.67 → 0.87) | |
+| Legs, Heckler, Skipper | Dicemonger | −0.66 to −0.71 | |
+
+**Scoocher feeds on other powers, so anything that adds them helps it.** Gunk's -1 every turn,
+Copycat, Romantic, Hypnotist and Party Animal all add triggers. Racers whose powers rarely go off
+(Twin without a winner to copy, Mastermind, Alchemist, Rocket Scientist, Third Wheel) cost it
+over a point a race on the Wild Wilds by taking a seat a busier racer would have had.
+
+**M.O.U.T.H. is the counter to Scoocher.** Scoocher creeps forward one space at a time and keeps
+stopping next to other racers, which is exactly what M.O.U.T.H. eats. M.O.U.T.H. also counters
+Romantic and Party Animal, which pull racers into pairs.
+
+**Lovable Loser and Sisyphus can't share a race.** Sisyphus keeps warping back to Start, so
+Lovable Loser is rarely alone in last; they also draw on the same bronze chips.
+
+**Heckler likes anything that stalls racers.** Trips (Banana, Baba Yaga) and Gunk's -1 make more
+racers end a turn within one space of where they started, which is Heckler's trigger.
+
+**Dicemonger shares its rerolls with everyone.** Each reroll also moves Scoocher, and it helps
+racers like Legs and Skipper less than it helps their opponents.
+
+**Huge Baby is safe from M.O.U.T.H.** Nothing can stop on Huge Baby's space, so M.O.U.T.H. can't
+eat it, while it eats the racers around it.
+
 ## Findings
 
 **Winning isn't the measure; points are.** Lovable Loser and Sisyphus almost never place but top
