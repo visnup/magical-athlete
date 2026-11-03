@@ -2,7 +2,11 @@
 
 What the simulator says so far. Every number is from the model, which follows the August 2026
 printing of the rulebook and the official rulings in `racers.ts`, and plays optional powers with
-simple greedy choices. None of it has been checked against real games yet.
+simple greedy choices. It agrees with an independent simulator and with what players report (see
+"Against real play"), but hasn't been checked against logged real games.
+
+The points-per-race and race-order tables are current as of the track-aware choices; the
+sections after them were measured along the way and are labelled where an older engine matters.
 
 ## How racers are scored
 
@@ -19,38 +23,40 @@ Race 1, Mild Mile (3/2; a fair share is 1.00):
 
 | racer | points | 1st | 2nd | bronze |
 | --- | --- | --- | --- | --- |
-| Lovable Loser | 3.14 | 4.2% | 9.1% | 2.83 |
-| Sisyphus | 2.88 | 0.3% | 1.3% | 2.85 |
-| Scoocher | 2.37 | 66.4% | 18.8% | 0 |
-| Romantic | 2.06 | 54.2% | 21.6% | 0 |
-| Suckerfish | 1.62 | 30.9% | 34.8% | 0 |
-| Dicemonger | 1.59 | 35.9% | 25.4% | 0 |
+| Lovable Loser | 3.03 | 3.7% | 8.7% | 2.74 |
+| Sisyphus | 2.91 | 0.3% | 1.2% | 2.88 |
+| Scoocher | 2.36 | 64.4% | 21.3% | 0 |
+| Romantic | 2.05 | 54.1% | 21.3% | 0 |
+| Suckerfish | 1.63 | 30.6% | 35.7% | 0 |
+| Egg | 1.59 | 25.8% | 20.8% | 0.40 |
+| Dicemonger | 1.50 | 33.1% | 25.0% | 0 |
 | … | | | | |
-| Blimp | 0.57 | 10.1% | 13.4% | 0 |
-| Centaur | 0.53 | 8.5% | 13.7% | 0 |
-| Huge Baby | 0.50 | 8.0% | 13.1% | 0 |
-| Mastermind | 0.39 | 4.3% | 13.1% | 0 |
-| Twin | 0.29 | 4.0% | 8.5% | 0 |
+| Alchemist | 0.65 | 9.8% | 17.8% | 0 |
+| Blimp | 0.53 | 9.5% | 12.4% | 0 |
+| Centaur | 0.51 | 7.9% | 13.5% | 0 |
+| Huge Baby | 0.46 | 7.1% | 12.2% | 0 |
+| Twin | 0.29 | 3.7% | 8.8% | 0 |
 
 Race 2, Wild Wilds (4/3; a fair share is 1.40):
 
 | racer | points | 1st | 2nd | bronze |
 | --- | --- | --- | --- | --- |
-| Scoocher | 7.20 | 50.2% | 21.5% | 4.55 |
-| Lovable Loser | 3.80 | 5.3% | 10.5% | 3.27 |
-| Sisyphus | 3.67 | 0.6% | 1.7% | 3.59 |
-| Suckerfish | 3.57 | 30.5% | 34.0% | 1.33 |
-| Dicemonger | 3.48 | 26.4% | 22.6% | 1.75 |
-| Heckler | 3.03 | 47.1% | 22.8% | 0.46 |
+| Scoocher | 7.23 | 48.4% | 21.9% | 4.64 |
+| Lovable Loser | 3.70 | 4.8% | 9.8% | 3.21 |
+| Suckerfish | 3.70 | 30.5% | 34.2% | 1.45 |
+| Sisyphus | 3.69 | 0.5% | 2.0% | 3.61 |
+| Dicemonger | 3.38 | 24.4% | 21.3% | 1.76 |
+| Copycat | 3.17 | 32.6% | 23.5% | 1.16 |
 | … | | | | |
-| Centaur | 1.37 | 9.2% | 14.7% | 0.56 |
-| Alchemist | 1.31 | 10.6% | 16.9% | 0.38 |
-| Mastermind | 1.28 | 5.5% | 16.1% | 0.58 |
-| Blimp | 1.25 | 13.6% | 15.4% | 0.25 |
-| Twin | 1.08 | 5.1% | 10.3% | 0.57 |
+| Coach | 1.34 | 11.8% | 17.8% | 0.34 |
+| Alchemist | 1.33 | 9.8% | 16.1% | 0.46 |
+| Centaur | 1.31 | 8.1% | 13.8% | 0.57 |
+| Blimp | 1.18 | 12.4% | 14.2% | 0.26 |
+| Twin | 1.06 | 4.8% | 10.2% | 0.56 |
 
-Whole games (`--mode game`, 20,000 games of 5): a team with Scoocher wins 44.9%, against a fair
-share of 20%. Lovable Loser's teams win 32.6%, Romantic's 29.4% and Sisyphus's 28.8%.
+Twin is last only because a standalone race gives it no earlier winners to copy; with them, it's
+the second-best racer in race 4 (see "Racers that pick racers"). Mastermind and Egg improved once
+they chose by the built-in ratings.
 
 ## Player count
 
@@ -133,26 +139,27 @@ eat it, while it eats the racers around it.
 
 `node lineup.ts` takes each racer's points in each of the four races (100,000 races of 5 each),
 then values a team as its best assignment of four racers to four races. A racer's draft value is
-the average value of random teams it's on, against the average team (8.90 points a game). Twin
+the average value of random teams it's on, against the average team (8.96 points a game). Twin
 copies earlier winners drawn from the earlier races, and the pickers choose by these ratings,
 which `lineup.ts --write` saves to `ratings.json` for the engine to play by.
 
 | racer | race 1 (Mild 3/2) | race 2 (Wild 4/3) | race 3 (Mild 4/3) | race 4 (Wild 5/4) | usually played in | draft value |
 | --- | --- | --- | --- | --- | --- | --- |
-| Scoocher | 2.37 | 7.55 | 3.25 | 8.36 | 4 | +4.83 |
-| Suckerfish | 1.61 | 3.86 | 2.30 | 4.58 | 4 | +1.37 |
-| Twin | 0.28 | 2.77 | 2.11 | 4.58 | 4 (always) | +1.35 |
-| Lovable Loser | 3.06 | 3.73 | 3.20 | 3.87 | 1 | +1.30 |
-| Sisyphus | 2.91 | 3.68 | 2.94 | 3.72 | 1 | +1.17 |
-| Romantic | 2.04 | 2.88 | 2.73 | 3.57 | 3 | +0.76 |
-| Dicemonger | 1.51 | 3.35 | 2.02 | 3.76 | 2 | +0.75 |
-| Copycat | 1.47 | 3.22 | 2.09 | 3.84 | 4 | +0.74 |
-| Egg | 1.66 | 3.16 | 2.08 | 3.63 | 4 | +0.58 |
-| Heckler | 1.43 | 2.89 | 1.93 | 3.60 | 4 | +0.48 |
+| Scoocher | 2.36 | 7.50 | 3.24 | 8.25 | 4 | +4.69 |
+| Twin | 0.29 | 2.82 | 2.13 | 4.67 | 4 (always) | +1.40 |
+| Suckerfish | 1.63 | 3.82 | 2.26 | 4.61 | 4 | +1.35 |
+| Lovable Loser | 3.03 | 3.73 | 3.15 | 3.91 | 1 | +1.27 |
+| Sisyphus | 2.91 | 3.71 | 2.96 | 3.72 | 1 | +1.17 |
+| Romantic | 2.04 | 2.88 | 2.74 | 3.51 | 3 | +0.75 |
+| Copycat | 1.47 | 3.26 | 2.08 | 3.89 | 4 | +0.74 |
+| Dicemonger | 1.51 | 3.35 | 2.02 | 3.77 | 2 | +0.73 |
+| Egg | 1.59 | 3.22 | 2.10 | 3.87 | 4 | +0.71 |
+| Flip Flop | 1.42 | 2.92 | 1.92 | 3.46 | 4 | +0.36 |
+| Heckler | 1.43 | 2.88 | 1.91 | 3.46 | 4 | +0.35 |
 | … | | | | | | |
-| Huge Baby | 0.46 | 1.49 | 0.64 | 1.76 | 2 | −0.93 |
-| Blimp | 0.53 | 1.16 | 0.72 | 1.37 | 1 | −1.01 |
-| Centaur | 0.50 | 1.28 | 0.67 | 1.48 | 1 | −1.01 |
+| Huge Baby | 0.46 | 1.46 | 0.61 | 1.71 | 2 | −0.96 |
+| Blimp | 0.55 | 1.11 | 0.70 | 1.34 | 1 | −1.00 |
+| Centaur | 0.51 | 1.26 | 0.67 | 1.48 | 1 | −1.02 |
 
 **The Wild Wilds races are worth more than the Mild Mile races for everyone.** Stars add bronze,
 and race 2 (4/3) on the Wild Wilds out-earns race 3 (4/3) on the Mild Mile at the same chip
@@ -272,22 +279,22 @@ plays each team in its best race order (`ratings.json`).
 
 | first-round pick | score | wins |
 | --- | --- | --- |
-| 1 | 11.39 | 28.8% |
-| 2 | 12.06 | 32.3% |
-| 3 | 9.11 | 15.2% |
-| 4 | 8.11 | 12.1% |
-| 5 | 7.80 | 11.6% |
+| 1 | 11.30 | 28.5% |
+| 2 | 11.61 | 30.6% |
+| 3 | 9.42 | 16.3% |
+| 4 | 8.40 | 12.9% |
+| 5 | 7.77 | 11.7% |
 
 **Draft order decides a lot.** Only 10 racers are flipped up per round, and the value is
 concentrated in a few of them (Scoocher above all), so the first picks take most of it. The 2nd
 pick does best of all: the second snake draft starts with the player to the left of the first
 pick, so it picks first in that round, while the first pick goes second. Between them they win
-61% of games, against 40% for an even share. That's from an even roll-off, so it's the game's
+59% of games, against 40% for an even share. That's from an even roll-off, so it's the game's
 biggest swing that isn't on the track.
 
-**Team value predicts the winner, loosely.** The team with the best estimated value wins 43.7% of
-games, against 20% for an even share, and the estimate correlates 0.49 with the final score.
-Estimates run low (8.93 against 9.70 actual), probably because they come from races against
+**Team value predicts the winner, loosely.** The team with the best estimated value wins 42.3% of
+games, against 20% for an even share, and the estimate correlates 0.47 with the final score.
+Estimates run low (9.00 against 9.70 actual), probably because they come from races against
 random opponents rather than drafted, stronger ones.
 
 ## The two-racer variants
@@ -300,7 +307,7 @@ two at a time. 100,000 games each, with standard 3-player games for comparison:
 | 2 players, two racers each | 50.5% | 49.5% | | 56.8% |
 | 3 players, two racers each | 42.5% | 29.4% | 28.2% | 58.0% |
 | 3 players, standard | 34.9% | 34.3% | 30.8% | 36.9% |
-| 5 players, standard | 28.8% | 32.3% | 15.2% (then 12.1%, 11.6%) | 43.7% |
+| 5 players, standard | 28.5% | 30.6% | 16.3% (then 12.9%, 11.7%) | 42.3% |
 
 **The 2-player variant's draft is fair.** Its ABBAABBA rows, with the second draft reversed,
 cancel the first pick's edge.
