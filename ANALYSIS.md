@@ -430,14 +430,15 @@ own racer:
 | reading | race 1 | race 2 |
 | --- | --- | --- |
 | main moves pushed below 0 go backwards (Hague yes, Garfield no) | under 0.1 for everyone | under 0.1 for everyone |
+| triggers queue and resolve even if the board changed (Garfield's own play) | Romantic +0.10 (of 2.03) | Romantic +0.11 (of 2.92) |
+
+Queuing lets a Romantic move even after the pair it saw has broken up. The engine keeps checking
+each trigger as it resolves.
 
 Two more were settled rather than left open:
 - Duelist duels everyone on the Start before the first turn, worth about 0.15 points a race to it.
 - Blimp's second corner is space 15, where the track turns the second time. Counting Start's
   rounded end as the first corner would make it 12 and cost Blimp about 0.2 points a race.
-
-Untested: Garfield's description of queuing triggers and resolving them even after the board
-changes. The engine re-checks each trigger when it resolves.
 
 ## Rules findings
 

@@ -12,9 +12,7 @@
 - [x] Rule-reading sensitivity (`sensitivity.ts`): of what's still open, backward main moves move
       no racer by 0.1 points. Settled: Duelist duels on the Start (worth 0.15 to it), and Blimp's
       second corner is 15 (12 would cost it about 0.2).
-- [ ] Untested reading: Garfield queues triggers and resolves them even if the board has changed
-      since; the engine re-checks each one. Testing it means splitting hooks into a condition and
-      an effect.
+- [x] Garfield's queued triggers (`Rules.queue`): only Romantic moves, by 0.1 points a race.
 - [x] Compare against real play: BoardGameGeek players and an independent simulator (MagSim) agree
       on the ranking, Scoocher's dominance at bigger tables, and the Wild Wilds star farm. In
       `ANALYSIS.md`.
