@@ -257,9 +257,13 @@ const cards: Record<Name, () => void> = {
   },
   "Suckerfish"() {
     // When a racer on my space moves, I can move to their new space.
-    const race = setup(["Legs", "Suckerfish"], [0, 0]);
+    let race = setup(["Legs", "Suckerfish"], [0, 0]);
     race.turn(race.racers[0]);
     assert.equal(race.racers[1].pos, 5);
+    // Within a roll of the finish, I don't ride Scoocher home behind it.
+    race = setup(["Alchemist", "Scoocher", "Suckerfish"], [0, 26, 26], [1]);
+    race.turn(race.racers[0]);
+    assert.deepEqual(race.racers.map((r) => r.pos), [4, 27, 26]);
   },
   "Third Wheel"() {
     // Before my main move, I can warp to any space with exactly 2 racers on it.

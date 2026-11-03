@@ -369,7 +369,7 @@ export class Race {
     const b = to < n ? this.blocker(r, to) : undefined;
     if (b) to--;
     const passed = this.onTrack().filter((o) => o !== r && o.pos > from && (to >= n || o.pos < to));
-    const riders = this.all().filter(([o, p, h]) => h.rides && o !== r && o.pos === from && this.choose(o, p, Math.min(to, n)));
+    const riders = this.all().filter(([o, p, h]) => h.rides && o !== r && o.pos === from && this.choose(o, p, Math.min(to, n), r));
     this.say(`${r.name} moves ${from} → ${Math.min(to, n)}`);
     // Riders arrive together with the racer they ride, so Romantic sees both stops.
     if (to >= n) {

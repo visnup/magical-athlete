@@ -678,7 +678,10 @@ export const RACERS: Record<Name, Powers> = {
    * Suckerfish, which doesn't count as a loop. You can keep doing those!
    */
   "Suckerfish": {
-    choose: (_race, me, to: number) => to > me.pos,
+    // Riding another player's Scoocher home only ever finishes 2nd behind it, so within a roll of
+    // the finish, stay put and try to roll in first.
+    choose: (race, me, to: number, mover: Racer) =>
+      to > me.pos && !(race.track.length - me.pos <= 6 && race.has(mover, "Scoocher") && mover.seat !== me.seat),
     rides: true,
   },
 
