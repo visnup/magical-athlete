@@ -129,6 +129,49 @@ racers like Legs and Skipper less than it helps their opponents.
 **Huge Baby is safe from M.O.U.T.H.** Nothing can stop on Huge Baby's space, so M.O.U.T.H. can't
 eat it, while it eats the racers around it.
 
+## Spread of points
+
+`node spread.ts` (race 4 by default, 100,000 races of 5). An average hides how a racer gets there.
+Race 4 on the Wild Wilds (5/4), selected:
+
+| racer | mean | sd | 0 points | at least gold |
+| --- | --- | --- | --- | --- |
+| Scoocher | 7.92 | 4.57 | 1% | 83% |
+| Suckerfish | 4.21 | 3.45 | 17% | 50% |
+| Lovable Loser | 3.96 | 2.77 | 11% | 42% |
+| Dicemonger | 3.97 | 2.44 | 5% | 48% |
+| Heckler | 3.73 | 2.31 | 19% | 55% |
+| Sisyphus | 3.69 | 1.56 | 2% | 25% |
+| Romantic | 3.57 | 2.33 | 21% | 53% |
+| Copycat | 3.33 | 3.20 | 26% | 40% |
+| Mastermind | 1.50 | 2.40 | 47% | 10% |
+
+**Protecting a lead in race 4:** pick a racer that rarely scores nothing. Sisyphus (2%),
+Dicemonger (5%) and Lovable Loser (11%) are nearly sure of a few points, and Sisyphus is the
+steadiest of all (sd 1.56).
+
+**Catching up in race 4:** pick a racer that often wins. Heckler (55%), Romantic (53%) and
+Suckerfish (50%) take gold about half the time, against Sisyphus's 25%. Scoocher is both the
+safest and the likeliest to win, so it's the best racer whichever position you're in.
+
+## Seat order
+
+`node seats.ts` (200,000 races at each count). Points by seat, seat 1 going first:
+
+| players | seat 1 | seat 2 | seat 3 | seat 4 | seat 5 | seat 6 | seat 1 − average |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| 3 | 2.00 | 1.86 | 1.74 | | | | +0.13 |
+| 4 | 1.57 | 1.47 | 1.36 | 1.31 | | | +0.15 |
+| 5 | 1.29 | 1.21 | 1.14 | 1.09 | 1.06 | | +0.13 |
+| 6 | 1.09 | 1.03 | 0.99 | 0.96 | 0.93 | 0.90 | +0.10 |
+
+That's race 1 on the Mild Mile; the Wild Wilds is about the same (+0.08 to +0.13).
+
+**Going first is worth about 0.1–0.15 points a race,** roughly 10% above an average seat, and
+each later seat is worth a little less. With 5 players, seat 1 earns 22% more than seat 5. The
+rule that the farthest-behind racer's player starts the next race is worth that much to them: a
+small catch-up, far smaller than a strong racer is worth.
+
 ## Findings
 
 **Winning isn't the measure; points are.** Lovable Loser and Sisyphus almost never place but top

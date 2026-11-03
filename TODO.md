@@ -27,8 +27,10 @@
       option, and compare against `defaultPolicy`.
 - [ ] Race order: a team's value is its best assignment of four racers to four races (24
       orderings). A draft pick's value is how much it raises that.
-- [ ] Points distributions per racer, not just averages, for when you need to catch up.
-- [ ] Seat order: what going first is worth, and so what the last-place-starts rule is worth.
+- [x] Points distributions per racer, not just averages, for when you need to catch up
+      (`spread.ts`).
+- [x] Seat order: what going first is worth, and so what the last-place-starts rule is worth
+      (`seats.ts`).
 - [ ] Twin: rate racers by points per race, then give Twin k − 1 earlier winners drawn from the
       winner distribution and left out of the lineup. Iterate until the order stops changing.
 - [x] Wild Wilds: layout from the board.
