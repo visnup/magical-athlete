@@ -269,8 +269,23 @@ racer that adds most to your team, the one that adds most to an opponent's, and 
 one are nearly always the same pick. Where you sit in the draft matters far more than how you
 draft.
 
-Not tested: drafting a counter, like M.O.U.T.H. against a player who has Scoocher. A counter only
-works if it races in the same race, which means choosing your race order around theirs.
+## Choosing racers during the game
+
+`node endgame.ts` lets one randomly seated player choose its racer before each race differently
+from the opponents, who play their best race order (100,000 games of 5 each):
+
+| my choices | wins | score | my M.O.U.T.H. met their Scoocher | wins in those games |
+| --- | --- | --- | --- | --- |
+| best race order, as opponents do | 19.9% | 9.69 | 0.9% of games | 15.0% |
+| by score: with two left, save the safe one when ahead, the likely winner when behind | 19.3% | 9.45 | | |
+| counter: draft M.O.U.T.H. once an opponent has Scoocher, and race it in Scoocher's race | 19.3% | 9.22 | 5.5% of games | 9.7% |
+
+**Just play your best race order.** Switching by score gives up a quarter of a point a game, and
+the racers' spreads are too alike for the safety or the long shot to make it back.
+
+**Countering Scoocher doesn't pay for the counterer.** When your M.O.U.T.H. meets their Scoocher
+you win only 9.7% of the time. Slowing or eating Scoocher helps the other three opponents as much
+as you, while it costs you a better draft pick and M.O.U.T.H.'s own best race.
 
 ## Spread of points
 

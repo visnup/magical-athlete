@@ -51,6 +51,8 @@ export const BRONZE = 16 + 9 * 3;
 export type Racer = {
   name: Name;
   seat: number;
+  /** Whose racer it is; the same as `seat` except in the two-racer variants. */
+  player: number;
   pos: number;
   tripped: boolean;
   place: number | null;
@@ -93,8 +95,8 @@ function best(names: Name[], rating: (n: Name) => number): Name {
 }
 
 /**
- * The best assignment of racers to races, one each, by points per race (`ratings.json` by
- * default): `order[i]` is the race `team[i]` plays in.
+ * The best assignment of racers to races, by points per race (`ratings.json` by default):
+ * `order[i]` is the race `team[i]` plays in. A race listed twice takes two racers.
  */
 export function assign(team: Name[], points: Record<Name, number[]> = RATINGS.points, races = [0, 1, 2, 3].slice(4 - team.length)) {
   let value = -Infinity;
@@ -104,7 +106,9 @@ export function assign(team: Name[], points: Record<Name, number[]> = RATINGS.po
       if (v > value) [value, order] = [v, o];
       return;
     }
-    for (const race of left) go(i + 1, left.filter((x) => x !== race), v + points[team[i]][race], [...o, race]);
+    left.forEach((race, j) => {
+      if (left.indexOf(race) === j) go(i + 1, [...left.slice(0, j), ...left.slice(j + 1)], v + points[team[i]][race], [...o, race]);
+    });
   };
   go(0, races, 0, []);
   return { value, order };
@@ -134,6 +138,8 @@ class RaceOver {}
 export type RaceOptions = {
   /** One racer per seat, in clockwise order. */
   racers: Name[];
+  /** Each seat's player, when players race two racers each. Defaults to one player per seat. */
+  players?: number[];
   track?: Track;
   rng?: () => number;
   /** Scripted die rolls, used before `rng`. */
@@ -143,7 +149,7 @@ export type RaceOptions = {
   winners?: Name[];
   /** Undrawn racer cards, for Egg. Defaults to every racer not in this race. */
   deck?: Name[];
-  /** Points each seat already has, so Sisyphus can't lose chips that don't exist. */
+  /** Points each player already has, so Sisyphus can't lose chips that don't exist. */
   bank?: number[];
   /** Bronze points left in the box. */
   supply?: number;
@@ -214,7 +220,7 @@ export class Race {
     this.rules = { ...RULES, ...o.rules };
     this.log = o.log ? [] : null;
     this.racers = o.racers.map((name, seat) => ({
-      name, seat, pos: 0, tripped: false, place: null, eliminated: null,
+      name, seat, player: o.players?.[seat] ?? seat, pos: 0, tripped: false, place: null, eliminated: null,
       bronze: 0, copied: [], turns: 0, prediction: null, guess: null, trips: 0, uses: 0,
     }));
     this.current = this.racers[o.first ?? 0];

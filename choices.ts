@@ -9,7 +9,7 @@ import { points, trackFor } from "./tables.ts";
  * same seeded races with that racer in every one.
  */
 const farthest = (race: Race, me: Racer, gap: (o: Racer) => boolean) =>
-  race.onTrack().filter((o) => o.seat !== me.seat && gap(o)).sort((a, b) => b.pos - a.pos)[0] ?? null;
+  race.onTrack().filter((o) => o.player !== me.player && gap(o)).sort((a, b) => b.pos - a.pos)[0] ?? null;
 
 const variants: Partial<Record<Name, Record<string, Partial<Policy>>>> = {
   "Alchemist": { never: { choose: { Alchemist: () => false } } },

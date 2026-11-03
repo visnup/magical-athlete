@@ -427,7 +427,7 @@ export const RACERS: Record<Name, Powers> = {
       // A Copycat would copy the new leader's Hypnotist and pull straight back, forever, and Baba
       // Yaga would trip us every time.
       const ahead = race.onTrack().filter((o) =>
-        o.seat !== me.seat && o.pos > me.pos && !race.powers(o).some((p) => p === "Copycat" || p === "Baba Yaga")
+        o.player !== me.player && o.pos > me.pos && !race.powers(o).some((p) => p === "Copycat" || p === "Baba Yaga")
       );
       return ahead.sort((a, b) => b.pos - a.pos)[0] ?? null;
     },
@@ -679,7 +679,7 @@ export const RACERS: Record<Name, Powers> = {
     onRoll(race, me, roller, roll) {
       if (me !== roller || roll !== 6) return;
       race.use(me, "Sisyphus", () => {
-        if (race.bank[me.seat] + me.bronze > 0) race.bronze(me, -1);
+        if (race.bank[me.player] + me.bronze > 0) race.bronze(me, -1);
         race.warp(me, 0);
       });
       return true;
@@ -737,7 +737,7 @@ export const RACERS: Record<Name, Powers> = {
     // Riding another player's Scoocher home only ever finishes 2nd behind it, so within a roll of
     // the finish, stay put and try to roll in first.
     choose: (race, me, to: number, mover: Racer) =>
-      to > me.pos && !(race.track.length - me.pos <= 6 && race.has(mover, "Scoocher") && mover.seat !== me.seat),
+      to > me.pos && !(race.track.length - me.pos <= 6 && race.has(mover, "Scoocher") && mover.player !== me.player),
     rides: true,
   },
 

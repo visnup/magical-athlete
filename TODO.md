@@ -28,13 +28,11 @@
       alternatives. Cheerleader now always cheers and Hypnotist pulls back anyone ahead.
 - [x] Race order: a team's value is its best assignment of four racers to four races (24
       orderings). A draft pick's value is how much it raises that (`lineup.ts`).
-- [ ] Whole games played well: `playGame` drafts by draft value, plays the best race order, and
-      picks a safe or swingy racer for the last race depending on the score (`spread.ts`). Then
-      check its win rates against the per-race estimates.
+- [x] Whole games played well (`games.ts`, `endgame.ts`): drafting by rating and playing the best
+      race order. Choosing a safe or swingy racer by score loses a quarter point a game.
 - [x] Draft simulation (`games.ts`, `draft.ts`): the first two picks win 61% of games between them,
       and no strategy tried beats taking the highest-rated racer left.
-- [ ] Counter-drafting: take M.O.U.T.H. against a Scoocher player and race it in Scoocher's race.
-      Needs per-player race order in `playGame`.
+- [x] Counter-drafting (`endgame.ts`): M.O.U.T.H. against a Scoocher player wins less, not more.
 - [ ] The 2-player and 3-player double-racer variants: two racers per player, which needs
       per-player seating and turn order (fiddly details 9). Suckerfish's "another player's
       Scoocher" check only matters here.
