@@ -133,22 +133,26 @@ eat it, while it eats the racers around it.
 
 `node lineup.ts` takes each racer's points in each of the four races (100,000 races of 5 each),
 then values a team as its best assignment of four racers to four races. A racer's draft value is
-the average value of random teams it's on, against the average team (8.54 points a game).
+the average value of random teams it's on, against the average team (8.90 points a game). Twin
+copies earlier winners drawn from the earlier races, and the pickers choose by these ratings,
+which `lineup.ts --write` saves to `ratings.json` for the engine to play by.
 
 | racer | race 1 (Mild 3/2) | race 2 (Wild 4/3) | race 3 (Mild 4/3) | race 4 (Wild 5/4) | usually played in | draft value |
 | --- | --- | --- | --- | --- | --- | --- |
-| Scoocher | 2.37 | 7.20 | 3.22 | 7.92 | 4 (always) | +4.55 |
-| Lovable Loser | 3.14 | 3.80 | 3.28 | 3.96 | 1 | +1.46 |
-| Sisyphus | 2.88 | 3.67 | 2.90 | 3.69 | 1 | +1.24 |
-| Suckerfish | 1.62 | 3.57 | 2.28 | 4.21 | 4 | +1.16 |
-| Dicemonger | 1.59 | 3.48 | 2.20 | 3.97 | 4 | +1.00 |
-| Romantic | 2.06 | 2.90 | 2.81 | 3.57 | 3 | +0.87 |
-| Heckler | 1.53 | 3.03 | 2.11 | 3.73 | 4 | +0.71 |
-| Legs | 1.52 | 2.02 | 2.12 | 2.54 | 3 | +0.21 |
+| Scoocher | 2.37 | 7.55 | 3.25 | 8.36 | 4 | +4.83 |
+| Suckerfish | 1.61 | 3.86 | 2.30 | 4.58 | 4 | +1.37 |
+| Twin | 0.28 | 2.77 | 2.11 | 4.58 | 4 (always) | +1.35 |
+| Lovable Loser | 3.06 | 3.73 | 3.20 | 3.87 | 1 | +1.30 |
+| Sisyphus | 2.91 | 3.68 | 2.94 | 3.72 | 1 | +1.17 |
+| Romantic | 2.04 | 2.88 | 2.73 | 3.57 | 3 | +0.76 |
+| Dicemonger | 1.51 | 3.35 | 2.02 | 3.76 | 2 | +0.75 |
+| Copycat | 1.47 | 3.22 | 2.09 | 3.84 | 4 | +0.74 |
+| Egg | 1.66 | 3.16 | 2.08 | 3.63 | 4 | +0.58 |
+| Heckler | 1.43 | 2.89 | 1.93 | 3.60 | 4 | +0.48 |
 | … | | | | | | |
-| Centaur | 0.53 | 1.37 | 0.75 | 1.60 | 1 | −0.88 |
-| Mastermind | 0.39 | 1.28 | 0.57 | 1.50 | 1 | −1.02 |
-| Twin | 0.29 | 1.08 | 0.42 | 1.24 | 1 | −1.14 |
+| Huge Baby | 0.46 | 1.49 | 0.64 | 1.76 | 2 | −0.93 |
+| Blimp | 0.53 | 1.16 | 0.72 | 1.37 | 1 | −1.01 |
+| Centaur | 0.50 | 1.28 | 0.67 | 1.48 | 1 | −1.01 |
 
 **The Wild Wilds races are worth more than the Mild Mile races for everyone.** Stars add bronze,
 and race 2 (4/3) on the Wild Wilds out-earns race 3 (4/3) on the Mild Mile at the same chip
@@ -161,9 +165,9 @@ barely change from race to race, so they cost the least to spend on the cheapest
 3: they're about as good on the Mild Mile as on the Wild Wilds, while others gain more from the
 stars. Inchworm, Huge Baby, Hypnotist and Cheerleader go to race 2 for the opposite reason.
 
-**In the draft, Scoocher is worth about 4.5 points a game over an average pick,** three times the
-next racer. After it come Lovable Loser, Sisyphus, Suckerfish, Dicemonger, Romantic and Heckler.
-Twin, Mastermind and Egg are underrated here, since they pick at random; see the next section.
+**In the draft, Scoocher is worth about 4.8 points a game over an average pick,** three and a
+half times the next racer. After it come Suckerfish, Twin (saved for race 4), Lovable Loser and
+Sisyphus.
 
 ## Optional powers
 
@@ -223,6 +227,31 @@ lineup than predicting itself, though it stays below average.
 
 The rest of the order hardly moves (rank correlation 0.81–0.97 against the unrated tables). Most
 of the movement is these four racers changing places with their neighbors.
+
+## Whole games
+
+`node games.ts` plays 100,000 games of 5 where everyone drafts the highest-rated racer left and
+plays each team in its best race order (`ratings.json`).
+
+| first-round pick | score | wins |
+| --- | --- | --- |
+| 1 | 11.39 | 28.8% |
+| 2 | 12.06 | 32.3% |
+| 3 | 9.11 | 15.2% |
+| 4 | 8.11 | 12.1% |
+| 5 | 7.80 | 11.6% |
+
+**Draft order decides a lot.** Only 10 racers are flipped up per round, and the value is
+concentrated in a few of them (Scoocher above all), so the first picks take most of it. The 2nd
+pick does best of all: the second snake draft starts with the player to the left of the first
+pick, so it picks first in that round, while the first pick goes second. Between them they win
+61% of games, against 40% for an even share. That's from an even roll-off, so it's the game's
+biggest swing that isn't on the track.
+
+**Team value predicts the winner, loosely.** The team with the best estimated value wins 43.7% of
+games, against 20% for an even share, and the estimate correlates 0.49 with the final score.
+Estimates run low (8.93 against 9.70 actual), probably because they come from races against
+random opponents rather than drafted, stronger ones.
 
 ## Spread of points
 
