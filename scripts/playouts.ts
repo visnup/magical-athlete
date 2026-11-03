@@ -29,8 +29,13 @@ const options: Partial<Record<Name, (race: Race, me: Racer) => unknown[]>> = {
   },
 };
 
-/** A policy where `name` decides by playouts, each option played `k` times. */
+/**
+ * A policy where `name` decides by playouts, each option played `k` times. A decision repeats
+ * within a turn when the board does: Suckerfish riding Scoocher around the Wild Wilds' 12–16 cycle
+ * decides hundreds of times in one turn, and each playout replays every decision before it.
+ */
 function playing(name: Name, race: number, k: number): Partial<Policy> {
+  const decided = new WeakMap<Race, Map<string, unknown>>();
   return {
     choose: {
       [name]: (r: Race, me: Racer, ...args: unknown[]) => {
@@ -38,12 +43,17 @@ function playing(name: Name, race: number, k: number): Partial<Policy> {
         if (!r.snapshot) return fallback();
         const opts = options[name]!(r, me);
         if (opts.length < 2) return fallback();
+        if (!decided.has(r)) decided.set(r, new Map());
+        const key = [r.turns, r.racers.map((x) => x.pos), args.map((a) => (a && typeof a === "object" && "seat" in a ? `seat ${a.seat}` : a))].join("|");
+        const memo = decided.get(r)!;
+        if (memo.has(key)) return memo.get(key);
         let best = opts[0];
         let top = -Infinity;
         for (const o of opts) {
           const v = r.playout(me, name, o, k, (result, x) => points(result, x, race));
           if (v > top) [best, top] = [o, v];
         }
+        memo.set(key, best);
         return best;
       },
     },

@@ -1,21 +1,36 @@
 import { availableParallelism } from "node:os";
 import { Worker } from "node:worker_threads";
 
+const CHUNKS = 256;
+
 /**
- * Runs `n` races' worth of `task` split across a worker per core, then adds up what they return
- * (numbers, arrays, objects or Maps of them), or combines them with `combine`. `task` is an export
- * of `module` called as `task(...args, seed, n)`; `module` must not do anything at the top level
- * but define things, so scripts guard their main code with `import.meta.main`.
+ * Runs `n` races' worth of `task` in up to 256 chunks, seeded 1, 2, …, that a worker per core
+ * takes in turn, then adds up what they return (numbers, arrays, objects or Maps of them) in chunk
+ * order, or combines them with `combine`. `task` is an export of `module` called as
+ * `task(...args, seed, n)`; `module` must not do anything at the top level but define things, so
+ * scripts guard their main code with `import.meta.main`.
  */
 export async function parallel<T>(module: string, task: string, args: unknown[], n: number, combine: (a: T, b: T) => T = add): Promise<T> {
-  const k = Math.min(availableParallelism(), n);
-  const parts = await Promise.all(
-    Array.from({ length: k }, (_, i) => {
-      const count = Math.floor(n / k) + (i < n % k ? 1 : 0);
-      const worker = new Worker(new URL("./worker.ts", import.meta.url), { workerData: { module, task, args, seed: i + 1, n: count } });
-      return new Promise<T>((resolve, reject) => {
-        worker.once("message", resolve);
+  const k = Math.min(CHUNKS, n);
+  const sizes = Array.from({ length: k }, (_, i) => Math.floor(n / k) + (i < n % k ? 1 : 0));
+  const parts: T[] = [];
+  let next = 0;
+  await Promise.all(
+    Array.from({ length: Math.min(availableParallelism(), k) }, () => {
+      const worker = new Worker(new URL("./worker.ts", import.meta.url), { workerData: { module, task, args } });
+      return new Promise<void>((resolve, reject) => {
+        let i = 0;
+        const take = () => {
+          if (next === k) return void worker.terminate().then(() => resolve());
+          i = next++;
+          worker.postMessage({ seed: i + 1, n: sizes[i] });
+        };
+        worker.on("message", (part: T) => {
+          parts[i] = part;
+          take();
+        });
         worker.once("error", reject);
+        take();
       });
     }),
   );

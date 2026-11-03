@@ -71,7 +71,7 @@ if (import.meta.main) {
       n: { type: "string", default: "100000" },
       players: { type: "string", default: "5" },
       race: { type: "string", default: "1" },
-      // Only for --csv and --log, which run on one core; otherwise each worker has its own seed.
+      // Only for --csv and --log, which run on one core; otherwise each chunk has its own seed.
       seed: { type: "string", default: "1" },
       csv: { type: "boolean", default: false },
       log: { type: "boolean", default: false },

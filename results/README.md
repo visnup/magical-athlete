@@ -73,9 +73,11 @@ group by racer order by points desc;
 
 ## Race rows
 
-`races-<track>-<players>p` is a million races of a random lineup of 3 to 6 of the 36 racers, with
-no earlier winners for Twin and random picks for Egg, Twin, Mastermind and Copycat. Seat 0 goes
-first. Columns:
+`races-<track>-<players>p` is a million races of a random lineup of 3 to 6 of the 36 racers. Seat 0
+goes first. Egg, Twin, Mastermind and Copycat pick by the simulator's built-in ratings. Each race
+stands for either race on its track, so Twin gets the earlier winners it would have there: 0 or 2
+on the Mild Mile (races 1 and 3), 1 or 3 on the Wild Wilds (races 2 and 4), drawn by each racer's
+chance of 1st and never from the race's own lineup. Columns:
 
 | column | meaning |
 | --- | --- |

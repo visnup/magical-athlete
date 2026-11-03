@@ -21,15 +21,18 @@ The engine and its tests are in `src/`, scripts to run in `scripts/`, their raw 
 - `sim.ts`: quick Monte Carlo. `node scripts/sim.ts --n 100000 --players 5` prints per-racer
   odds; `--mode game` runs whole games; `--log` prints every event and `--csv` a row per racer
   per race, both on one core with `--seed`.
-- `ratings.json`: each racer's points per race and draft value, from `lineup.ts --write`. The
-  engine drafts, orders races and picks racers (Egg, Twin, Mastermind, Copycat) by it, so
-  regenerate it after a change that moves racers' points.
+- `ratings.json`: each racer's points, chance of 1st and draft value by race, from
+  `lineup.ts --write`. The engine drafts, orders races and picks racers (Egg, Twin, Mastermind,
+  Copycat) by it, and standalone races draw Twin's earlier winners from its chances of 1st, so
+  regenerate it after a change that moves racers' points. It comes from the previous dataset, so
+  it's one pass behind; one pass is close enough.
 - `results/` holds raw data as Parquet, a row per racer per race or per player per game, never
   averages. `races.ts` writes the shared race dataset: a million races of random lineups at each
   track and player count (`races-<mild|wild>-<n>p.parquet`), in batches of 100,000 that `write`
-  joins with DuckDB and zstd. Races 1 and 3 are on the Mild Mile
-  and 2 and 4 on the Wild Wilds, and differ only in chip values, so a row is scored by the race
-  it stands for (`pointsSql`, `rowPoints`). Scripts summarize with DuckDB (`query` in
+  joins with DuckDB and zstd. Races 1 and 3 are on the Mild Mile and 2 and 4 on the Wild Wilds,
+  and differ only in chip values, so a row is scored by the race it stands for (`pointsSql`,
+  `rowPoints`). For Twin, each race gets the earlier winners of one of its track's two races at
+  random (0 or 2 on the Mild Mile, 1 or 3 on the Wild Wilds), so Twin averages over them. Scripts summarize with DuckDB (`query` in
   `results.ts`), which reads the files directly; so can `duckdb` or pandas.
   `make` reruns whatever a change in `src/` or `scripts/` made stale, then the charts (about an
   hour from scratch). A fresh clone's file times are arbitrary, so it may rerun everything.
@@ -50,11 +53,11 @@ The engine and its tests are in `src/`, scripts to run in `scripts/`, their raw 
   - `sensitivity.ts`: the races rerun with each unsettled rule (`Rules` in `game.ts`) read the
     other way.
 - `charts.ts` draws `charts/*.svg` for `README.md` from `results/`.
-- `parallel.ts` splits a script's races across a worker thread per core (`worker.ts`) and adds up
-  the results, or `collect`s their rows. A task is an exported function of a module that does
-  nothing at the top level, so scripts guard their main code with `if (import.meta.main)`.
-  Results vary with the core count, since each worker has its own seed. `tables.ts` runs races of
-  random lineups.
+- `parallel.ts` splits a script's races into up to 256 seeded chunks that a worker thread per core
+  (`worker.ts`) takes in turn, so one slow chunk doesn't hold up the rest and results don't
+  depend on the core count. It adds up the results, or `collect`s their rows. A task is an
+  exported function of a module that does nothing at the top level, so scripts guard their main
+  code with `if (import.meta.main)`. `tables.ts` runs races of random lineups.
 - `node --test` runs `game.test.ts`, which includes the rulebook's Romantic/Scoocher/Banana
   example, `racers.test.ts`, one test per card named for its text, plus the rulebook's notes, and
   `terms.test.ts`, the terms, fiddly details and track spaces on p. 23.

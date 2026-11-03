@@ -1,9 +1,7 @@
 import * as Plot from "@observablehq/plot";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { JSDOM } from "jsdom";
-import { GOLD, SILVER } from "../src/game.ts";
 import { parquet, pointsSql, query, races } from "../src/results.ts";
-import { matchupsSql } from "./matchups.ts";
 import { spreadSql } from "./spread.ts";
 
 /** Draws the charts in README.md into charts/, from the raw data in results/. */
@@ -34,101 +32,46 @@ function save(name: string, options: Plot.PlotOptions, legend?: string) {
 
 mkdirSync(dir, { recursive: true });
 const tracks = ["Mild Mile", "Wild Wilds"];
-const trackColors = ["#4a9a5b", "#d9822b"];
+const trackColors = ["rgb(128, 159, 200)", "rgb(235, 91, 103)"];
 const raceLabel = (race: number) => `Race ${race}, ${tracks[(race - 1) % 2]}`;
 const blue = "#3a7bbf";
 const red = "#c0504d";
 const players = (column = "filename") => `regexp_extract(${column}, '(\\d)p(-double)?\\.parquet$', 1)::int`;
-const order: string[] = (await query(`select racer from ${races(0)} group by racer order by avg(${pointsSql(0)}) desc`)).map((r) => r.racer);
+const scored = (columns: string, n: number | "*" = 6) =>
+  [0, 1].map((race) => `select '${tracks[race]}' track, ${columns}, ${pointsSql(race)} points from ${races(race, n)}`).join(" union all ");
 
-/** Tukey box plot statistics from [value, count] pairs sorted by value. */
-function box(counts: [number, number][]) {
-  const total = counts.reduce((s, [, k]) => s + k, 0);
-  const quantile = (q: number) => {
-    let seen = 0;
-    for (const [v, k] of counts) if ((seen += k) >= q * total) return v;
-    return counts.at(-1)![0];
-  };
-  const [q1, median, q3] = [0.25, 0.5, 0.75].map(quantile);
-  const values = counts.map(([v]) => v);
-  const inside = values.filter((v) => v >= q1 - 1.5 * (q3 - q1) && v <= q3 + 1.5 * (q3 - q1));
-  return {
-    q1,
-    median,
-    q3,
-    lo: Math.min(...inside),
-    hi: Math.max(...inside),
-    mean: counts.reduce((s, [v, k]) => s + v * k, 0) / total,
-    outliers: values.filter((v) => !inside.includes(v)),
-  };
-}
-
-/** Box plot rows from rows of (racer, group, value, k) counts, plus `extra` columns per box. */
-function boxRows(counts: Row[], keys: string[]) {
-  const groups = Map.groupBy(counts, (r) => keys.map((k) => r[k]).join("\0"));
-  return [...groups.values()].map((rows) => ({
-    ...Object.fromEntries(keys.map((k) => [k, rows[0][k]])),
-    ...box(rows.toSorted((a, b) => a.value - b.value).map((r) => [r.value, r.k])),
-  }));
-}
-
-/**
- * Box plots with racers down y and `colors.length` boxes side by side in each racer's band, the
- * `group` column picking each box's place and color. `band` is the height of a racer's band.
- */
-function boxes(rows: Row[], colors: string[], band: number, facet: Plot.MarkOptions = {}) {
-  return colors.flatMap((fill, i) => {
-    const data = rows.filter((r) => r.group === i);
-    const step = band / colors.length;
-    const [top, bottom] = [i * step + 1, (colors.length - 1 - i) * step + 1];
-    const dy = -band / 2 + (i + 0.5) * step;
-    return [
-      Plot.ruleY(data, { ...facet, y: "racer", x1: "lo", x2: "hi", dy, stroke: fill }),
-      Plot.barX(data, { ...facet, y: "racer", x1: "q1", x2: "q3", insetTop: top, insetBottom: bottom, fill, fillOpacity: 0.35, stroke: fill }),
-      Plot.tickX(data, { ...facet, y: "racer", x: "median", insetTop: top, insetBottom: bottom, stroke: fill, strokeWidth: 2 }),
-      Plot.dot(data.flatMap((r) => r.outliers.map((x: number) => ({ ...r, x }))), { ...facet, y: "racer", x: "x", dy, r: 1.5, fill }),
-      Plot.dot(data, { ...facet, y: "racer", x: "mean", dy, r: 2.5, symbol: "diamond", fill: "white", stroke: "#222" }),
-    ];
-  });
-}
-
-/** A legend of colored swatches in the top margin of the first facet. */
-const key = (labels: string[], colors: string[], width = 100) =>
-  labels.flatMap((label, i) => [
-    Plot.dot([0], { frameAnchor: "top-left", dx: i * width + 4, dy: -42, r: 4, fill: colors[i], facetAnchor: "top-left" }),
-    Plot.text([0], { frameAnchor: "top-left", dx: i * width + 12, dy: -42, text: () => label, textAnchor: "start", facetAnchor: "top-left" }),
-  ]);
-
-/** The height of one of `n` bands with padding 0.2 over `range` pixels. */
-const bandwidth = (range: number, n: number) => (range / (n + 0.2)) * 0.8;
-
-const both = ["race 1, Mild Mile", "race 2, Wild Wilds"];
-
-// Points per race: points and bronze in one race of 5, both tracks in each racer's band.
-const pointCounts = await query(`
-  ${[0, 1].map((race) => `
-    select racer, ${race} "group", 'points' measure, ${pointsSql(race)} value, count(*)::int k from ${races(race)} group by all
-    union all
-    select racer, ${race} "group", 'bronze' measure, bronze value, count(*)::int k from ${races(race)} group by all`).join(" union all ")}`);
-const tall = 900;
+// Points per race: the chance of each score in a race of 6, strongest racers first.
+const distribution = await query(`
+  with r as (${scored("racer")}),
+  ranked as (select racer, avg(m) mean from (select track, racer, avg(points) m from r group by all) group by racer),
+  counts as (select track, racer, least(points, 12) points, count(*) n from r group by all)
+  select track, racer, points, n / sum(n) over (partition by track, racer) chance, mean
+  from counts join ranked using (racer)`);
+const order = [...new Map(distribution.toSorted((a, b) => b.mean - a.mean).map((r) => [r.racer, r])).keys()];
+const likeliest = [...Map.groupBy(distribution, (r) => `${r.track}\0${r.racer}`).values()].map((rows) => rows.reduce((a, b) => (b.chance > a.chance ? b : a)));
 save("points", {
   width: 720,
-  height: tall,
   marginLeft: 100,
-  marginTop: 58,
-  x: { label: "points in one race of 5 (◇ the average)", grid: true },
-  y: { domain: order, label: null, padding: 0.2 },
-  fx: { domain: ["points", "bronze"], label: null },
-  marks: [...boxes(boxRows(pointCounts, ["racer", "group", "measure"]), trackColors, bandwidth(tall - 88, order.length), { fx: "measure" }), ...key(both, trackColors, 120)],
+  marginTop: 25,
+  grid: true,
+  x: { label: "points in one race of 6 (12 means 12 or more)", domain: Array.from({ length: 13 }, (_, i) => i) },
+  y: { domain: order, label: null },
+  fx: { domain: tracks, label: null, axis: "top" },
+  color: { scheme: "turbo", type: "sqrt" },
+  marks: [
+    Plot.cell(distribution, { x: "points", y: "racer", fx: "track", fill: "chance" }),
+    Plot.text(likeliest, { x: "points", y: "racer", fx: "track", text: (r) => `${Math.round(100 * r.chance)}%`, fill: "white", stroke: "black", strokeOpacity: 0.5, fontSize: 8 }),
+  ],
 });
 
-// Chances of 1st and 2nd, both tracks in each racer's band.
+// Chances of 1st and 2nd, both tracks in each racer's row.
 const places = await query(`
   ${[0, 1].map((race) => `
     select racer, ${race} "group", '1st' place, avg(gold) p, count(*)::int n from ${races(race)} group by racer
     union all
     select racer, ${race} "group", '2nd' place, avg(silver) p, count(*)::int n from ${races(race)} group by racer`).join(" union all ")}`);
-const band = bandwidth(tall - 88, order.length);
+const tall = 900;
+const band = ((tall - 88) / (order.length + 0.2)) * 0.8;
 save("places", {
   width: 720,
   height: tall,
@@ -147,46 +90,47 @@ save("places", {
         Plot.dot(data, { fx: "place", y: "racer", x: "p", dy, r: 3, fill: trackColors[group] }),
       ];
     }),
-    ...key(both, trackColors, 120),
+    ...["race 1, Mild Mile", "race 2, Wild Wilds"].flatMap((label, i) => [
+      Plot.dot([0], { frameAnchor: "top-left", dx: i * 120 + 4, dy: -42, r: 4, fill: trackColors[i], facetAnchor: "top-left" }),
+      Plot.text([0], { frameAnchor: "top-left", dx: i * 120 + 12, dy: -42, text: () => label, textAnchor: "start", facetAnchor: "top-left" }),
+    ]),
   ],
 });
 
-// Player count: points in one race as a multiple of a fair share, a box per count.
-const counts = [3, 4, 5, 6];
-const countColors = ["#c6dbef", "#6baed6", "#2171b5", "#08306b"];
-const shareCounts = await query(`
-  ${[0, 1].map((race) => `
-    select racer, ${race + 1} race, ${players()} - 3 "group", ${pointsSql(race)} * ${players()} / ${GOLD[race] + SILVER[race]} value, count(*)::int k
-    from ${races(race, "*")} group by all`).join(" union all ")}`);
-const taller = 1400;
+// Player count: average points per race by number of players, with 95% intervals.
+const byPlayers = await query(`
+  select track, players, racer, avg(points) mean, 1.96 * stddev_samp(points) / sqrt(count(*)) e
+  from (${scored(`${players()} players, racer`, "*")}) group by all`);
 save("players", {
   width: 720,
-  height: taller,
-  marginLeft: 100,
-  marginTop: 58,
-  x: { label: "points in one race ÷ a fair share (◇ the average)", grid: true },
-  y: { domain: order, label: null, padding: 0.2 },
-  fx: { tickFormat: raceLabel, label: null },
+  marginRight: 90,
+  x: { label: "players", inset: 8 },
+  y: { label: "points per race", grid: true, type: "sqrt" },
+  fx: { domain: tracks, label: null, axis: "top", padding: 0.3 },
+  color: { domain: tracks, range: trackColors },
   marks: [
-    Plot.ruleX([1], { stroke: "#999" }),
-    ...boxes(boxRows(shareCounts, ["racer", "race", "group"]), countColors, bandwidth(taller - 88, order.length), { fx: "race" }),
-    ...key(counts.map((c) => `${c} players`), countColors, 80),
+    Plot.areaY(byPlayers, { x: "players", y1: (r) => r.mean - r.e, y2: (r) => r.mean + r.e, fx: "track", z: "racer", fill: "track", fillOpacity: 0.25 }),
+    Plot.lineY(byPlayers, { x: "players", y: "mean", fx: "track", z: "racer", stroke: "track", marker: "dot" }),
+    Plot.text(byPlayers, Plot.selectLast({ x: "players", y: "mean", fx: "track", z: "racer", text: "racer", textAnchor: "start", dx: 6, fontSize: 8 })),
   ],
 });
 
-// Matchups: each racer's points with another racer in the race, minus without.
+// Matchups: the row racer's points minus the column racer's, in the same race of 6.
 for (const race of [0, 1]) {
-  const limit = race === 0 ? 1 : 3;
+  const matchups = await query(`
+    with r as (select race, racer, ${pointsSql(race)} p from ${races(race, 6)})
+    select a.racer, b.racer opponent, avg(a.p - b.p) diff from r a join r b on a.race = b.race and a.racer <> b.racer group by all`);
+  const limit = Math.max(...matchups.map((r) => Math.abs(r.diff)));
   save(`matchups-race${race + 1}`, {
     width: 720,
     height: 720,
     marginLeft: 100,
-    marginBottom: 100,
-    x: { domain: order, tickRotate: -90, label: "with this racer in the race →", labelAnchor: "left" },
-    y: { domain: order, label: null },
-    color: { type: "threshold", scheme: "rdbu", domain: [-1, -0.5, -0.25, -0.1, 0.1, 0.25, 0.5, 1].map((t) => t * limit) },
-    marks: [Plot.cell(await query(`select racer, other, "with" - "without" effect from (${matchupsSql(race)})`), { x: "other", y: "racer", fill: "effect", inset: 0.5 })],
-  }, `${raceLabel(race + 1)}: change in the row racer's points per race`);
+    marginTop: 100,
+    x: { label: "opponent", tickRotate: -90, axis: "top" },
+    y: { label: "racer" },
+    color: { type: "quantize", scheme: "rdbu", domain: [-limit, limit], n: 10 },
+    marks: [Plot.cell(matchups, { x: "opponent", y: "racer", fill: "diff", sort: { x: "fill", y: "-fill", reduce: "mean" } })],
+  }, `${tracks[race]}: row racer's points minus the column opponent's per race`);
 }
 
 // Draft value.

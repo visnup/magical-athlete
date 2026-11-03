@@ -1,5 +1,6 @@
 import { GOLD, MILD_MILE, mulberry32, NAMES, type Name, Race, type RaceResult, type Racer, type Rules, shuffle, SILVER, WILD_WILDS } from "./game.ts";
 import { collect } from "./parallel.ts";
+import RATINGS from "./ratings.json" with { type: "json" };
 import { racerRows, type RacerRow, rowPoints } from "./results.ts";
 
 /** Points `r` scored in `result`, if it was race `race` (0–3) of a game. */
@@ -36,6 +37,17 @@ export function winners(earlier: Partial<Record<Name, number>>[], lineup: Name[]
   return ws;
 }
 
+/**
+ * Earlier winners for a race that stands for either race on its track: races 1 and 3 on the Mild
+ * Mile (0 or 2 earlier races), or 2 and 4 on the Wild Wilds (1 or 3), drawn by `ratings.json`'s
+ * chances of 1st. So Twin averages over the races it could be in.
+ */
+function standalone(race: number, lineup: Name[], rng: () => number) {
+  const k = race % 2 + 2 * Math.floor(rng() * 2);
+  const first = RATINGS.first as Record<Name, number[]>;
+  return winners([0, 1, 2].slice(0, k).map((i) => Object.fromEntries(NAMES.map((name) => [name, first[name][i]]))), lineup, rng);
+}
+
 function race(o: Options, race: number, racers: Name[], rng: () => number) {
   const ratings = o.ratings;
   return new Race({
@@ -44,7 +56,7 @@ function race(o: Options, race: number, racers: Name[], rng: () => number) {
     rng,
     rules: o.rules,
     policy: ratings ? { rating: (name) => ratings[name] ?? 0 } : undefined,
-    winners: o.earlier ? winners(o.earlier, racers, rng) : [],
+    winners: o.earlier ? winners(o.earlier, racers, rng) : racers.includes("Twin") ? standalone(race, racers, rng) : [],
   }).run();
 }
 

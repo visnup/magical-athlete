@@ -10,7 +10,8 @@ import { forcedRows } from "../src/tables.ts";
  * again with earlier winners drawn from the races before it (results/lineup-twin.parquet). A
  * team's value is its best assignment of four racers to the four races; a racer's draft value is
  * the average value of teams that include it (results/lineup-draft.parquet). `--write` saves both
- * to ratings.json, which the engine plays by.
+ * to ratings.json, which the engine plays by, with each racer's chance of 1st in each race, which
+ * standalone races draw Twin's earlier winners from.
  */
 const { values: args } = parseArgs({
   options: {
@@ -31,8 +32,8 @@ for (const race of games) {
   for (const row of (await forcedRows("Twin", race, { n: Number(args.n), players, earlier })).map((r) => ({ game_race: race + 1, ...r }))) twin.push(row);
 }
 await write("lineup-twin", twin);
-const twins = await query(`select game_race, avg(p) points from (${games.map((race) =>
-  `select game_race, ${pointsSql(race)} p from ${parquet("lineup-twin")} where game_race = ${race + 1}`).join(" union all ")}) group by all`);
+const twins = await query(`select game_race, avg(p) points, avg(gold) first from (${games.map((race) =>
+  `select game_race, gold, ${pointsSql(race)} p from ${parquet("lineup-twin")} where game_race = ${race + 1}`).join(" union all ")}) group by all`);
 const table4 = Object.fromEntries(NAMES.map((name) => [name, games.map((race) =>
   name === "Twin" ? twins.find((r) => r.game_race === race + 1)!.points : tables[race].find((r) => r.racer === name)!.points)])) as Record<Name, number[]>;
 const pts = (name: Name, race: number) => table4[name][race];
@@ -75,6 +76,8 @@ if (args.write) {
   const ratings = {
     points: Object.fromEntries(NAMES.map((name) => [name, table4[name].map(round)])),
     draft: Object.fromEntries(NAMES.map((name) => [name, round(draft.get(name)! - mean)])),
+    first: Object.fromEntries(NAMES.map((name) => [name, games.map((race) =>
+      Math.round(1000 * (name === "Twin" ? twins.find((r) => r.game_race === race + 1)! : tables[race].find((r) => r.racer === name)!).first) / 1000)])),
   };
   writeFileSync(new URL("../src/ratings.json", import.meta.url), JSON.stringify(ratings, null, 2) + "\n");
 }

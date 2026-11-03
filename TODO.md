@@ -30,14 +30,14 @@
 - [x] Race order: a team's value is its best assignment of four racers to four races (24
       orderings). A draft pick's value is how much it raises that (`lineup.ts`).
 - [x] Whole games played well (`games.ts`, `endgame.ts`): drafting by rating and playing the best
-      race order. Choosing a safe or swingy racer by score loses a quarter point a game.
+      race order. Choosing a safe or swingy racer by score loses a tenth of a point a game.
 - [x] Draft simulation (`games.ts`, `draft.ts`): the first two picks win 59% of games between them,
       and no strategy tried beats taking the highest-rated racer left by more than 0.1 points a
       game.
 - [x] Counter-drafting (`endgame.ts`): M.O.U.T.H. against a Scoocher player wins less, not more.
 - [x] The 2-player and 3-player double-racer variants (`playGame({ double: true })`,
       `games.ts --double`): the 2-player draft is fair, the 3-player one gives the first pick
-      41.7% of wins.
+      41.4% of wins.
 - [x] Smarter choices by playing out each option (`Race.playout`, `playouts.ts`): close to the
       hand-written choices on the Mild Mile, far better on the Wild Wilds.
 - [x] Track-aware choices (`landing` in `racers.ts`) for Legs, Alchemist, Rocket Scientist,

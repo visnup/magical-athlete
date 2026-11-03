@@ -35,5 +35,5 @@ results/sensitivity-queue-wild.parquet: scripts/sensitivity.ts $(RACES)
 results/playouts.parquet: scripts/playouts.ts $(SRC)
 	node scripts/playouts.ts
 
-charts/sensitivity.svg: scripts/charts.ts scripts/matchups.ts scripts/spread.ts $(RESULTS)
+charts/sensitivity.svg: scripts/charts.ts scripts/spread.ts $(RESULTS)
 	node scripts/charts.ts
