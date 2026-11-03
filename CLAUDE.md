@@ -17,9 +17,19 @@ simultaneous arrivals, and fixed Sisyphus's misprinted note.
 - `sim.ts`: Monte Carlo. `node sim.ts --n 100000 --players 5` prints per-racer odds;
   `--mode game` runs whole games; `--csv` prints one row per racer per race (or per player per
   game) instead; `--log` prints every event.
-- `players.ts`: each racer's points as a multiple of a fair share at 3 to 6 players.
-- `matchups.ts`: how each racer's points change with each other racer in the race; `--csv` for
-  every pair.
+- Analysis scripts, each run as `node <script>.ts` and written up in `ANALYSIS.md`:
+  - `players.ts`: each racer's points as a multiple of a fair share at 3 to 6 players.
+  - `matchups.ts`: how each racer's points change with each other racer in the race; `--csv` for
+    every pair.
+  - `choices.ts`: each optional power's current choice against alternatives.
+  - `spread.ts`: how spread out each racer's points are in one race.
+  - `seats.ts`: what each seat in turn order is worth.
+  - `lineup.ts`: which race to play each racer in, and draft value.
+  - `twin.ts`: Twin, Egg, Mastermind and Copycat with ratings and earlier winners.
+- `parallel.ts` splits a script's races across a worker thread per core (`worker.ts`) and adds up
+  the results. A task is an exported function of a module that does nothing at the top level, so
+  scripts guard their main code with `if (import.meta.main)`. Results vary with the core count,
+  since each worker has its own seed. `tables.ts` holds the shared points tables.
 - `sensitivity.ts`: reruns the points table with each unsettled rule (`Rules` in `game.ts`) read
   the other way and lists the racers that move.
 - `node --test` runs `game.test.ts`, which includes the rulebook's Romantic/Scoocher/Banana
