@@ -253,6 +253,32 @@ games, against 20% for an even share, and the estimate correlates 0.49 with the 
 Estimates run low (8.93 against 9.70 actual), probably because they come from races against
 random opponents rather than drafted, stronger ones.
 
+## The two-racer variants
+
+`node games.ts --double --players 2` (or 3) plays the variants: everyone drafts 8 racers and races
+two at a time. 100,000 games each, with standard 3-player games for comparison:
+
+| game | 1st pick wins | 2nd pick | 3rd pick | best estimated team wins |
+| --- | --- | --- | --- | --- |
+| 2 players, two racers each | 50.5% | 49.5% | | 56.8% |
+| 3 players, two racers each | 42.5% | 29.4% | 28.2% | 58.0% |
+| 3 players, standard | 34.9% | 34.3% | 30.8% | 36.9% |
+| 5 players, standard | 28.8% | 32.3% | 15.2% (then 12.1%, 11.6%) | 43.7% |
+
+**The 2-player variant's draft is fair.** Its ABBAABBA rows, with the second draft reversed,
+cancel the first pick's edge.
+
+**The 3-player variant's draft isn't.** It runs four snake drafts of 6, rotating who starts, so
+the first player starts two of the four and wins 42.5% of games against 33.3% for an even share.
+A table could fix it by giving the last pick of the first draft the first pick of the fourth.
+
+**Standard drafts are fair at 3 players but not at 5,** where only the first two players ever
+start a round.
+
+**Team quality matters more with two racers each.** The best estimated team wins 57–58% of the
+time in the variants, against 37% in standard 3-player games, where one racer per race leaves
+more to luck.
+
 ## Drafting strategy
 
 `node draft.ts` gives one randomly seated player a different drafting strategy against

@@ -35,9 +35,9 @@
 - [x] Draft simulation (`games.ts`, `draft.ts`): the first two picks win 61% of games between them,
       and no strategy tried beats taking the highest-rated racer left.
 - [x] Counter-drafting (`endgame.ts`): M.O.U.T.H. against a Scoocher player wins less, not more.
-- [ ] The 2-player and 3-player double-racer variants: two racers per player, which needs
-      per-player seating and turn order (fiddly details 9). Suckerfish's "another player's
-      Scoocher" check only matters here.
+- [x] The 2-player and 3-player double-racer variants (`playGame({ double: true })`,
+      `games.ts --double`): the 2-player draft is fair, the 3-player one gives the first pick
+      42.5% of wins.
 - [ ] Smarter choices by playing out each option, rather than comparing hand-written ones. Needs
       the engine to save and restore a race in the middle of a turn.
 - [x] `sim.ts` on every core, like the other scripts. `--csv` and `--log` still run on one core.
