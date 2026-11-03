@@ -15,8 +15,9 @@
 - [ ] Untested reading: Garfield queues triggers and resolves them even if the board has changed
       since; the engine re-checks each one. Testing it means splitting hooks into a condition and
       an effect.
-- [ ] Compare against what players report on BoardGameGeek. Scoocher and Romantic winning over 60%
-      of 5-player races is the first thing to explain.
+- [ ] Compare against real play: what BoardGameGeek players say about the strongest racers, or a
+      few logged real games. Scoocher winning 66% of 5-player Mild Mile races is the first thing
+      to explain.
 
 ## Analysis
 
@@ -27,8 +28,17 @@
       alternatives. Cheerleader now always cheers and Hypnotist pulls back anyone ahead.
 - [x] Race order: a team's value is its best assignment of four racers to four races (24
       orderings). A draft pick's value is how much it raises that (`lineup.ts`).
-- [ ] Use `lineup.ts`'s values in `playGame`: draft by draft value and play the best order, then
-      check whole games against the estimate.
+- [ ] Whole games played well: `playGame` drafts by draft value, plays the best race order, and
+      picks a safe or swingy racer for the last race depending on the score (`spread.ts`). Then
+      check its win rates against the per-race estimates.
+- [ ] Draft simulation: snake drafts where everyone drafts greedily. What is first pick worth, and
+      does denying a racer (M.O.U.T.H. against a Scoocher player) beat taking the best one left?
+- [ ] The 2-player and 3-player double-racer variants: two racers per player, which needs
+      per-player seating and turn order (fiddly details 9). Suckerfish's "another player's
+      Scoocher" check only matters here.
+- [ ] Smarter choices by playing out each option, rather than comparing hand-written ones. Needs
+      the engine to save and restore a race in the middle of a turn.
+- [ ] `sim.ts` on every core, like the other scripts (its `--csv` and `--log` output stream).
 - [x] Points distributions per racer, not just averages, for when you need to catch up
       (`spread.ts`).
 - [x] Seat order: what going first is worth, and so what the last-place-starts rule is worth
