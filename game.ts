@@ -1,3 +1,5 @@
+import { type Powers, RACERS } from "./racers.ts";
+
 export const NAMES = [
   "Alchemist", "Baba Yaga", "Banana", "Blimp", "Centaur", "Cheerleader",
   "Coach", "Copycat", "Dicemonger", "Duelist", "Egg", "Flip Flop",
@@ -7,8 +9,6 @@ export const NAMES = [
   "Sisyphus", "Skipper", "Stickler", "Suckerfish", "Third Wheel", "Twin",
 ] as const;
 export type Name = (typeof NAMES)[number];
-
-const BEFORE_RACE = new Set<Name>(["Egg", "Twin", "Sisyphus"]);
 
 export type Space = { arrow?: number; trip?: boolean; star?: boolean };
 export type Track = {
@@ -41,7 +41,10 @@ export type Racer = {
   /** Powers gained before the race (Egg, Twin). */
   copied: Name[];
   turns: number;
+  /** Mastermind's predicted winner. */
   prediction: Name | null;
+  /** Genius's predicted roll. */
+  guess: number | null;
   trips: number;
   uses: number;
 };
@@ -49,18 +52,10 @@ export type Racer = {
 export type Policy = {
   /** Higher is better. Used for Egg, Twin, Copycat ties, Mastermind and drafting. */
   rating(name: Name): number;
+  /** Whether to reroll the main move, with `left` rerolls to go. */
   reroll(race: Race, r: Racer, roll: number, left: number): boolean;
-  alchemist(race: Race, r: Racer, roll: number): boolean;
-  rocket(race: Race, r: Racer, roll: number): boolean;
-  legs(race: Race, r: Racer): boolean;
-  genius(race: Race, r: Racer): number;
-  mastermind(race: Race, r: Racer): Name;
-  flipFlop(race: Race, r: Racer): Racer | null;
-  hypnotist(race: Race, r: Racer): Racer | null;
-  thirdWheel(race: Race, r: Racer): number | null;
-  cheerleader(race: Race, r: Racer): boolean;
-  duel(race: Race, duelist: Racer, other: Racer): boolean;
-  suckerfish(race: Race, r: Racer, to: number): boolean;
+  /** Overrides for racers' optional choices; see `Powers.choose` in `racers.ts`. */
+  choose: Partial<Record<Name, NonNullable<Powers["choose"]>>>;
 };
 
 export const defaultPolicy: Policy = {
@@ -70,35 +65,7 @@ export const defaultPolicy: Policy = {
     if (race.has(r, "Sisyphus") && roll === 6) return true;
     return roll <= (left >= 2 ? 4 : 3);
   },
-  alchemist: () => true,
-  rocket: (race, r, roll) => roll >= 4 || r.pos + 2 * roll >= race.track.length,
-  legs: () => true,
-  genius: () => 6,
-  mastermind(race, r) {
-    return best([r.name, ...race.racers.map((o) => o.name)], race.policy.rating);
-  },
-  flipFlop(race, r) {
-    // A Copycat would copy the new leader's Flip Flop and swap straight back, forever.
-    const ahead = race.onTrack().filter((o) => o !== r && o.pos - r.pos >= 4 && !race.powers(o).includes("Copycat"));
-    return ahead.sort((a, b) => b.pos - a.pos)[0] ?? null;
-  },
-  hypnotist(race, r) {
-    // Pulling back any racer at all ping-pongs forever against a Copycat.
-    const ahead = race.onTrack().filter((o) => o.seat !== r.seat && o.pos - r.pos > 3);
-    return ahead.sort((a, b) => b.pos - a.pos)[0] ?? null;
-  },
-  thirdWheel(race, r) {
-    const counts = new Map<number, number>();
-    for (const o of race.onTrack()) counts.set(o.pos, (counts.get(o.pos) ?? 0) + 1);
-    const pairs = [...counts].filter(([pos, n]) => n === 2 && pos > r.pos).map(([pos]) => pos);
-    return pairs.length ? Math.max(...pairs) : null;
-  },
-  cheerleader: (race, r) => race.last().includes(r),
-  duel(race, duelist, other) {
-    // TODO(human): decide whether the Duelist calls a duel against `other`.
-    return true;
-  },
-  suckerfish: (_race, r, to) => to > r.pos,
+  choose: {},
 };
 
 function best(names: Name[], rating: (n: Name) => number): Name {
@@ -153,6 +120,8 @@ export type RaceResult = {
   stalled: boolean;
 };
 
+type Hook = [owner: Racer, power: Name, hooks: Powers];
+
 const MAX_TURNS = 1000;
 const MAX_DEPTH = 200;
 
@@ -169,6 +138,8 @@ export class Race {
   current: Racer;
   finishers: Racer[] = [];
   queue: Racer[] = [];
+  /** Effects that wait until the main move is done, like Rocket Scientist's trip. */
+  afterMain: (() => void)[] = [];
   turns = 0;
   loops = 0;
   eliminations = 0;
@@ -177,7 +148,7 @@ export class Race {
 
   constructor(o: RaceOptions) {
     this.track = o.track ?? MILD_MILE;
-    this.policy = { ...defaultPolicy, ...o.policy };
+    this.policy = { ...defaultPolicy, ...o.policy, choose: { ...defaultPolicy.choose, ...o.policy?.choose } };
     this.rng = o.rng ?? Math.random;
     this.dice = [...(o.dice ?? [])];
     this.winners = o.winners ?? [];
@@ -186,7 +157,7 @@ export class Race {
     this.log = o.log ? [] : null;
     this.racers = o.racers.map((name, seat) => ({
       name, seat, pos: 0, tripped: false, place: null, eliminated: null,
-      bronze: 0, copied: [], turns: 0, prediction: null, trips: 0, uses: 0,
+      bronze: 0, copied: [], turns: 0, prediction: null, guess: null, trips: 0, uses: 0,
     }));
     this.current = this.racers[o.first ?? 0];
   }
@@ -201,6 +172,11 @@ export class Race {
 
   active(r: Racer) {
     return r.place === null && r.eliminated === null;
+  }
+
+  /** Whether `r` is still on the track at `at`. */
+  stays(r: Racer, at: number) {
+    return this.active(r) && r.pos === at;
   }
 
   onTrack() {
@@ -232,13 +208,11 @@ export class Race {
 
   powers(r: Racer, depth = 0): Name[] {
     if (!this.active(r)) return [];
-    const ps = [r.name, ...r.copied];
-    if (ps.includes("Copycat") && depth < 2) {
-      const lead = this.lead().filter((o) => o !== r);
-      if (lead.length) {
-        const target = lead.reduce((a, b) => (this.policy.rating(b.name) > this.policy.rating(a.name) ? b : a));
-        for (const p of this.powers(target, depth + 1)) if (p !== "Copycat" && !BEFORE_RACE.has(p)) ps.push(p);
-      }
+    const ps: Name[] = [r.name, ...r.copied];
+    for (const p of [...ps]) {
+      const target = depth < 2 ? RACERS[p].copies?.(this, r) : null;
+      if (!target) continue;
+      for (const q of this.powers(target, depth + 1)) if (!RACERS[q].copies && !RACERS[q].beforeRace) ps.push(q);
     }
     return ps;
   }
@@ -247,15 +221,36 @@ export class Race {
     return this.powers(r).includes(p);
   }
 
-  holders(p: Name) {
-    return this.byPriority().filter((r) => this.has(r, p));
+  /** `r`'s own powers. */
+  own(r: Racer): [Name, Powers][] {
+    return this.powers(r).map((p) => [p, RACERS[p]]);
+  }
+
+  /** Every power on the track, in priority order. */
+  all(): Hook[] {
+    return this.byPriority().flatMap((o) => this.powers(o).map((p): Hook => [o, p, RACERS[p]]));
+  }
+
+  choose(me: Racer, p: Name, ...args: any[]): any {
+    return (this.policy.choose[p] ?? RACERS[p].choose)!(this, me, ...args);
+  }
+
+  best(names: Name[]) {
+    return best(names, this.policy.rating);
+  }
+
+  gain(r: Racer, p: Name) {
+    if (r.copied.length >= 2) return;
+    r.copied.push(p);
+    this.say(`${r.name} gains ${p}`);
+    RACERS[p].beforeRace?.(this, r);
   }
 
   state() {
     return this.racers.map((r) => `${r.pos}${r.tripped ? "t" : ""}${this.active(r) ? "" : "x"}`).join(",");
   }
 
-  /** Runs a power and lets Scoocher react, completing an infinite loop only once. */
+  /** Runs a power and lets others react to it, completing an infinite loop only once. */
   use(owner: Racer, p: Name, effect: () => void = () => {}) {
     const key = `${owner.seat}:${p}:${this.state()}`;
     if (this.seen.has(key) || this.depth > MAX_DEPTH) {
@@ -269,9 +264,7 @@ export class Race {
       owner.uses++;
       this.say(`${owner.name}: ${p}`);
       effect();
-      for (const s of this.holders("Scoocher")) {
-        if (s !== owner) this.use(s, "Scoocher", () => this.move(s, 1));
-      }
+      for (const [o, , h] of this.all()) if (this.active(o)) h.onPower?.(this, o, owner);
     } finally {
       this.seen.delete(key);
       this.depth--;
@@ -296,7 +289,7 @@ export class Race {
     this.finishers.push(r);
     this.say(`${r.name} finishes #${r.place}`);
     if (r.place === 1) {
-      const m = this.racers.find((m) => m.prediction === r.name && (m === r || this.active(m)));
+      const m = [r, ...this.onTrack()].find((m) => [m.name, ...m.copied].some((p) => RACERS[p].onWin?.(this, m, r)));
       if (m) {
         m.uses++;
         if (m !== r) m.place = 2;
@@ -307,16 +300,16 @@ export class Race {
     if (this.finishers.length >= 2) throw new RaceOver();
   }
 
-  baby(pos: number, r: Racer) {
-    if (pos <= 0 || pos >= this.track.length) return null;
-    return this.at(pos).find((b) => b !== r && this.has(b, "Huge Baby")) ?? null;
+  /** The power that keeps `r` off `pos`, if any. */
+  blocker(r: Racer, pos: number) {
+    return this.all().find(([o, , h]) => h.blocks?.(this, o, r, pos));
   }
 
   warp(r: Racer, pos: number) {
-    const b = this.baby(pos, r);
+    const b = this.blocker(r, pos);
     if (b) {
       pos--;
-      this.use(b, "Huge Baby");
+      this.use(b[0], b[1]);
     }
     this.say(`${r.name} warps ${r.pos} → ${pos}`);
     r.pos = pos;
@@ -327,55 +320,33 @@ export class Race {
     if (!this.active(r) || dist === 0) return;
     const n = this.track.length;
     const from = r.pos;
-    const followers = this.holders("Suckerfish").filter((s) => s !== r && s.pos === from);
-    let to = from;
-    let skipped = 0;
-    if (this.has(r, "Leaptoad")) {
-      const step = Math.sign(dist);
-      let left = Math.abs(dist);
-      while (left > 0) {
-        to += step;
-        if (to <= 0) { to = 0; break; }
-        if (to >= n) { to += (left - 1) * step; break; }
-        if (this.at(to).some((o) => o !== r)) skipped++;
-        else left--;
-      }
-    } else {
-      to = Math.max(0, from + dist);
-    }
+    const path = this.own(r).find(([, h]) => h.path);
+    let { to, skipped } = path?.[1].path!(this, r, from, dist) ?? { to: Math.max(0, from + dist), skipped: 0 };
     if (to > n) {
-      const s = this.holders("Stickler").find((s) => s !== r);
+      const s = this.all().find(([o, , h]) => h.stopsOvershoot?.(this, o, r));
       if (s) {
         this.say(`${r.name} overshoots`);
-        this.use(s, "Stickler");
+        this.use(s[0], s[1]);
         return;
       }
     }
-    const b = to < n ? this.baby(to, r) : null;
+    const b = to < n ? this.blocker(r, to) : undefined;
     if (b) to--;
     const passed = this.onTrack().filter((o) => o !== r && o.pos > from && (to >= n || o.pos < to));
-    const riders = followers.filter((s) => this.policy.suckerfish(this, s, Math.min(to, n)));
+    const riders = this.all().filter(([o, p, h]) => h.rides && o !== r && o.pos === from && this.choose(o, p, Math.min(to, n)));
     this.say(`${r.name} moves ${from} → ${Math.min(to, n)}`);
-    // Suckerfish arrive together with the racer they ride, so Romantic sees both stops.
+    // Riders arrive together with the racer they ride, so Romantic sees both stops.
     if (to >= n) {
       this.finish(r);
-      for (const s of riders) this.use(s, "Suckerfish", () => this.finish(s));
+      for (const [s, p] of riders) this.use(s, p, () => this.finish(s));
     } else {
-      for (const q of [r, ...riders]) q.pos = to;
+      for (const [s] of riders) s.pos = to;
+      r.pos = to;
       this.arrive(r, passed);
-      for (const s of riders) this.use(s, "Suckerfish", () => this.arrive(s, passed));
+      for (const [s, p] of riders) this.use(s, p, () => this.arrive(s, passed));
     }
-    if (b) this.use(b, "Huge Baby");
-    for (let i = 0; i < skipped; i++) this.use(r, "Leaptoad");
-  }
-
-  duel(d: Racer, q: Racer) {
-    if (d.pos !== q.pos || !this.active(d) || !this.active(q) || !this.policy.duel(this, d, q)) return;
-    this.use(d, "Duelist", () => {
-      const mine = this.d6();
-      const theirs = this.d6();
-      this.move(mine >= theirs ? d : q, 2);
-    });
+    if (b) this.use(b[0], b[1]);
+    if (path) for (let i = 0; i < skipped; i++) this.use(r, path[0]);
   }
 
   arrive(r: Racer, passed: Racer[] = []) {
@@ -385,80 +356,12 @@ export class Race {
     if (space?.star) r.bronze++;
     if (space?.trip) this.trip(r);
     if (space?.arrow) this.move(r, space.arrow);
-    const here = () => this.active(r) && r.pos === at;
-    for (const o of this.byPriority()) {
-      for (const p of this.powers(o)) {
-        if (!this.active(o)) break;
-        switch (p) {
-          case "Banana":
-            if (passed.includes(o)) this.use(o, p, () => this.trip(r));
-            break;
-          case "Centaur":
-            if (o === r) for (const q of passed) if (this.active(q)) this.use(o, p, () => this.move(q, -2));
-            break;
-          case "Baba Yaga":
-            if (!here()) break;
-            if (o === r) {
-              const others = this.at(at).filter((q) => q !== o);
-              if (others.length) this.use(o, p, () => others.forEach((q) => this.trip(q)));
-            } else if (o.pos === at) this.use(o, p, () => this.trip(r));
-            break;
-          case "M.O.U.T.H.":
-            if (o === r && here()) {
-              const others = this.at(at).filter((q) => q !== o);
-              if (others.length === 1) this.use(o, p, () => this.eliminate(others[0]));
-            }
-            break;
-          case "Romantic":
-            if (here() && this.at(at).length === 2) this.use(o, p, () => this.move(o, 2));
-            break;
-          case "Duelist":
-            if (!here()) break;
-            for (const q of o === r ? this.at(at).filter((q) => q !== o) : o.pos === at ? [r] : []) this.duel(o, q);
-            break;
-          case "Huge Baby":
-            if (o === r && here() && at > 0) {
-              const others = this.at(at).filter((q) => q !== o);
-              if (others.length) {
-                this.use(o, p, () => {
-                  for (const q of others) {
-                    q.pos = at - 1;
-                    this.arrive(q);
-                  }
-                });
-              }
-            }
-            break;
-        }
-      }
-    }
+    for (const [o, , h] of this.all()) if (this.active(o)) h.onArrive?.(this, o, r, at, passed);
   }
 
   beforeRace() {
-    const gain = (r: Racer, name: Name, depth: number) => {
-      if (depth > 2) return;
-      let pick: Name | undefined;
-      if (name === "Egg") {
-        const options = shuffle(this.deck, this.rng).slice(0, 3);
-        if (options.length) {
-          pick = best(options, this.policy.rating);
-          this.deck = this.deck.filter((n) => n !== pick);
-        }
-      } else if (name === "Twin") {
-        const options = this.winners.filter((n) => n !== "Twin");
-        if (options.length) pick = best(options, this.policy.rating);
-      } else if (name === "Sisyphus") {
-        r.bronze += 4;
-      }
-      if (pick) {
-        r.copied.push(pick);
-        this.say(`${r.name} gains ${pick}`);
-        gain(r, pick, depth + 1);
-      }
-    };
-    for (const r of this.racers) gain(r, r.name, 0);
-    // Everyone shares the Start, and a Duelist only needs to share a space to duel.
-    for (const d of this.holders("Duelist")) for (const q of this.at(d.pos)) if (q !== d) this.duel(d, q);
+    for (const r of this.racers) RACERS[r.name].beforeRace?.(this, r);
+    for (const [o, , h] of this.all()) if (this.active(o)) h.start?.(this, o);
   }
 
   turn(r: Racer) {
@@ -466,147 +369,76 @@ export class Race {
     const start = r.pos;
     r.turns++;
     this.say(`— ${r.name}'s turn at ${start}`);
-    if (r.turns === 1 && this.has(r, "Mastermind")) {
-      this.use(r, "Mastermind", () => (r.prediction = this.policy.mastermind(this, r)));
-    }
-    const lead = this.lead();
+    for (const [, h] of this.own(r)) h.startTurn?.(this, r);
     if (r.tripped) {
       r.tripped = false;
-    } else if (this.has(r, "Hare") && lead.length === 1 && lead[0] === r && this.onTrack().length > 1) {
-      // A Hare left alone on the track would never move again.
-      this.use(r, "Hare");
     } else {
-      this.beforeMain(r);
-      if (this.active(r)) this.main(r, start);
+      const skip = this.own(r).find(([, h]) => h.skipsMain?.(this, r));
+      if (skip) this.use(r, skip[0]);
+      else {
+        for (const [, h] of this.own(r)) if (this.active(r)) h.beforeMain?.(this, r);
+        if (this.active(r)) this.main(r, start);
+      }
     }
-    if (this.active(r) && Math.abs(r.pos - start) <= 1) {
-      for (const h of this.holders("Heckler")) this.use(h, "Heckler", () => this.move(h, 2));
-    }
-  }
-
-  beforeMain(r: Racer) {
-    const last = this.last();
-    if (this.has(r, "Lovable Loser") && last.length === 1 && last[0] === r) {
-      this.use(r, "Lovable Loser", () => r.bronze++);
-    }
-    if (this.has(r, "Cheerleader") && this.policy.cheerleader(this, r)) {
-      this.use(r, "Cheerleader", () => {
-        for (const q of last) this.move(q, 2);
-        this.move(r, 1);
-      });
-    }
-    if (this.has(r, "Party Animal")) {
-      this.use(r, "Party Animal", () => {
-        for (const q of this.byPriority()) if (q !== r) this.move(q, Math.sign(r.pos - q.pos));
-      });
-    }
-    if (this.has(r, "Hypnotist")) {
-      const t = this.policy.hypnotist(this, r);
-      if (t) this.use(r, "Hypnotist", () => this.warp(t, r.pos));
-    }
-    if (this.has(r, "Third Wheel")) {
-      const pos = this.policy.thirdWheel(this, r);
-      if (pos !== null) this.use(r, "Third Wheel", () => this.warp(r, pos));
-    }
+    if (!this.active(r)) return;
+    const moved = Math.abs(r.pos - start);
+    for (const [o, , h] of this.all()) if (this.active(o)) h.endTurn?.(this, o, r, moved);
   }
 
   main(r: Racer, start: number) {
-    if (this.has(r, "Flip Flop")) {
-      const t = this.policy.flipFlop(this, r);
-      if (t) {
-        this.use(r, "Flip Flop", () => {
-          [r.pos, t.pos] = [t.pos, r.pos];
-          this.say(`${r.name} swaps with ${t.name}`);
-          this.arrive(r);
-          this.arrive(t);
-        });
-        return;
+    const used: [Racer, Name][] = [];
+    this.afterMain = [];
+    let base: number | null = null;
+    for (const [p, h] of this.own(r)) {
+      const replaced = h.replaceMain?.(this, r);
+      if (replaced === true) return;
+      if (typeof replaced === "number") {
+        base = replaced;
+        used.push([r, p]);
+        break;
       }
     }
-    const used: [Racer, Name][] = [];
-    let base: number;
-    let rocket = false;
-    if (this.has(r, "Legs") && this.policy.legs(this, r)) {
-      base = 5;
-      used.push([r, "Legs"]);
-    } else {
-      const guess = this.has(r, "Genius") ? this.policy.genius(this, r) : null;
+    if (base === null) {
+      for (const [, h] of this.own(r)) h.beforeRoll?.(this, r);
       let roll = this.d6();
-      if (this.has(r, "Magician")) {
-        for (let left = 2; left > 0 && this.policy.reroll(this, r, roll, left); left--) {
-          roll = this.d6();
-          this.use(r, "Magician");
-        }
-      }
-      const dicemongers = this.holders("Dicemonger");
-      if (dicemongers.length && this.policy.reroll(this, r, roll, 1)) {
+      const rerollers = this.own(r).filter(([, h]) => h.rerolls);
+      let left = rerollers.reduce((sum, [, h]) => sum + h.rerolls!, 0);
+      for (; left > 0 && this.policy.reroll(this, r, roll, left); left--) {
         roll = this.d6();
-        this.use(dicemongers[0], "Dicemonger", () => {
-          for (const d of dicemongers) if (d !== r) this.move(d, 1);
+        this.use(r, rerollers[0][0]);
+      }
+      const granters = this.all().filter(([, , h]) => h.onReroll);
+      if (granters.length && this.policy.reroll(this, r, roll, 1)) {
+        roll = this.d6();
+        this.use(granters[0][0], granters[0][1], () => {
+          for (const [o, , h] of granters) h.onReroll!(this, o, r);
         });
       }
       this.say(`${r.name} rolls ${roll}`);
-      if (guess === roll) this.use(r, "Genius", () => this.queue.unshift(r));
-      let skip = false;
-      if (roll === 6 && this.has(r, "Sisyphus")) {
-        skip = true;
-        this.use(r, "Sisyphus", () => {
-          if (this.bank[r.seat] + r.bronze > 0) r.bronze--;
-          this.warp(r, 0);
-        });
-      }
-      for (const o of this.byPriority()) {
-        if (roll === 1 && o !== r && !skip && this.has(o, "Inchworm")) {
-          skip = true;
-          this.use(o, "Inchworm", () => this.move(o, 1));
-        }
-        if (roll === 1 && this.has(o, "Skipper")) this.use(o, "Skipper", () => this.queue.push(o));
-        if (roll === 6 && o !== r && !skip && this.has(o, "Lackey")) this.use(o, "Lackey", () => this.move(o, 2));
-      }
-      if (skip || !this.active(r)) return;
+      let skipped = false;
+      for (const [o, , h] of this.all()) if (this.active(o) && h.onRoll?.(this, o, r, roll, skipped)) skipped = true;
+      if (skipped || !this.active(r)) return;
       base = roll;
-      if (roll <= 2 && this.has(r, "Alchemist") && this.policy.alchemist(this, r, roll)) {
-        base = 4;
-        used.push([r, "Alchemist"]);
-      }
-      if (this.has(r, "Rocket Scientist") && this.policy.rocket(this, r, roll)) {
-        base *= 2;
-        rocket = true;
-        used.push([r, "Rocket Scientist"]);
+      for (const [p, h] of this.own(r)) {
+        const b = h.base?.(this, r, roll, base) ?? base;
+        if (b !== base) {
+          base = b;
+          used.push([r, p]);
+        }
       }
     }
     let dist = base;
-    if (this.has(r, "Blimp")) {
-      dist += start < this.track.corner2 ? 3 : -1;
-      used.push([r, "Blimp"]);
-    }
-    if (this.has(r, "Hare")) {
-      dist += 2;
-      used.push([r, "Hare"]);
-    }
-    for (const c of this.holders("Coach")) {
-      if (c.pos === r.pos) {
-        dist++;
-        used.push([c, "Coach"]);
-      }
-    }
-    for (const g of this.holders("Gunk")) {
-      if (g !== r) {
-        dist--;
-        used.push([g, "Gunk"]);
-      }
-    }
-    if (this.has(r, "Party Animal")) {
-      const k = this.at(r.pos).length - 1;
-      if (k) {
-        dist += k;
-        used.push([r, "Party Animal"]);
+    for (const [o, p, h] of this.all()) {
+      const d = this.active(o) ? (h.modify?.(this, o, r, start) ?? 0) : 0;
+      if (d) {
+        dist += d;
+        used.push([o, p]);
       }
     }
     for (const [o, p] of used) this.use(o, p);
     if (!this.active(r)) return;
     this.move(r, Math.max(0, dist));
-    if (rocket) this.trip(r);
+    for (const f of this.afterMain) f();
   }
 
   run(): RaceResult {

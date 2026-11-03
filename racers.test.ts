@@ -78,12 +78,12 @@ const cards: Record<Name, () => void> = {
   "Duelist"() {
     // Whenever a racer shares my space, I can shout DUEL! We roll our dice and whoever rolls
     // highest moves 2. I win ties.
-    let race = setup(["Legs", "Duelist"], [0, 5], [3, 3], { policy: { duel: () => true } });
+    let race = setup(["Legs", "Duelist"], [0, 5], [3, 3], { policy: { choose: { Duelist: () => true } } });
     race.turn(race.racers[0]);
     assert.equal(race.racers[0].pos, 5);
     assert.equal(race.racers[1].pos, 7);
     // I just need to be sharing a space to immediately declare a duel.
-    race = setup(["Legs", "Duelist"], [0, 0], [2, 5], { policy: { duel: () => true } });
+    race = setup(["Legs", "Duelist"], [0, 0], [2, 5], { policy: { choose: { Duelist: () => true } } });
     race.beforeRace();
     assert.deepEqual(race.racers.map((r) => r.pos), [2, 0]);
   },
@@ -190,7 +190,7 @@ const cards: Record<Name, () => void> = {
     // At the start of my first turn, I predict which racer will win the race. If I'm right, the
     // race ends immediately and I finish 2nd.
     const race = setup(["Mastermind", "Legs", "Banana"], [0, 27, 0], [1], {
-      policy: { mastermind: () => "Legs" },
+      policy: { choose: { Mastermind: () => "Legs" } },
     });
     assert.deepEqual(race.run().finishers, [1, 0]);
   },

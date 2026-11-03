@@ -4,7 +4,10 @@ A simulator of the CMYK board game Magical Athlete, from the rulebook in `magica
 (https://bghub.org/r/magical-athlete.pdf, not committed). No dependencies; Node 24 runs the
 TypeScript directly.
 
-- `game.ts`: the engine. `Race` runs one race, `playGame` drafts and runs four.
+- `racers.ts`: each racer's rules as hooks, with its default choice and everything the rulebook
+  says about it (flavor text, card, notes, and passages elsewhere that name it).
+- `game.ts`: the engine, which calls those hooks. `Race` runs one race, `playGame` drafts and
+  runs four.
 - `sim.ts`: Monte Carlo. `node sim.ts --n 100000 --players 5` prints per-racer odds;
   `--mode game` runs whole games; `--csv` prints one row per racer per race (or per player per
   game) instead; `--log` prints every event.
@@ -24,6 +27,8 @@ TypeScript directly.
 
 - Simultaneous triggers resolve racetrack spaces first, then racers starting with the current
   player and going clockwise, each resolving fully (depth-first) before the next.
+- A trigger reaches the powers racers hold when it happens. A Copycat whose leader changes
+  partway through the reactions doesn't also react with its new power.
 - Scoocher moves after every other racer's power, including passive ones every turn (Blimp, Hare,
   Coach, Gunk per -1, Party Animal) and each Leaptoad skip.
 - An infinite loop is a power repeating with identical positions within its own chain of
