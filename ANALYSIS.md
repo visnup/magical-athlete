@@ -165,6 +165,37 @@ stars. Inchworm, Huge Baby, Hypnotist and Cheerleader go to race 2 for the oppos
 next racer. After it come Lovable Loser, Sisyphus, Suckerfish, Dicemonger, Romantic and Heckler.
 Twin, Mastermind and Egg are underrated here, since they pick at random; see the next section.
 
+## Optional powers
+
+`node choices.ts` races each racer with an optional power in every race (100,000 races of 5) and
+compares its current choice with alternatives. Points per race, race 1 / race 2:
+
+| racer | current choice | alternatives |
+| --- | --- | --- |
+| Alchemist | always move 4 | never: 0.30 / 1.10, against 0.70 / 1.32 |
+| Cheerleader | **was** only from last place: 0.76 / 1.81 | **always: 1.13 / 2.36**, never: 0.31 / 1.12 |
+| Flip Flop | swap with the farthest racer 4+ ahead: 1.49 / 2.66 | 2+ ahead −0.30 / −0.16, 6+ ahead −0.04 / −0.04 |
+| Genius | predict 6: 0.83 / 1.71 | every other number is worse; 1 is worst (−0.21 / −0.24) |
+| Hypnotist | **was** opponents 4+ ahead: 0.94 / 2.30 | **anyone ahead: +0.07 / +0.20**, 7+ ahead −0.24 / −0.39 |
+| Legs | always move 5 | never: 0.33 / 1.12, against 1.53 / 2.05 |
+| Magician | reroll 1–4, then 1–3: 1.02 / 1.68 | 1–3 both times −0.03 / −0.08, 1–2 −0.21 / −0.19 |
+| Rocket Scientist | double on 4+: 0.91 / 2.13 | 5+ +0.02 / −0.07, always −0.23 / −0.66 |
+| Suckerfish | ride, except another player's Scoocher near the finish | always ride +0.02 / +0.02 |
+| Third Wheel | farthest pair ahead: 0.81 / 1.74 | nearest pair ahead −0.01 / −0.02 |
+
+Two defaults changed:
+- **Cheerleader now always cheers.** The last-place racers get 2, but Cheerleader always gets its
+  1. It's worth half a point a race.
+- **Hypnotist now pulls back any opponent ahead,** except Copycat and Baba Yaga. Pulling a Copycat
+  back makes it copy Hypnotist and pull straight back, forever. Pulling Baba Yaga onto your own
+  space trips you, which stalled races when it repeated. New score: 1.01 / 2.44.
+
+The rest were already the best of what was tried. Every racer's power is worth a lot over no
+power at all: "never" costs 0.4 to 2.5 points a race.
+
+The other tables in this file predate these two changes, which affect only Cheerleader and
+Hypnotist themselves noticeably.
+
 ## Racers that pick racers
 
 `node twin.ts` reruns Twin, Egg, Mastermind and Copycat with a rating to choose by (each racer's

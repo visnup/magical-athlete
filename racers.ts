@@ -159,7 +159,8 @@ export const RACERS: Record<Name, Powers> = {
    * If I cheer for myself, those are two separate moves: move 2 then move 1.
    */
   "Cheerleader": {
-    choose: (race, me) => race.last().includes(me),
+    // Cheering every turn beat cheering only from last place by about half a point a race.
+    choose: () => true,
     startTurn(race, me) {
       const last = race.last();
       if (!race.choose(me, "Cheerleader")) return;
@@ -423,8 +424,11 @@ export const RACERS: Record<Name, Powers> = {
    */
   "Hypnotist": {
     choose(race, me) {
-      // Pulling back any racer at all ping-pongs forever against a Copycat.
-      const ahead = race.onTrack().filter((o) => o.seat !== me.seat && o.pos - me.pos > 3);
+      // A Copycat would copy the new leader's Hypnotist and pull straight back, forever, and Baba
+      // Yaga would trip us every time.
+      const ahead = race.onTrack().filter((o) =>
+        o.seat !== me.seat && o.pos > me.pos && !race.powers(o).some((p) => p === "Copycat" || p === "Baba Yaga")
+      );
       return ahead.sort((a, b) => b.pos - a.pos)[0] ?? null;
     },
     startTurn(race, me) {

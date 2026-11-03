@@ -23,8 +23,8 @@
 - [x] Player count: the points table for 3 to 6 players (`players.ts`, in `ANALYSIS.md`).
 - [x] Matchups: each racer's points with and without each other racer in the race (`matchups.ts`,
       in `ANALYSIS.md`).
-- [ ] Better choices for optional powers: decide by playing out a few hundred random finishes per
-      option, and compare against `defaultPolicy`.
+- [x] Better choices for optional powers (`choices.ts`): compared head to head against
+      alternatives. Cheerleader now always cheers and Hypnotist pulls back anyone ahead.
 - [x] Race order: a team's value is its best assignment of four racers to four races (24
       orderings). A draft pick's value is how much it raises that (`lineup.ts`).
 - [ ] Use `lineup.ts`'s values in `playGame`: draft by draft value and play the best order, then
