@@ -351,7 +351,8 @@ export const RACERS: Record<Name, Powers> = {
    * https://boardgamegeek.com/thread/3595157/article/46761348
    */
   "Genius": {
-    choose: () => 6,
+    // Steady when leading, swingy when not: +0.03 points a race over always 6 (choices.ts).
+    choose: (race, me) => (race.lead().includes(me) ? 1 : 6),
     beforeRoll(race, me) {
       race.use(me, "Genius", () => (me.guess = race.choose(me, "Genius")));
     },

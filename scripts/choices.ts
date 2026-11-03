@@ -24,7 +24,10 @@ const variants: Partial<Record<Name, Record<string, Partial<Policy>>>> = {
     "6 or more ahead": { choose: { "Flip Flop": (race, me) => farthest(race, me, (o) => o.pos - me.pos >= 6 && !race.powers(o).includes("Copycat")) } },
     never: { choose: { "Flip Flop": () => null } },
   },
-  "Genius": Object.fromEntries([1, 2, 3, 4, 5].map((g) => [`guess ${g}`, { choose: { Genius: () => g } }])),
+  "Genius": {
+    ...Object.fromEntries([1, 2, 3, 4, 5, 6].map((g) => [`guess ${g}${g === 6 ? " (previous)" : ""}`, { choose: { Genius: () => g } }])),
+    "1 when in the top two, else 6": { choose: { Genius: (race, me) => (race.onTrack().filter((o) => o.pos > me.pos).length + race.finishers.length < 2 ? 1 : 6) } },
+  },
   "Hypnotist": {
     "anyone ahead": { choose: { Hypnotist: (race, me) => farthest(race, me, (o) => o.pos > me.pos && !race.powers(o).includes("Copycat")) } },
     "7 or more ahead": { choose: { Hypnotist: (race, me) => farthest(race, me, (o) => o.pos - me.pos > 6) } },

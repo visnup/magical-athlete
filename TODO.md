@@ -26,7 +26,8 @@
 - [x] Matchups: each racer's points with and without each other racer in the race (`matchups.ts`,
       in `README.md`).
 - [x] Better choices for optional powers (`choices.ts`): compared head to head against
-      alternatives. Cheerleader now always cheers and Hypnotist pulls back anyone ahead.
+      alternatives. Cheerleader now always cheers, Hypnotist pulls back anyone ahead, and Genius guesses 1
+      when leading.
 - [x] Race order: a team's value is its best assignment of four racers to four races (24
       orderings). A draft pick's value is how much it raises that (`lineup.ts`).
 - [x] Whole games played well (`games.ts`, `endgame.ts`): drafting by rating and playing the best
