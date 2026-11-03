@@ -1,5 +1,6 @@
 import { GOLD, MILD_MILE, mulberry32, NAMES, type Name, Race, type RaceResult, type Racer, type Rules, shuffle, SILVER, WILD_WILDS } from "./game.ts";
-import { parallel } from "./parallel.ts";
+import { collect } from "./parallel.ts";
+import { racerRows, type RacerRow, rowPoints } from "./results.ts";
 
 /** Points `r` scored in `result`, if it was race `race` (0–3) of a game. */
 export function points(result: RaceResult, r: Racer, race: number) {
@@ -19,6 +20,8 @@ export type Options = {
   ratings?: Partial<Record<Name, number>>;
   /** Each earlier race's chance of 1st per racer, to draw earlier winners for Twin from. */
   earlier?: Partial<Record<Name, number>>[];
+  /** Which batch of `n` races this is, so batches don't repeat each other's seeds. */
+  batch?: number;
 };
 
 /** One earlier winner per earlier race, drawn by chance of 1st, none of them in `lineup`. */
@@ -46,43 +49,37 @@ function race(o: Options, race: number, racers: Name[], rng: () => number) {
 }
 
 export function tableTask(r: number, o: Options, seed: number, n: number) {
-  const rng = mulberry32(seed);
+  const rng = mulberry32(seed + 1000 * (o.batch ?? 0));
   const players = o.players ?? 5;
-  const sums = Object.fromEntries(NAMES.map((name) => [name, [0, 0, 0]])) as Record<Name, number[]>;
-  for (let i = 0; i < n; i++) {
-    const result = race(o, r, shuffle([...NAMES], rng).slice(0, players), rng);
-    for (const x of result.racers) {
-      const s = sums[x.name];
-      s[0] += points(result, x, r);
-      s[1] += +(result.finishers[0] === x.seat);
-      s[2]++;
-    }
-  }
-  return sums;
+  return Array.from({ length: n }, () => racerRows(race(o, r, shuffle([...NAMES], rng).slice(0, players), rng)));
 }
 
-/** Each racer's average points and chance of 1st in race `race` (0–3), from random lineups. */
-export async function table(r: number, o: Options = {}) {
-  const sums = await parallel<Record<Name, number[]>>(import.meta.url, "tableTask", [r, o], o.n ?? 100000);
-  return new Map<Name, Row>(NAMES.map((name) => {
-    const [p, f, k] = sums[name];
-    return [name, { points: p / k, first: f / k }];
-  }));
+/** A row per racer per race in race `r` (0–3), from random lineups. */
+export const tableRows = (r: number, o: Options = {}) => collect<RacerRow>(import.meta.url, "tableTask", [r, o], o.n ?? 100000);
+
+/** Each racer's average points and chance of 1st from `rows`, scored as race `r` (0–3). */
+export function summarize(rows: Pick<RacerRow, "racer" | "gold" | "silver" | "bronze">[], r: number) {
+  const sums = new Map(NAMES.map((name) => [name, [0, 0, 0]]));
+  for (const row of rows) {
+    const s = sums.get(row.racer as Name)!;
+    s[0] += rowPoints(row, r);
+    s[1] += row.gold;
+    s[2]++;
+  }
+  return new Map<Name, Row>([...sums].map(([name, [p, f, k]]) => [name, { points: p / k, first: f / k }]));
 }
+
+/** Each racer's average points and chance of 1st in race `r` (0–3), from random lineups. */
+export const table = async (r: number, o: Options = {}) => summarize(await tableRows(r, o), r);
 
 export function forcedTask(name: Name, r: number, o: Options, seed: number, n: number) {
   const rng = mulberry32(seed);
   const others = NAMES.filter((x) => x !== name);
-  let total = 0;
-  for (let i = 0; i < n; i++) {
+  return Array.from({ length: n }, () => {
     const result = race(o, r, shuffle([name, ...shuffle(others, rng).slice(0, (o.players ?? 5) - 1)], rng), rng);
-    total += points(result, result.racers.find((x) => x.name === name)!, r);
-  }
-  return total;
+    return racerRows(result).filter((x) => x.racer === name);
+  });
 }
 
-/** `name`'s average points in race `race` (0–3), racing in every race. */
-export async function forced(name: Name, r: number, o: Options = {}) {
-  const n = o.n ?? 100000;
-  return (await parallel<number>(import.meta.url, "forcedTask", [name, r, o], n)) / n;
-}
+/** `name`'s row in each race of race `r` (0–3), racing in every race. */
+export const forcedRows = (name: Name, r: number, o: Options = {}) => collect<RacerRow>(import.meta.url, "forcedTask", [name, r, o], o.n ?? 100000);

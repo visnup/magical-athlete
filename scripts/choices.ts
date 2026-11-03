@@ -1,8 +1,9 @@
 import { parseArgs } from "node:util";
 import { defaultPolicy, mulberry32, NAMES, type Name, type Policy, Race, type Racer, shuffle } from "../src/game.ts";
-import { parallel } from "../src/parallel.ts";
+import { collect } from "../src/parallel.ts";
 import { RACERS } from "../src/racers.ts";
-import { points, trackFor } from "../src/tables.ts";
+import { parquet, pointsSql, query, racerRows, type RacerRow, slug, write } from "../src/results.ts";
+import { trackFor } from "../src/tables.ts";
 
 /**
  * Compares each optional power's current choice (`choose` in racers.ts) with alternatives, over the
@@ -62,20 +63,15 @@ const variants: Partial<Record<Name, Record<string, Partial<Policy>>>> = {
 };
 
 
-/** [points, points squared] for `name` in every race, choosing by variant `label` (or as now). */
+/** `name`'s row in every race, choosing by variant `label` (or as now). */
 export function choiceTask(name: Name, label: string | null, race: number, players: number, seed: number, n: number) {
   const policy = label ? variants[name]![label] : undefined;
   const rng = mulberry32(seed);
   const others = NAMES.filter((x) => x !== name);
-  const sums = [0, 0];
-  for (let i = 0; i < n; i++) {
+  return Array.from({ length: n }, () => {
     const racers = shuffle([name, ...shuffle(others, rng).slice(0, players - 1)], rng);
-    const result = new Race({ racers, track: trackFor(race), rng, policy }).run();
-    const p = points(result, result.racers.find((r) => r.name === name)!, race);
-    sums[0] += p;
-    sums[1] += p * p;
-  }
-  return sums;
+    return racerRows(new Race({ racers, track: trackFor(race), rng, policy }).run()).filter((r) => r.racer === name);
+  });
 }
 
 if (import.meta.main) {
@@ -88,19 +84,28 @@ if (import.meta.main) {
   });
   const n = Number(args.n);
   const players = Number(args.players);
-  const mean = async (name: Name, label: string | null, race: number) => {
-    const [sum, sq] = await parallel<number[]>(import.meta.url, "choiceTask", [name, label, race, players], n);
-    return { mean: sum / n, se: Math.sqrt((sq / n - (sum / n) ** 2) / n) };
-  };
   for (const [name, vs] of Object.entries(variants) as [Name, Record<string, Partial<Policy>>][]) {
     if (args.racer && args.racer !== name) continue;
+    const rows = [];
+    for (const race of [0, 1]) {
+      for (const label of [null, ...Object.keys(vs)]) {
+        const xs = await collect<RacerRow>(import.meta.url, "choiceTask", [name, label, race, players], n);
+        for (const row of xs.map((r) => ({ game_race: race + 1, choice: label ?? "current", ...r }))) rows.push(row);
+      }
+    }
+    const file = `choices-${slug(name)}`;
+    await write(file, rows);
     console.log(`\n${name}${RACERS[name].choose ? "" : " (choice in Policy.reroll)"}:`);
     for (const race of [0, 1]) {
-      const base = await mean(name, null, race);
-      const cells = [`current ${base.mean.toFixed(2)} ±${base.se.toFixed(2)}`];
+      const means = await query(`
+        select choice, avg(p) points, stddev_pop(p) / sqrt(count(*)) se from (
+          select choice, ${pointsSql(race)} p from ${parquet(file)} where game_race = ${race + 1}
+        ) group by choice`);
+      const base = means.find((m) => m.choice === "current")!;
+      const cells = [`current ${base.points.toFixed(2)} ±${base.se.toFixed(2)}`];
       for (const label of Object.keys(vs)) {
-        const { mean: m } = await mean(name, label, race);
-        cells.push(`${label} ${m.toFixed(2)} (${m >= base.mean ? "+" : ""}${(m - base.mean).toFixed(2)})`);
+        const m = means.find((x) => x.choice === label)!.points;
+        cells.push(`${label} ${m.toFixed(2)} (${m >= base.points ? "+" : ""}${(m - base.points).toFixed(2)})`);
       }
       console.log(`  race ${race + 1}, ${trackFor(race).name}: ${cells.join(", ")}`);
     }

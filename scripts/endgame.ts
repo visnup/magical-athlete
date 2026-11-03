@@ -1,8 +1,10 @@
 import { parseArgs } from "node:util";
-import { assign, mulberry32, type Name, NAMES, playGame } from "../src/game.ts";
-import { parallel } from "../src/parallel.ts";
+import { assign, mulberry32, type Name, playGame } from "../src/game.ts";
+import { collect } from "../src/parallel.ts";
 import RATINGS from "../src/ratings.json" with { type: "json" };
-import { spreadTask } from "./spread.ts";
+import { parquet, query, write } from "../src/results.ts";
+import { gameRows } from "./draft.ts";
+import { spreadSql } from "./spread.ts";
 
 /**
  * Choosing racers during a game, for one randomly seated player against opponents who play their
@@ -41,20 +43,13 @@ const strategies: Record<string, (stats: Stats, me: number) => Parameters<typeof
 
 export function endgameTask(label: string, stats: Stats, players: number, seed: number, n: number) {
   const rng = mulberry32(seed);
-  // wins, score, games where my M.O.U.T.H. met an opponent's Scoocher, my wins in those
-  const sums = [0, 0, 0, 0];
-  for (let i = 0; i < n; i++) {
+  return Array.from({ length: n }, () => {
     const me = Math.floor(rng() * players);
     const game = playGame({ ...strategies[label](stats, me), players, rng });
-    const top = Math.max(...game.scores);
-    const won = game.scores[me] === top ? 1 / game.scores.filter((s) => s === top).length : 0;
-    sums[0] += won;
-    sums[1] += game.scores[me];
+    // games where my M.O.U.T.H. raced an opponent's Scoocher
     const met = game.teams[me].some((x, race) => x === "M.O.U.T.H." && game.teams.some((t, q) => q !== me && t[race] === "Scoocher"));
-    sums[2] += +met;
-    sums[3] += met ? won : 0;
-  }
-  return sums;
+    return gameRows(game, me).map((r) => ({ ...r, met: +(r.me && met) }));
+  });
 }
 
 if (import.meta.main) {
@@ -64,16 +59,19 @@ if (import.meta.main) {
   const n = Number(args.n);
   const players = Number(args.players);
   // Each racer's chance of 0 points and of at least gold in race 4.
-  const sums = await parallel<Record<Name, number[]>>(new URL("./spread.ts", import.meta.url).href, "spreadTask", [3, players], 100000);
-  const stats = Object.fromEntries(NAMES.map((name) => {
-    const [k, , , zero, , gold] = sums[name];
-    return [name, { zero: zero / k, gold: gold / k }];
-  })) as Stats;
+  const stats = Object.fromEntries((await query(spreadSql(3))).map((r) => [r.racer, { zero: r.zero, gold: r.gold }])) as Stats;
+  const rows = [];
+  for (const label of Object.keys(strategies)) {
+    for (const row of (await collect(import.meta.url, "endgameTask", [label, stats, players], n, "game")).map((r) => ({ strategy: label, ...r }))) rows.push(row);
+  }
+  const file = `endgame-${players}p`;
+  await write(file, rows);
   console.log(`${n} games of ${players}; even odds of winning are ${(100 / players).toFixed(1)}%\n`);
   console.log("| my choices | wins | score | my M.O.U.T.H. met their Scoocher | wins then |\n| --- | --- | --- | --- | --- |");
-  for (const label of Object.keys(strategies)) {
-    const [wins, score, met, metWins] = await parallel<number[]>(import.meta.url, "endgameTask", [label, stats, players], n);
-    const then = met ? `${((100 * metWins) / met).toFixed(1)}%` : "";
-    console.log(`| ${label} | ${((100 * wins) / n).toFixed(1)}% | ${(score / n).toFixed(2)} | ${((100 * met) / n).toFixed(1)}% of games | ${then} |`);
+  const means = await query(`
+    select strategy, avg(won) won, avg(score) score, avg(met) met, sum(won * met) / nullif(sum(met), 0) won_met
+    from ${parquet(file)} where me = 1 group by strategy`);
+  for (const r of Object.keys(strategies).map((label) => means.find((m) => m.strategy === label)!)) {
+    console.log(`| ${r.strategy} | ${(100 * r.won).toFixed(1)}% | ${r.score.toFixed(2)} | ${(100 * r.met).toFixed(1)}% of games | ${r.won_met === null ? "" : `${(100 * r.won_met).toFixed(1)}%`} |`);
   }
 }

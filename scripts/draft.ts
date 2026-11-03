@@ -1,7 +1,8 @@
 import { parseArgs } from "node:util";
 import { assign, mulberry32, type Name, playGame } from "../src/game.ts";
-import { parallel } from "../src/parallel.ts";
+import { collect } from "../src/parallel.ts";
 import RATINGS from "../src/ratings.json" with { type: "json" };
+import { parquet, query, write } from "../src/results.ts";
 
 /**
  * Drafting strategies for one player, against opponents who take the highest-rated racer left.
@@ -34,20 +35,28 @@ const strategies: Record<string, Pick> = {
 export function draftTask(label: string, players: number, seed: number, n: number) {
   const rng = mulberry32(seed);
   const strategy = strategies[label];
-  let wins = 0;
-  let score = 0;
-  for (let i = 0; i < n; i++) {
+  return Array.from({ length: n }, () => {
     const me = Math.floor(rng() * players);
     const game = playGame({
       players,
       rng,
       pick: (p, row, teams) => (p === me ? strategy(row, teams[p], teams.filter((_, q) => q !== p)) : undefined),
     });
-    const top = Math.max(...game.scores);
-    if (game.scores[me] === top) wins += 1 / game.scores.filter((s) => s === top).length;
-    score += game.scores[me];
-  }
-  return [wins, score];
+    return gameRows(game, me);
+  });
+}
+
+/** A row per player in `game`, marking the test player `me`. */
+export function gameRows(game: ReturnType<typeof playGame>, me: number) {
+  const top = Math.max(...game.scores);
+  return game.scores.map((score, player) => ({
+    player,
+    me: +(player === me),
+    pick: game.drafters.indexOf(player) + 1,
+    team: game.teams[player].join("|"),
+    score,
+    won: score === top ? 1 / game.scores.filter((s) => s === top).length : 0,
+  }));
 }
 
 if (import.meta.main) {
@@ -56,10 +65,16 @@ if (import.meta.main) {
   });
   const n = Number(args.n);
   const players = Number(args.players);
+  const rows = [];
+  for (const label of Object.keys(strategies)) {
+    for (const row of (await collect(import.meta.url, "draftTask", [label, players], n, "game")).map((r) => ({ strategy: label, ...r }))) rows.push(row);
+  }
+  const file = `draft-${players}p`;
+  await write(file, rows);
   console.log(`${n} games of ${players}; even odds of winning are ${(100 / players).toFixed(1)}%\n`);
   console.log("| my draft | wins | score |\n| --- | --- | --- |");
-  for (const label of Object.keys(strategies)) {
-    const [wins, score] = await parallel<number[]>(import.meta.url, "draftTask", [label, players], n);
-    console.log(`| ${label} | ${((100 * wins) / n).toFixed(1)}% | ${(score / n).toFixed(2)} |`);
+  const means = await query(`select strategy, avg(won) won, avg(score) score from ${parquet(file)} where me = 1 group by strategy`);
+  for (const r of Object.keys(strategies).map((label) => means.find((m) => m.strategy === label)!)) {
+    console.log(`| ${r.strategy} | ${(100 * r.won).toFixed(1)}% | ${r.score.toFixed(2)} |`);
   }
 }

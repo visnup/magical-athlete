@@ -1,32 +1,34 @@
 import { parseArgs } from "node:util";
-import { MILD_MILE, NAMES, type Rules, WILD_WILDS } from "../src/game.ts";
-import { table } from "../src/tables.ts";
+import { type Rules } from "../src/game.ts";
+import { parquet, pointsSql, query, races, write } from "../src/results.ts";
+import { tableRows, trackFor } from "../src/tables.ts";
 
-/** Reruns the points table with each unsettled rule read the other way, and prints what moves. */
+/**
+ * Reruns the 5-player races with each unsettled rule read the other way, writing them to
+ * results/sensitivity-<reading>-<track>.parquet, and prints what moves against the race dataset.
+ */
 const { values: args } = parseArgs({
   options: {
     n: { type: "string", default: "100000" },
-    players: { type: "string", default: "5" },
     threshold: { type: "string", default: "0.1" },
   },
 });
-const n = Number(args.n);
-const players = Number(args.players);
-
-const variants: { name: string; rules: Partial<Rules> }[] = [
-  { name: "main moves can go backwards", rules: { backwards: true } },
-  { name: "triggers queue and resolve even if the board changed", rules: { queue: true } },
+const variants: { name: string; key: keyof Rules }[] = [
+  { name: "main moves can go backwards", key: "backwards" },
+  { name: "triggers queue and resolve even if the board changed", key: "queue" },
 ];
 
 for (const race of [0, 1]) {
-  const base = await table(race, { n, players });
-  console.log(`\nRace ${race + 1} on the ${[MILD_MILE, WILD_WILDS][race].name}, ${n} races of ${players}:`);
+  console.log(`\nRace ${race + 1} on the ${trackFor(race).name}:`);
   for (const v of variants) {
-    const alt = await table(race, { n, players, rules: v.rules });
-    const moved = NAMES.map((name) => [name, alt.get(name)!.points - base.get(name)!.points] as const)
-      .filter(([, d]) => Math.abs(d) >= Number(args.threshold))
-      .sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]));
-    const list = moved.map(([name, d]) => `${name} ${d > 0 ? "+" : ""}${d.toFixed(2)} (${base.get(name)!.points.toFixed(2)})`);
+    const file = `sensitivity-${v.key}-${["mild", "wild"][race]}`;
+    await write(file, await tableRows(race, { n: Number(args.n), rules: { [v.key]: true } }));
+    const moved = await query(`
+      select racer, a.points base, b.points - a.points change
+      from (select racer, avg(${pointsSql(race)}) points from ${races(race)} group by racer) a
+      join (select racer, avg(${pointsSql(race)}) points from ${parquet(file)} group by racer) b using (racer)
+      where abs(b.points - a.points) >= ${Number(args.threshold)} order by abs(change) desc`);
+    const list = moved.map((r) => `${r.racer} ${r.change > 0 ? "+" : ""}${r.change.toFixed(2)} (${r.base.toFixed(2)})`);
     console.log(`  ${v.name}: ${list.join(", ") || "nothing moves"}`);
   }
 }

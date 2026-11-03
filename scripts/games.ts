@@ -1,40 +1,28 @@
 import { parseArgs } from "node:util";
 import { assign, mulberry32, playGame } from "../src/game.ts";
-import { parallel } from "../src/parallel.ts";
+import { collect } from "../src/parallel.ts";
+import { parquet, query, write } from "../src/results.ts";
 
 /**
  * Whole games, drafted by rating and played in each team's best race order: what each draft
  * position is worth, and how well a team's estimated value (`ratings.json`) predicts its score.
+ * Writes a row per player per game to results/games-<players>p[-double].parquet.
  */
 export function gamesTask(players: number, double: boolean, seed: number, n: number) {
   const rng = mulberry32(seed);
-  // per draft position: [score, wins]; per estimate rank: [wins]; and sums for the correlation
-  const byPick = Array.from({ length: players }, () => [0, 0]);
-  const byRank = Array(players).fill(0);
-  const fit = [0, 0, 0, 0, 0, 0]; // n, Σx, Σy, Σxx, Σyy, Σxy
-  for (let i = 0; i < n; i++) {
+  const races = [0, 1, 2, 3].flatMap((race) => (double ? [race, race] : [race]));
+  return Array.from({ length: n }, () => {
     const game = playGame({ players, double, rng });
     const top = Math.max(...game.scores);
-    const wins = game.scores.map((s) => (s === top ? 1 / game.scores.filter((t) => t === top).length : 0));
-    game.drafters.forEach((p, pick) => {
-      byPick[pick][0] += game.scores[p];
-      byPick[pick][1] += wins[p];
-    });
-    const races = [0, 1, 2, 3].flatMap((race) => (double ? [race, race] : [race]));
-    const estimates = game.teams.map((t) => assign(t, undefined, races).value);
-    const ranked = estimates.map((_, p) => p).sort((a, b) => estimates[b] - estimates[a]);
-    ranked.forEach((p, rank) => (byRank[rank] += wins[p]));
-    estimates.forEach((x, p) => {
-      const y = game.scores[p];
-      fit[0]++;
-      fit[1] += x;
-      fit[2] += y;
-      fit[3] += x * x;
-      fit[4] += y * y;
-      fit[5] += x * y;
-    });
-  }
-  return { byPick, byRank, fit };
+    return game.scores.map((score, player) => ({
+      player,
+      pick: game.drafters.indexOf(player) + 1,
+      team: game.teams[player].join("|"),
+      estimate: assign(game.teams[player], undefined, races).value,
+      score,
+      won: score === top ? 1 / game.scores.filter((s) => s === top).length : 0,
+    }));
+  });
 }
 
 if (import.meta.main) {
@@ -47,14 +35,17 @@ if (import.meta.main) {
   });
   const n = Number(args.n);
   const players = Number(args.players);
-  const { byPick, byRank, fit } = await parallel<ReturnType<typeof gamesTask>>(import.meta.url, "gamesTask", [players, args.double], n);
-  const pct = (x: number) => `${((100 * x) / n).toFixed(1)}%`;
+  const file = `games-${players}p${args.double ? "-double" : ""}`;
+  await write(file, await collect(import.meta.url, "gamesTask", [players, args.double], n, "game"));
+  const pct = (x: number) => `${(100 * x).toFixed(1)}%`;
   console.log(`${n} games of ${players}${args.double ? ", two racers each" : ""}; even odds of winning are ${(100 / players).toFixed(1)}%\n`);
   console.log("| first-round pick | score | wins |\n| --- | --- | --- |");
-  byPick.forEach(([s, w], i) => console.log(`| ${i + 1} | ${(s / n).toFixed(2)} | ${pct(w)} |`));
+  for (const r of await query(`select pick, avg(score) score, avg(won) won from ${parquet(file)} group by pick order by pick`)) {
+    console.log(`| ${r.pick} | ${r.score.toFixed(2)} | ${pct(r.won)} |`);
+  }
   console.log("\n| team's estimated rank | wins |\n| --- | --- |");
-  byRank.forEach((w, i) => console.log(`| ${i + 1} | ${pct(w)} |`));
-  const [k, sx, sy, sxx, syy, sxy] = fit;
-  const r = (k * sxy - sx * sy) / Math.sqrt((k * sxx - sx * sx) * (k * syy - sy * sy));
-  console.log(`\nEstimated team value averages ${(sx / k).toFixed(2)}, actual score ${(sy / k).toFixed(2)}; correlation ${r.toFixed(2)}.`);
+  const ranked = `select *, row_number() over (partition by game order by estimate desc) rank from ${parquet(file)}`;
+  for (const r of await query(`select rank::int rank, avg(won) won from (${ranked}) group by rank order by rank`)) console.log(`| ${r.rank} | ${pct(r.won)} |`);
+  const [fit] = await query(`select avg(estimate) estimate, avg(score) score, corr(estimate, score) r from ${parquet(file)}`);
+  console.log(`\nEstimated team value averages ${fit.estimate.toFixed(2)}, actual score ${fit.score.toFixed(2)}; correlation ${fit.r.toFixed(2)}.`);
 }

@@ -1,7 +1,8 @@
 import { parseArgs } from "node:util";
 import { mulberry32, NAMES, type Name, type Policy, Race, type Racer, shuffle } from "../src/game.ts";
-import { parallel } from "../src/parallel.ts";
+import { collect } from "../src/parallel.ts";
 import { RACERS } from "../src/racers.ts";
+import { racerRows, type RacerRow, rowPoints, write } from "../src/results.ts";
 import { points, trackFor } from "../src/tables.ts";
 
 /**
@@ -53,13 +54,10 @@ export function playoutTask(name: Name, playouts: number, race: number, players:
   const rng = mulberry32(seed);
   const others = NAMES.filter((x) => x !== name);
   const policy = playouts ? playing(name, race, playouts) : undefined;
-  let total = 0;
-  for (let i = 0; i < n; i++) {
+  return Array.from({ length: n }, () => {
     const racers = shuffle([name, ...shuffle(others, rng).slice(0, players - 1)], rng);
-    const result = new Race({ racers, track: trackFor(race), rng, policy, playouts: !!playouts }).run();
-    total += points(result, result.racers.find((r) => r.name === name)!, race);
-  }
-  return total;
+    return racerRows(new Race({ racers, track: trackFor(race), rng, policy, playouts: !!playouts }).run()).filter((r) => r.racer === name);
+  });
 }
 
 if (import.meta.main) {
@@ -76,12 +74,19 @@ if (import.meta.main) {
   const players = Number(args.players);
   console.log(`${n} races of ${players} each, ${k} playouts per option:\n`);
   console.log("| racer | race | hand-written choice | by playouts | change |\n| --- | --- | --- | --- | --- |");
+  const rows = [];
   for (const name of Object.keys(options) as Name[]) {
     if (args.racer && args.racer !== name) continue;
     for (const race of [0, 1]) {
-      const base = (await parallel<number>(import.meta.url, "playoutTask", [name, 0, race, players], n)) / n;
-      const better = (await parallel<number>(import.meta.url, "playoutTask", [name, k, race, players], n)) / n;
+      const run = async (playouts: number) => {
+        const xs = await collect<RacerRow>(import.meta.url, "playoutTask", [name, playouts, race, players], n);
+        for (const row of xs.map((r) => ({ game_race: race + 1, playouts, ...r }))) rows.push(row);
+        return xs.reduce((s, r) => s + rowPoints(r, race), 0) / n;
+      };
+      const base = await run(0);
+      const better = await run(k);
       console.log(`| ${name} | ${race + 1} | ${base.toFixed(2)} | ${better.toFixed(2)} | ${better - base >= 0 ? "+" : ""}${(better - base).toFixed(2)} |`);
     }
   }
+  if (!args.racer) await write("playouts", rows);
 }

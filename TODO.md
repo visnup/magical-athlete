@@ -15,16 +15,16 @@
 - [x] Garfield's queued triggers (`Rules.queue`): only Romantic moves, by 0.1 points a race.
 - [x] Compare against real play: BoardGameGeek players and an independent simulator (MagSim) agree
       on the ranking, Scoocher's dominance at bigger tables, and the Wild Wilds star farm. In
-      `ANALYSIS.md`.
+      `README.md`.
 - [x] Compare per-racer numbers with MagSim's published dataset: rank correlation 0.85–0.87, and
       the big gaps (Twin, Copycat) come from how each simulator sets up races.
 - [ ] Log some real games and compare.
 
 ## Analysis
 
-- [x] Player count: the points table for 3 to 6 players (`players.ts`, in `ANALYSIS.md`).
+- [x] Player count: the points table for 3 to 6 players (`players.ts`, in `README.md`).
 - [x] Matchups: each racer's points with and without each other racer in the race (`matchups.ts`,
-      in `ANALYSIS.md`).
+      in `README.md`).
 - [x] Better choices for optional powers (`choices.ts`): compared head to head against
       alternatives. Cheerleader now always cheers and Hypnotist pulls back anyone ahead.
 - [x] Race order: a team's value is its best assignment of four racers to four races (24
@@ -32,11 +32,12 @@
 - [x] Whole games played well (`games.ts`, `endgame.ts`): drafting by rating and playing the best
       race order. Choosing a safe or swingy racer by score loses a quarter point a game.
 - [x] Draft simulation (`games.ts`, `draft.ts`): the first two picks win 59% of games between them,
-      and no strategy tried beats taking the highest-rated racer left.
+      and no strategy tried beats taking the highest-rated racer left by more than 0.1 points a
+      game.
 - [x] Counter-drafting (`endgame.ts`): M.O.U.T.H. against a Scoocher player wins less, not more.
 - [x] The 2-player and 3-player double-racer variants (`playGame({ double: true })`,
       `games.ts --double`): the 2-player draft is fair, the 3-player one gives the first pick
-      42.5% of wins.
+      41.7% of wins.
 - [x] Smarter choices by playing out each option (`Race.playout`, `playouts.ts`): close to the
       hand-written choices on the Mild Mile, far better on the Wild Wilds.
 - [x] Track-aware choices (`landing` in `racers.ts`) for Legs, Alchemist, Rocket Scientist,
@@ -51,6 +52,7 @@
       winner distribution and left out of the lineup (`twin.ts`). One pass; the order outside the
       pickers barely moves, so iterating further isn't worth it.
 - [x] Give `defaultPolicy.rating` a built-in table from these runs, so Egg, Mastermind, Copycat and
-      Twin pick sensibly everywhere (`ratings.json`). The tables in `ANALYSIS.md` other than race
-      order and whole games predate it.
+      Twin pick sensibly everywhere (`ratings.json`).
+- [x] Raw data for every analysis as Parquet in `results/` (on Hugging Face), summarized with
+      DuckDB, and charts with Observable Plot (`charts.ts`).
 - [x] Wild Wilds: layout from the board.

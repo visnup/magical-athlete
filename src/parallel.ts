@@ -3,11 +3,11 @@ import { Worker } from "node:worker_threads";
 
 /**
  * Runs `n` races' worth of `task` split across a worker per core, then adds up what they return
- * (numbers, arrays, objects or Maps of them). `task` is an export of `module` called as
- * `task(...args, seed, n)`; `module` must not do anything at the top level but define things, so
- * scripts guard their main code with `import.meta.main`.
+ * (numbers, arrays, objects or Maps of them), or combines them with `combine`. `task` is an export
+ * of `module` called as `task(...args, seed, n)`; `module` must not do anything at the top level
+ * but define things, so scripts guard their main code with `import.meta.main`.
  */
-export async function parallel<T>(module: string, task: string, args: unknown[], n: number): Promise<T> {
+export async function parallel<T>(module: string, task: string, args: unknown[], n: number, combine: (a: T, b: T) => T = add): Promise<T> {
   const k = Math.min(availableParallelism(), n);
   const parts = await Promise.all(
     Array.from({ length: k }, (_, i) => {
@@ -19,7 +19,16 @@ export async function parallel<T>(module: string, task: string, args: unknown[],
       });
     }),
   );
-  return parts.reduce(add);
+  return parts.reduce(combine);
+}
+
+/**
+ * Runs `task` like `parallel`, where it returns an array of rows per race (or game), and
+ * concatenates them, numbering each race in a `key` column.
+ */
+export async function collect<T>(module: string, task: string, args: unknown[], n: number, key = "race") {
+  const parts = await parallel<T[][]>(module, task, args, n, (a, b) => a.concat(b));
+  return parts.flatMap((rows, i) => rows.map((r) => ({ [key]: i, ...r })));
 }
 
 function add<T>(a: T, b: T): T {

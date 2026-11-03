@@ -1,7 +1,8 @@
 # magical-athlete
 
-A simulator of the CMYK board game Magical Athlete. No dependencies; Node 24 runs the TypeScript
-directly.
+A simulator of the CMYK board game Magical Athlete. Node 24 runs the TypeScript directly. The
+engine has no dependencies; the analysis scripts need `pnpm install` (DuckDB, hyparquet-writer,
+Observable Plot and jsdom).
 
 The rules are the August 2026 printing, `rules/magical-athlete-2026-08.pdf` (from the game's
 BoardGameGeek files). `rules/magical-athlete.pdf` is the 2025 first printing
@@ -9,43 +10,57 @@ BoardGameGeek files). `rules/magical-athlete.pdf` is the 2025 first printing
 printing wins: it rewrote tripping, "before my main move" powers, backward passing and
 simultaneous arrivals, and fixed Sisyphus's misprinted note.
 
-The engine and its tests are in `src/`, scripts to run in `scripts/`.
+The engine and its tests are in `src/`, scripts to run in `scripts/`, their raw data in
+`results/` and charts in `charts/`.
 
 - `racers.ts`: each racer's rules as hooks, with its default choice and everything the rulebook
   says about it (flavor text, card, notes, and passages elsewhere that name it), plus official
   rulings from BoardGameGeek with links.
 - `game.ts`: the engine, which calls those hooks. `Race` runs one race, `playGame` drafts and
   runs four.
-- `sim.ts`: Monte Carlo. `node scripts/sim.ts --n 100000 --players 5` prints per-racer odds;
-  `--mode game` runs whole games; `--csv` prints one row per racer per race (or per player per
-  game) instead; `--log` prints every event. `--csv` and `--log` run on one core with `--seed`.
+- `sim.ts`: quick Monte Carlo. `node scripts/sim.ts --n 100000 --players 5` prints per-racer
+  odds; `--mode game` runs whole games; `--log` prints every event and `--csv` a row per racer
+  per race, both on one core with `--seed`.
 - `ratings.json`: each racer's points per race and draft value, from `lineup.ts --write`. The
   engine drafts, orders races and picks racers (Egg, Twin, Mastermind, Copycat) by it, so
   regenerate it after a change that moves racers' points.
-- Analysis scripts, each run as `node scripts/<script>.ts` and written up in `ANALYSIS.md`:
+- `results/` holds raw data as Parquet, a row per racer per race or per player per game, never
+  averages. `races.ts` writes the shared race dataset: a million races of random lineups at each
+  track and player count (`races-<mild|wild>-<n>p.parquet`), in batches of 100,000 that `write`
+  joins with DuckDB and zstd. Races 1 and 3 are on the Mild Mile
+  and 2 and 4 on the Wild Wilds, and differ only in chip values, so a row is scored by the race
+  it stands for (`pointsSql`, `rowPoints`). Scripts summarize with DuckDB (`query` in
+  `results.ts`), which reads the files directly; so can `duckdb` or pandas.
+  `make` reruns whatever a change in `src/` or `scripts/` made stale, then the charts (about an
+  hour from scratch). A fresh clone's file times are arbitrary, so it may rerun everything.
+- Scripts that read the race dataset, each run as `node scripts/<script>.ts`:
+  - `points.ts --race k`: the headline points table.
   - `players.ts`: each racer's points as a multiple of a fair share at 3 to 6 players.
-  - `matchups.ts`: how each racer's points change with each other racer in the race; `--csv` for
-    every pair.
-  - `choices.ts`: each optional power's current choice against alternatives.
+  - `matchups.ts`: how each racer's points change with each other racer in the race.
   - `spread.ts`: how spread out each racer's points are in one race.
   - `seats.ts`: what each seat in turn order is worth.
+- Scripts that run their own races and write them to `results/`:
   - `lineup.ts`: which race to play each racer in, and draft value.
   - `twin.ts`: Twin, Egg, Mastermind and Copycat with ratings and earlier winners.
+  - `choices.ts`: each optional power's current choice against alternatives.
+  - `playouts.ts`: each optional power decided by playing out every option (`Race.playout`).
   - `games.ts`: whole games, by draft position and estimated team value.
   - `draft.ts`: drafting strategies for one player against greedy opponents.
   - `endgame.ts`: choosing racers during a game by score, and countering Scoocher.
-  - `playouts.ts`: each optional power decided by playing out every option (`Race.playout`).
+  - `sensitivity.ts`: the races rerun with each unsettled rule (`Rules` in `game.ts`) read the
+    other way.
+- `charts.ts` draws `charts/*.svg` for `README.md` from `results/`.
 - `parallel.ts` splits a script's races across a worker thread per core (`worker.ts`) and adds up
-  the results. A task is an exported function of a module that does nothing at the top level, so
-  scripts guard their main code with `if (import.meta.main)`. Results vary with the core count,
-  since each worker has its own seed. `tables.ts` holds the shared points tables.
-- `sensitivity.ts`: reruns the points table with each unsettled rule (`Rules` in `game.ts`) read
-  the other way and lists the racers that move.
+  the results, or `collect`s their rows. A task is an exported function of a module that does
+  nothing at the top level, so scripts guard their main code with `if (import.meta.main)`.
+  Results vary with the core count, since each worker has its own seed. `tables.ts` runs races of
+  random lineups.
 - `node --test` runs `game.test.ts`, which includes the rulebook's Romantic/Scoocher/Banana
   example, `racers.test.ts`, one test per card named for its text, plus the rulebook's notes, and
   `terms.test.ts`, the terms, fiddly details and track spaces on p. 23.
 - `TODO.md` is the plan: checking the model first, then the analysis.
-- `ANALYSIS.md` is what the simulator has shown so far. Update its tables when the model changes.
+- `README.md` is what the simulator has shown so far. Run `make` and update its tables
+  when the model changes.
 
 ## Official rulings
 

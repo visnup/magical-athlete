@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "devDependencies": {
+    "@duckdb/node-api": "2.0.0-r.1",
+    "@observablehq/plot": "^0.6.17",
+    "hyparquet-writer": "^0.18.0",
+    "jsdom": "^30.1.3"
+  }
+}
