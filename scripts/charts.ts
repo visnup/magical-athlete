@@ -70,31 +70,17 @@ const places = await query(`
     select racer, ${race} "group", '1st' place, avg(gold) p, count(*)::int n from ${races(race)} group by racer
     union all
     select racer, ${race} "group", '2nd' place, avg(silver) p, count(*)::int n from ${races(race)} group by racer`).join(" union all ")}`);
-const tall = 900;
-const band = ((tall - 88) / (order.length + 0.2)) * 0.8;
+const medals = places.map((r) => ({ ...r, track: tracks[r.group] })).toSorted((a, b) => a.place.localeCompare(b.place));
+const byFirst = [...Map.groupBy(medals.filter((r) => r.place === "1st"), (r) => r.racer)].map(([racer, rs]) => [racer, rs.reduce((s, r) => s + r.p, 0)] as const);
 save("places", {
   width: 720,
-  height: tall,
+  height: 720,
   marginLeft: 100,
-  marginTop: 58,
-  x: { label: "chance in one race of 5 (with 95% interval)", percent: true, grid: true },
-  y: { domain: order, label: null, padding: 0.2 },
-  fx: { domain: ["1st", "2nd"], label: null },
-  marks: [
-    ...[0, 1].flatMap((group) => {
-      const dy = -band / 2 + (group + 0.5) * (band / 2);
-      const data = places.filter((r) => r.group === group);
-      const ci = (sign: number) => (r: Row) => r.p + sign * 1.96 * Math.sqrt((r.p * (1 - r.p)) / r.n);
-      return [
-        Plot.ruleY(data, { fx: "place", y: "racer", x1: ci(-1), x2: ci(1), dy, stroke: trackColors[group] }),
-        Plot.dot(data, { fx: "place", y: "racer", x: "p", dy, r: 3, fill: trackColors[group] }),
-      ];
-    }),
-    ...["race 1, Mild Mile", "race 2, Wild Wilds"].flatMap((label, i) => [
-      Plot.dot([0], { frameAnchor: "top-left", dx: i * 120 + 4, dy: -42, r: 4, fill: trackColors[i], facetAnchor: "top-left" }),
-      Plot.text([0], { frameAnchor: "top-left", dx: i * 120 + 12, dy: -42, text: () => label, textAnchor: "start", facetAnchor: "top-left" }),
-    ]),
-  ],
+  x: { label: "chance of 1st (dark) and 2nd (light) in one race of 5", percent: true, grid: true },
+  y: { domain: byFirst.toSorted((a, b) => b[1] - a[1]).map(([racer]) => racer), label: null, padding: 0.15 },
+  fx: { domain: tracks, label: null, axis: "top", padding: 0.1 },
+  color: { domain: tracks, range: trackColors },
+  marks: [Plot.barX(medals, { x: "p", y: "racer", fx: "track", fill: "track", fillOpacity: (r) => (r.place === "1st" ? 1 : 0.4) })],
 });
 
 // Player count: fair shares per race by number of players, for the racers that rise or fall most.
