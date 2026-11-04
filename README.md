@@ -131,9 +131,9 @@ after), Centaur, who knocks back racers it passes by 2, and Huge Baby.
 The chance of each score in a race of 5, strongest racers first, with each racer's two likeliest
 scores labeled and its average marked:
 
-![Chance of each score in a race of 6, by racer and track](charts/points.svg)
+![Chance of each score in a race of 5, by racer and track](charts/points.svg)
 
-And their chances of 1st and 2nd:
+And their chances of 1st and 2nd, sorted by the chance of either:
 
 ![Chances of 1st and 2nd, by racer and track](charts/places.svg)
 
@@ -206,7 +206,8 @@ noise. Selected effects, in race-1 or race-2 points:
 | Dicemonger | Scoocher | −0.84 (1.56 → 0.72) | −1.11 |
 | Legs | Dicemonger | −0.67 | −0.59 |
 
-Every pair, as the row racer's points minus the column racer's when both are in a race of 6:
+Every pair, as the row racer's points minus the column racer's when both are in a race of 6. The
+labeled cells are the 12 pairs furthest from what the two racers' overall strength predicts:
 
 ![Matchups on the Mild Mile](charts/matchups-race1.svg)
 
@@ -280,7 +281,9 @@ by.
 | Blimp | 0.51 | 1.11 | 0.72 | 1.35 | 1 | −1.05 |
 | Centaur | 0.48 | 1.32 | 0.69 | 1.53 | 1 | −1.07 |
 
-![Draft value by racer](charts/draft-value.svg)
+Every racer's draft value, labeled with the race it's usually played in:
+
+![Draft value by racer, and the race it's usually played in](charts/draft-value.svg)
 
 **The Wild Wilds races are worth more for everyone.** Stars add bronze, so race 2 out-earns race 3
 even though their gold and silver are the same. Race 4 is the jackpot.
@@ -316,7 +319,7 @@ race, race 1 / race 2:
 | Suckerfish | ride, except another player's Scoocher near the finish: 1.61 / 3.85 | always ride +0.02 / −0.00, never 0.31 / 1.15 |
 | Third Wheel | farthest pair ahead: 0.75 / 1.74 | nearest pair ahead −0.01 / −0.01, never 0.29 / 1.11 |
 
-![Each alternative's points against the current choice](charts/choices.svg)
+![Each alternative's points against the current choice; green and purple are beyond the noise](charts/choices.svg)
 
 Every current choice is the best of what was tried, within noise (±0.01), with two exceptions.
 Suckerfish gives up a few hundredths on purpose (see "More findings"). For Hypnotist, also pulling
@@ -608,9 +611,10 @@ so it's the best racer whichever position you're in.
 | 5 | 1.29 | 1.22 | 1.16 | 1.11 | 1.08 | | +0.12 |
 | 6 | 1.08 | 1.04 | 0.99 | 0.96 | 0.94 | 0.92 | +0.09 |
 
-That's race 1 on the Mild Mile; the Wild Wilds is a little flatter (+0.07 to +0.11).
+That's race 1 on the Mild Mile. The Wild Wilds is flatter: +0.07 to +0.11 points, or 3% to 4%
+above an average seat against 7% to 10% on the Mild Mile.
 
-![Points by seat](charts/seats.svg)
+![Each seat's points against an average seat at the table](charts/seats.svg)
 
 **Going first is worth about 0.1 points a race,** roughly 10% above an average seat, and each
 later seat is worth a little less. With 5 players, seat 1 earns 19% more than seat 5. After the

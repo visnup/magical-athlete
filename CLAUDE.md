@@ -97,6 +97,44 @@ Pitfalls:
 - A change to `src/` that doesn't change the engine's results, like how results are written,
   needs `make -B`.
 
+## Charts
+
+`scripts/charts.ts` follows these, so every chart reads the same way:
+
+- **Color has two jobs, both from the game's art (`art`).** The board's blue and orange-red
+  spaces (`trackColor`) only ever mean the Mild Mile and the Wild Wilds; a chart faceted by track
+  or race colors its marks by track. A signed difference (a gain or loss, one racer against
+  another) runs from the pink to the green of the box's striped shirt, through white, on one
+  diverging square-root scale (`change`), symmetric around 0, so small differences still show. The
+  matchups heatmaps are the exception: they step the same colors into 10 bins, since a continuous
+  legend needs a canvas and jsdom has none.
+- **Marks by what they show.** When the measure is a change from each row's own baseline (an
+  alternative against the current choice, a seat's wins against an even share), it's a lollipop
+  (`lollipop`: a rule from the baseline and a dot at the value), so near-zero values stay small
+  and outliers don't swamp the ink: choices, games. When rows are positions on one shared scale
+  and the reference is only a landmark, it's a dot (draft value). The same thing measured two ways
+  is an arrow (playouts, twin). Bars are for amounts that add up (places). Lines for a trend across
+  an ordered quantity (players, seats). Cells for two categories crossed (matchups) or a
+  distribution over discrete values (points). Ticks for a reference inside another mark, or many
+  values sharing a row (sensitivity). Dots also for an estimate with an interval (strategies) or a
+  scatter (spread).
+- **Double-encode differences.** A mark that shows a difference by length or position is also
+  colored by it. Strategies, where every difference is within noise, stays plain.
+- **Reference lines.** Dashed is a fair or even share, or an average (players, games, seats,
+  strategies, draft value); solid is zero difference.
+- **Uncertainty only where it's as big as the effect.** Strategies shows 95% intervals. Elsewhere
+  the noise is far below what the chart shows, so intervals would be invisible; the text says
+  how big the noise is.
+- **Label the data directly**, in place of legends: values next to bars, dots, arrows and line ends
+  at 8px, series names at Plot's default size with a white halo. Differences carry a sign
+  (`plus`), percentages a %. Text on the dark end of `change` is white; on the bright track colors it stays dark. `unclutter` nudges overlapping labels
+  apart, since Plot has no label collision of its own.
+- **Tie a chart to its text.** Show what the paragraphs around it claim. Label the numbers they
+  quote, add a short note in the plot where it helps a reader find the point (spread's corners),
+  and show any part the text says is left out (choices' "never").
+- **Plot's defaults** for width, height, facet axes, axis arrows and tick padding. Line marks
+  use `marker: true`. Set margins only for long labels.
+
 ## Finding better choices
 
 Each optional power's `choose` in `racers.ts` is a hand-written rule. To improve one:
