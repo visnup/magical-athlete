@@ -162,11 +162,6 @@ table sizes compare directly; selected racers:
 | Third Wheel | 0.69 | 0.68 | 0.74 | 0.79 | 0.97 | 1.06 | 1.22 | 1.38 |
 
 ![Fair shares per race by player count, for the racers that rise or fall most](charts/players.svg)
-
-The same racers in points, against a fair share, which shrinks as players are added:
-
-![Points per race by player count against a fair share](charts/players-points.svg)
-
 **Scoocher is a monster at big tables and merely good at small ones.** At 3 players it earns 1.24
 fair shares on the Mild Mile, behind Lovable Loser, Sisyphus, Legs, Egg and Flip Flop. Every extra
 racer is another power for it to feed on, so by 6 players it's at 3 fair shares on the Mild Mile
