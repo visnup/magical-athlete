@@ -21,9 +21,11 @@ Claude Code throughout.
 
 ## A quick refresher
 
-You draft four racers in two snake drafts, then race one of them in each of four races. A race
-ends when two racers cross the finish: gold for 1st, silver for 2nd, and bronze from stars and
-powers along the way. The chips go up each race, and the tracks alternate:
+You draft four racers in two snake drafts, then race one of them in each of four races. Each turn
+is a roll of the die, your main move, which many powers key off; racers also move, pass and get
+warped (placed without moving) by powers, and a tripped racer skips its next main move. Powers
+worded "I can" are optional. A race ends when two racers cross the finish: gold for 1st, silver
+for 2nd, and bronze from stars and powers along the way. The chips go up each race, and the tracks alternate:
 
 | race | track | gold | silver |
 | --- | --- | --- | --- |
