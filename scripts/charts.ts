@@ -97,22 +97,43 @@ save("places", {
   ],
 });
 
-// Player count: average points per race by number of players, for selected racers.
+// Player count: points per race by number of players against a fair share, for the racers that rise or fall most.
 const byPlayers = await query(`
-  select track, players, racer, avg(points) mean
+  select track, players, racer, avg(points) mean, if(track = 'Mild Mile', 5, 7) / players fair
   from (${scored(`${players()} players, racer`, "*")})
-  where racer in ('Scoocher', 'Lovable Loser', 'Sisyphus', 'Romantic', 'Suckerfish', 'Dicemonger', 'Legs', 'Alchemist', 'Huge Baby')
-  group by all order by players`);
+  where racer in ('Scoocher', 'Sisyphus', 'Romantic', 'Suckerfish', 'Dicemonger', 'Lovable Loser', 'M.O.U.T.H.', 'Alchemist', 'Hypnotist')
+  group by track, players, racer order by players`);
+/** Spreads labels apart vertically, in pixels, so they're at least `gap` apart in each facet. */
+const spreadY = <T extends Plot.MarkOptions>(options: T, gap = 9) =>
+  Plot.initializer(options, (_data, facets, { y }, { y: scale }) => {
+    const ys = Float64Array.from(y!.value, (v) => scale!(v)!);
+    for (const index of facets) {
+      const sorted = [...index].sort((a, b) => ys[a] - ys[b]);
+      for (let i = 1; i < sorted.length; i++) ys[sorted[i]] = Math.max(ys[sorted[i]], ys[sorted[i - 1]] + gap);
+    }
+    return { data: _data, facets, channels: { y: { value: ys } } };
+  });
+const playerLines = (y: (r: Row) => number) => [
+  Plot.lineY(byPlayers, { x: "players", y, fx: "track", z: "racer", stroke: "track", marker: true }),
+  Plot.text(byPlayers, spreadY(Plot.selectLast({ x: "players", y, fx: "track", z: "racer", text: "racer", textAnchor: "start", stroke: "white", fill: "black", dx: 6, fontSize: 8 }))),
+];
+const playersOptions = { width: 720, marginRight: 90, x: { label: "players", inset: 8 }, fx: { domain: tracks, label: null, axis: "top", padding: 0.3 }, color: { domain: tracks, range: trackColors } };
 save("players", {
-  width: 720,
-  marginRight: 90,
-  x: { label: "players", inset: 8 },
-  y: { label: "points per race", grid: true, type: "sqrt" },
-  fx: { domain: tracks, label: null, axis: "top", padding: 0.3 },
-  color: { domain: tracks, range: trackColors },
+  ...playersOptions,
+  y: { label: "fair shares per race", grid: true, type: "sqrt" },
   marks: [
-    Plot.lineY(byPlayers, { x: "players", y: "mean", fx: "track", z: "racer", stroke: "track", marker: true }),
-    Plot.text(byPlayers, Plot.selectLast({ x: "players", y: "mean", fx: "track", z: "racer", text: "racer", textAnchor: "start", stroke: "white", fill: "black", dx: 6, fontSize: 8 })),
+    Plot.ruleY([1], { stroke: "#222", strokeDasharray: "3,3" }),
+    ...playerLines((r) => r.mean / r.fair),
+  ],
+});
+const fair = byPlayers.filter((r) => r.racer === "Scoocher");
+save("players-points", {
+  ...playersOptions,
+  y: { label: "points per race", grid: true, type: "sqrt" },
+  marks: [
+    Plot.lineY(fair, { x: "players", y: "fair", fx: "track", stroke: "#222", strokeDasharray: "3,3" }),
+    Plot.text(fair.filter((r) => r.players === 4), { x: "players", y: "fair", fx: "track", text: () => "fair share", textAnchor: "end", dy: 10, fontSize: 8, fill: "#222", stroke: "white" }),
+    ...playerLines((r) => r.mean),
   ],
 });
 
