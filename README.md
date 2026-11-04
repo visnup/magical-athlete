@@ -2,9 +2,8 @@
 
 [Magical Athlete](https://www.cmyk.games/products/magical-athlete) is a racing game of dice and
 nonsense, designed by Richard Garfield. Thirty-six ridiculous racers each have one power that
-bends the rules: a Banana that trips anyone who passes it, a Huge Baby nobody can stand next to, a
-M.O.U.T.H. that eats the competition, and a Scoocher that shuffles forward one space every time
-anything else happens. You draft a team of four and race them one at a time, and the fun is in
+bends the rules, like a Scoocher that shuffles forward one space every time anything else
+happens. You draft a team of four and race them one at a time, and the fun is in
 the chain reactions.
 
 This repo is a simulator of the game. It plays millions of races and games by the rules, so it can
