@@ -72,6 +72,24 @@ from 'hf://datasets/visnup/magical-athlete/races-mild-5p.parquet'
 group by racer order by points desc;
 ```
 
+## Reading the numbers
+
+- **Points per race**, the average of that expression over a racer's rows, is the measure the
+  write-up uses throughout, not win rate. Lovable Loser and Sisyphus top race 1 on bronze alone.
+- **A fair share** is `(GOLD[k] + SILVER[k]) / players`, so 1.00 in race 1 at 5 players. Divide
+  by it to compare table sizes.
+- **Noise.** Each racer is in about 139,000 of a million 5-player races, so its points per race
+  have a standard error of about 0.006 on the Mild Mile and up to 0.013 on the Wild Wilds
+  (Scoocher in race 4). A pair of racers meets in about 16,000, so matchup differences under
+  about 0.05 (Mild Mile) or 0.1 (Wild Wilds) are noise. The `choices` files run every option on
+  the same seeds, good to about ±0.01. `playouts` is 4,000 races per racer, about ±0.1.
+- **Optional powers** follow hand-written rules (`choose` in `src/racers.ts`), tuned against
+  playouts. The racers that pick racers (Egg, Twin, Copycat, Mastermind) and the drafts use
+  `src/ratings.json`, which comes from the previous run of the dataset, so it's one pass behind.
+- **Rules readings.** Where the rulebook and rulings leave something open, the simulator's choice
+  is listed under "Interpretations" in the repo's `CLAUDE.md`; `sensitivity` shows what flipping
+  the open ones does.
+
 ## Race rows
 
 `races-<track>-<players>p` is a million races of a random lineup of 3 to 6 of the 36 racers. Seat 0
@@ -92,7 +110,7 @@ chance of 1st and never from the race's own lineup. Columns:
 | uses | times its power was used |
 | eliminated | 1 if it was eliminated from the race |
 | turns | turns it took |
-| stalled | 1 if the race hit the 1,000-turn limit without two finishers |
+| stalled | 1 if the race ended without two finishers: a loop no one can finish (fiddly details 5), or the 1,000-turn limit |
 
 The other files with these columns each race one racer under test, or a rule variant:
 

@@ -20,36 +20,11 @@ real games yet.
 The simulator and this analysis were written with Claude Opus 5.5 at medium effort, working in
 Claude Code throughout.
 
-## The game in two minutes
+## A quick refresher
 
-**Racers and powers.** Every racer has a card with a power, a bit of flavor text, and notes for
-the fiddly cases. Some powers are mandatory and go off on their own, like Banana's. Others are
-optional, worded "I can…", and the player decides each time, like Legs ("Has arms, too, but who
-cares"), who can skip rolling and just move 5.
-
-**A turn.** On your turn you roll a die and move that many spaces. That's your *main move*, and
-many powers care about it specifically, as opposed to other ways of moving. Racers can also:
-
-- *pass* each other, which triggers powers like Banana's and Centaur's;
-- *trip*, which means skipping your next main move;
-- *warp*, which means being picked up and put somewhere without moving, as when Flip Flop swaps
-  places with another racer.
-
-**Tracks.** The board has two sides, both 30 spaces long:
-
-- The **Mild Mile** is a plain track.
-- The **Wild Wilds** adds three kinds of space:
-  - *Stars* on spaces 1 and 13 give a bronze point chip to any racer that stops there.
-  - *Arrows* push a racer forward or back. The one on 16 sends racers back 4, to 12.
-  - *Trip spaces* trip whoever stops on them.
-
-**A race** ends as soon as two racers cross the finish line. First across takes the gold chip and
-second takes silver; everyone else gets nothing for placing. Bronze chips come from stars and
-from powers like Lovable Loser's, who collects one at the start of each turn she's alone in last
-place.
-
-**A game** is four races, alternating Mild Mile, Wild Wilds, Mild Mile, Wild Wilds. The chips go
-up as the game goes on:
+You draft four racers in two snake drafts, then race one of them in each of four races. A race
+ends when two racers cross the finish: gold for 1st, silver for 2nd, and bronze from stars and
+powers along the way. The chips go up each race, and the tracks alternate:
 
 | race | track | gold | silver |
 | --- | --- | --- | --- |
@@ -58,11 +33,10 @@ up as the game goes on:
 | 3 | Mild Mile | 4 | 3 |
 | 4 | Wild Wilds | 5 | 4 |
 
-Before the first race, everyone drafts four racers, one for each race. Twice as many racer cards
-as players are flipped up, and everyone picks in a *snake draft*: around the table and back again,
-so the last player picks twice in a row. A second snake draft, starting one seat to the left,
-fills out the teams. Before each race, everyone secretly chooses which of their racers to send. Each
-racer runs only once, so a big part of the game is deciding who to save for later.
+The Mild Mile is plain. On the Wild Wilds, stars on spaces 1 and 13 pay a bronze point, arrows on
+7, 11, 16, 23 and 24 push racers along (16's sends them back 4, to 12), and trip spaces on 5, 17
+and 26 cost a main move. The box holds 43 points of bronze for the whole game, and that cap
+matters (see "More findings").
 
 ## How to read the numbers
 
