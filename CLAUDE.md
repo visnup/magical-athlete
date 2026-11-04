@@ -113,8 +113,9 @@ Pitfalls:
   spaces (`trackColor`) only ever mean the Mild Mile and the Wild Wilds; a chart faceted by track
   or race colors its marks by track. A signed difference (a gain or loss, one racer against
   another) runs from the pink to the green of the box's striped shirt, through white, on one
-  diverging square-root scale (`change`), symmetric around 0, so small differences still show. The
-  matchups heatmaps are the exception: they step the same colors into 10 bins, since a continuous
+  diverging square-root scale (`change`), symmetric around 0, so small differences still show.
+  Otherwise marks are ink, or gray for context, like the base racers in the Second Wind
+  scatter. The matchups heatmaps are the exception: they step the same colors into 10 bins, since a continuous
   legend needs a canvas and jsdom has none.
 - **Marks by what they show.** When the measure is a change from each row's own baseline (an
   alternative against the current choice, a seat's wins against an even share), it's a lollipop

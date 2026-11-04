@@ -1,6 +1,7 @@
 import * as Plot from "@observablehq/plot";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { JSDOM } from "jsdom";
+import { SECOND_WIND } from "../src/game.ts";
 import { parquet, pointsSql, query, races } from "../src/results.ts";
 import { spreadSql } from "./spread.ts";
 
@@ -170,16 +171,17 @@ save("players", {
 });
 
 // Matchups: the row racer's points minus the column racer's, in the same race of 6.
-for (const race of [0, 1]) {
+async function matchupChart(name: string, from: string, race: number, options: Plot.PlotOptions = {}) {
   const matchups = await query(`
-    with r as (select race, racer, ${pointsSql(race)} p from ${races(race, 6)})
+    with r as (select race, racer, ${pointsSql(race)} p from ${from})
     select a.racer, b.racer opponent, avg(a.p - b.p) diff from r a join r b on a.race = b.race and a.racer <> b.racer group by all`);
   const limit = Math.max(...matchups.map((r) => Math.abs(r.diff)));
   // The cells furthest from what each racer's overall strength predicts (its average row difference).
   const strength = Object.fromEntries([...Map.groupBy(matchups, (r) => r.racer)].map(([racer, rs]) => [racer, rs.reduce((s, r) => s + r.diff, 0) / rs.length]));
   const surprise = (r: Row) => Math.abs(r.diff - (strength[r.racer] - strength[r.opponent]));
   const extremes = matchups.filter((r) => r.diff > 0).toSorted((a, b) => surprise(b) - surprise(a)).slice(0, 12);
-  save(`matchups-race${race + 1}`, {
+  save(name, {
+    ...options,
     marginLeft: 100,
     marginTop: 100,
     aspectRatio: 1,
@@ -192,6 +194,7 @@ for (const race of [0, 1]) {
     ],
   }, `${tracks[race]}: row racer's points minus the column opponent's per race`);
 }
+for (const race of [0, 1]) await matchupChart(`matchups-race${race + 1}`, races(race, 6), race);
 
 // Draft value, and the race each racer is usually played in.
 const draft = await query(`
@@ -343,6 +346,54 @@ save("seats", {
     Plot.ruleY([0], dashed),
     Plot.lineY(seats, { x: "seat", y: "edge", z: "players", fx: "race", stroke: "track", marker: true }),
     Plot.text(seats, unclutter(Plot.selectLast({ x: "seat", y: "edge", z: "players", fx: "race", text: (r) => `${r.players}p`, textAnchor: "start", dx: 6, ...halo }))),
+  ],
+});
+
+// Second Wind: every racer's points on each track in races drawn from all 72, the expansion's in ink
+// and the standouts named.
+const sw = `(${SECOND_WIND.map((n) => `'${n.replaceAll("'", "''")}'`).join(", ")})`;
+const mixed = (race: number) => parquet(`second-wind-${["mild", "wild"][race]}-5p`);
+const expansion = await query(`
+  select racer, racer in ${sw} new, m.points mild, w.points wild from
+  (select racer, avg(${pointsSql(0)}) points from ${mixed(0)} group by racer) m
+  join (select racer, avg(${pointsSql(1)}) points from ${mixed(1)} group by racer) w using (racer)`);
+const standouts = ["Streaker", "Understudy", "Penguin", "Nemesis", "Stepdad", "Party Pooper", "Hotel", "Icarus", "Re-Runner", "Speed Demon", "Cheatah", "Scoocher", "Sisyphus", "Lovable Loser", "Dicemonger"];
+save("second-wind", {
+  inset: 10,
+  marginRight: 50,
+  x: { label: "race 1 points, Mild Mile", grid: true },
+  y: { label: "race 2 points, Wild Wilds", grid: true },
+  marks: [
+    Plot.ruleX([1], dashed),
+    Plot.ruleY([1.4], dashed),
+    Plot.dot(expansion.filter((r) => !r.new), { x: "mild", y: "wild", stroke: noise, r: 3 }),
+    Plot.dot(expansion.filter((r) => r.new), { x: "mild", y: "wild", fill: "currentColor", r: 3 }),
+    Plot.text(expansion.filter((r) => standouts.includes(r.racer)), unclutter({
+      x: "mild", y: "wild", text: "racer", textAnchor: "start", dx: 6, fill: (r: Row) => (r.new ? "currentColor" : noise), stroke: art.paper, fontSize: 8,
+    }, { gap: 9, em: 5 })),
+    Plot.text(["filled: Second Wind; dashed: a fair share"], { frameAnchor: "bottom-right", textAnchor: "end", dx: -4, dy: -4, fill: noise }),
+  ],
+});
+
+for (const race of [0, 1]) await matchupChart(`second-wind-matchups-race${race + 1}`, mixed(race), race, { width: 1200 });
+
+// Second Wind: each base racer's points in races drawn from all 72, against base racers only.
+const shift = await query(`
+  ${[0, 1].map((race) => `
+    select ${race + 1} race, racer, avg(${pointsSql(race, "m.")}) - any_value(b.points) change
+    from ${mixed(race)} m join (select racer, avg(${pointsSql(race)}) points from ${races(race)} group by racer) b using (racer)
+    group by racer`).join(" union all ")}`);
+save("second-wind-shift", {
+  marginLeft: 100,
+  marginRight: 40,
+  x: { label: "points per race with Second Wind racers in the field", grid: true },
+  y: { domain: shift.filter((r) => r.race === 2).toSorted((a, b) => b.change - a.change).map((r) => r.racer), label: null, grid: true },
+  fx: { tickFormat: raceLabel, label: null },
+  color: change,
+  marks: [
+    Plot.ruleX([0]),
+    ...lollipop(shift, { fx: "race", y: "racer", x1: 0, x2: "change", fill: "change" }),
+    ...ends(shift.filter((r) => Math.abs(r.change) >= 0.1), (r) => r.change >= 0, { fx: "race", y: "racer", x: "change", text: (r) => plus(r.change) }),
   ],
 });
 

@@ -706,6 +706,8 @@ races, so differences under about 0.03 (race 1) or 0.05 (race 2) are noise:
 | Speed Demon | 0.33 | 1.18 |
 | Cheatah | 0.42 | 0.89 |
 
+![Each racer's points in race 1 against race 2 among all 72, with the Second Wind racers filled](charts/second-wind.svg)
+
 **Streaker is the expansion's Scoocher.** A point for every move that passes anyone adds up to
 about 3 bronze a race, on either track. That makes it the best racer in race 1 of all 72, ahead of
 Sisyphus and Lovable Loser, and second only to Scoocher in race 2. It rarely wins (6%), and it
@@ -730,10 +732,36 @@ instead (0.60 against 2.30 in race 2, mostly from stars). Icarus is eliminated i
 **Cheatah is the weakest.** Its guessing game pays about 3.24 spaces a turn, a little less than
 an ordinary roll, so it plays like a racer with no power.
 
+**Who's good with whom, all 72.** As in "Who's good with whom", each cell is the row racer's points
+minus the column racer's when both are in the same race, but in races of 5. A pair meets in about
+3,900 races, so differences under about 0.1 on the Mild Mile and 0.2 on the Wild Wilds are
+noise. The labeled cells are the furthest from what the two racers' overall strength predicts:
+
+- **Party Pooper saves Icarus.** All sixes get rerolled, so Icarus never rolls the 6 that
+  eliminates it. It beats Party Pooper by 1.31 on the Mild Mile, though it trails most racers.
+- **Null shuts down the runaways.** Racers ahead of Null have no powers, and Scoocher and
+  Streaker are usually ahead. Scoocher beats Null by only 0.62 on the Mild Mile and 1.94 on the
+  Wild Wilds, and Streaker by 0.69, a fraction of their usual margins.
+- **Copying the best is as good as being it.** Understudy takes the strongest opponent's power,
+  so against Streaker it's Streaker (+0.02 for Understudy), and against Scoocher on the Wild Wilds
+  it's Scoocher (−0.08). Doppelgängster steals Scoocher's wins and runs about even with it on the
+  Mild Mile (+0.11).
+- **Nepo Baby is a target.** It starts 12 spaces up, right where Flip Flop wants to swap and
+  Hypnotist and Kraken want to pull from. Flip Flop beats it by 1.69.
+- **New food for old feeders.** Stunner makes its neighbors roll 1s, so Inchworm beats it by 4.88
+  on the Wild Wilds. Nemesis rolls with every main move, which is a power each time, so Scoocher
+  beats it by 6.62.
+
+![Matchups among all 72 racers on the Mild Mile](charts/second-wind-matchups-race1.svg)
+
+![Matchups among all 72 racers on the Wild Wilds](charts/second-wind-matchups-race2.svg)
+
 **The base racers shift a little.** Scoocher drops from 2.37 to 2.13 in race 1 and from 7.66 to
 6.50 in race 2, and Suckerfish, Twin and Copycat fall too. They feed on the strongest base racers,
-probably Scoocher above all, and those now turn up half as often. Legs, Alchemist and Centaur
-gain 0.1 to 0.3 on both tracks.
+probably Scoocher above all, and those now turn up half as often. Legs, Alchemist, Inchworm and
+Magician gain 0.1 to 0.3 on both tracks.
+
+![Each base racer's points with Second Wind racers in the field, against base racers only](charts/second-wind-shift.svg)
 
 ## Against real play and another simulator
 
