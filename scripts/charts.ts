@@ -58,7 +58,7 @@ save("points", {
   marginLeft: 100,
   marginTop: 25,
   x: { label: "points in one race of 5 (12 means 12 or more; | is the average)", domain: [-0.5, 12.5], ticks: [0, 2, 4, 6, 8, 10, 12] },
-  y: { domain: order, label: null },
+  y: { domain: order, label: null, grid: true },
   fx: { domain: tracks, label: null, axis: "top" },
   marks: [
     Plot.barX(distribution, { ...scores, fill: (r) => (r.track === tracks[0] ? "#1f4e8c" : "#b51f30"), fillOpacity: (r) => r.chance / peak[r.track] }),
