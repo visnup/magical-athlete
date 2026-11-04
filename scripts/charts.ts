@@ -40,27 +40,32 @@ const players = (column = "filename") => `regexp_extract(${column}, '(\\d)p(-dou
 const scored = (columns: string, n: number | "*" = 6) =>
   [0, 1].map((race) => `select '${tracks[race]}' track, ${columns}, ${pointsSql(race)} points from ${races(race, n)}`).join(" union all ");
 
-// Points per race: the chance of each score in a race of 6, strongest racers first.
+// Points per race: the chance of each score in a race of 5, with each racer's average, strongest racers first.
 const distribution = await query(`
-  with r as (${scored("racer")}),
-  ranked as (select racer, avg(m) mean from (select track, racer, avg(points) m from r group by all) group by racer),
+  with r as (${scored("racer", 5)}),
+  means as (select track, racer, avg(points) mean from r group by all),
+  ranked as (select racer, avg(mean) rank from means group by racer),
   counts as (select track, racer, least(points, 12) points, count(*) n from r group by all)
-  select track, racer, points, n / sum(n) over (partition by track, racer) chance, mean
-  from counts join ranked using (racer)`);
-const order = [...new Map(distribution.toSorted((a, b) => b.mean - a.mean).map((r) => [r.racer, r])).keys()];
-const likeliest = [...Map.groupBy(distribution, (r) => `${r.track}\0${r.racer}`).values()].map((rows) => rows.reduce((a, b) => (b.chance > a.chance ? b : a)));
+  select track, racer, points, n / sum(n) over (partition by track, racer) chance, mean, rank
+  from counts join means using (track, racer) join ranked using (racer)`);
+const order = [...new Map(distribution.toSorted((a, b) => b.rank - a.rank).map((r) => [r.racer, r])).keys()];
+const rows = [...Map.groupBy(distribution, (r) => `${r.track}\0${r.racer}`).values()];
+const likeliest = rows.map((rs) => rs.reduce((a, b) => (b.chance > a.chance ? b : a)));
+const peak = Object.fromEntries(tracks.map((t) => [t, Math.max(...distribution.filter((r) => r.track === t).map((r) => r.chance))]));
+const scores = { x1: (r: Row) => r.points - 0.5, x2: (r: Row) => r.points + 0.5, y: "racer", fx: "track", inset: 0.5 };
 save("points", {
   width: 720,
   marginLeft: 100,
   marginTop: 25,
-  grid: true,
-  x: { label: "points in one race of 6 (12 means 12 or more)", domain: Array.from({ length: 13 }, (_, i) => i) },
+  x: { label: "points in one race of 5 (12 means 12 or more; | is the average)", domain: [-0.5, 12.5], ticks: [0, 2, 4, 6, 8, 10, 12] },
   y: { domain: order, label: null },
   fx: { domain: tracks, label: null, axis: "top" },
-  color: { scheme: "turbo", type: "sqrt" },
   marks: [
-    Plot.cell(distribution, { x: "points", y: "racer", fx: "track", fill: "chance" }),
-    Plot.text(likeliest, { x: "points", y: "racer", fx: "track", text: (r) => `${Math.round(100 * r.chance)}%`, fill: "white", stroke: "black", strokeOpacity: 0.5, fontSize: 8 }),
+    Plot.barX(tracks.flatMap((track) => order.flatMap((racer) => Array.from({ length: 13 }, (_, points) => ({ track, racer, points })))), { ...scores, fill: "#f2f2f2" }),
+    Plot.barX(distribution, { ...scores, fill: "white" }),
+    Plot.barX(distribution, { ...scores, fill: (r) => (r.track === tracks[0] ? "#1f4e8c" : "#b51f30"), fillOpacity: (r) => r.chance / peak[r.track] }),
+    Plot.tickX(rows.map((rs) => rs[0]), { x: "mean", y: "racer", fx: "track", stroke: "#222", strokeWidth: 1.5 }),
+    Plot.text(likeliest, { x: "points", y: "racer", fx: "track", text: (r) => `${Math.round(100 * r.chance)}%`, fill: "black", stroke: "white", fontSize: 8 }),
   ],
 });
 
