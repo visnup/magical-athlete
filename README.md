@@ -177,7 +177,9 @@ space of where it started.
 **Bronze racers look better at big tables partly by arithmetic.** Sisyphus's 4 chips are worth
 the same at any table size, while a fair share of gold and silver shrinks, so its multiple doubles
 from 3 to 6 players. Lovable Loser slips slightly instead: being alone in last is harder in a
-crowd.
+crowd. Star bronze does the same on the Wild Wilds, which is why Hypnotist and M.O.U.T.H. peak at
+4 players there: their medals fall steadily with the count, but their stars (0.5 to 0.8 points a
+race at any count) are worth more fair shares at bigger tables.
 
 **Some racers like it quiet.** Alchemist, Banana, M.O.U.T.H., Hypnotist, Coach, Magician, Gunk and
 Stickler all lose ground on the Mild Mile as the table grows; Alchemist halves (0.99 to 0.48).
