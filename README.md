@@ -32,36 +32,42 @@ Race 1, Mild Mile (3/2; a fair share is 1.00):
 
 | racer | points | 1st | 2nd | bronze |
 | --- | --- | --- | --- | --- |
-| Lovable Loser | 3.07 | 3.6% | 8.7% | 2.79 |
-| Sisyphus | 2.91 | 0.3% | 1.3% | 2.88 |
-| Scoocher | 2.38 | 65.3% | 20.8% | 0 |
-| Romantic | 2.02 | 53.5% | 21.0% | 0 |
-| Suckerfish | 1.62 | 30.4% | 35.5% | 0 |
-| Egg | 1.56 | 25.1% | 19.5% | 0.42 |
-| Copycat | 1.49 | 30.1% | 28.3% | 0.02 |
+| Lovable Loser | 3.03 | 3.6% | 8.0% | 2.76 |
+| Sisyphus | 2.92 | 0.3% | 1.2% | 2.89 |
+| Scoocher | 2.37 | 65.0% | 20.8% | 0 |
+| Romantic | 2.02 | 53.3% | 21.3% | 0 |
+| Egg | 1.65 | 25.8% | 20.3% | 0.47 |
+| Suckerfish | 1.60 | 30.2% | 34.7% | 0 |
+| Copycat | 1.48 | 29.5% | 28.4% | 0.02 |
 | … | | | | |
-| Banana | 0.66 | 10.6% | 17.1% | 0 |
-| Alchemist | 0.62 | 9.5% | 16.7% | 0 |
-| Blimp | 0.52 | 9.3% | 11.9% | 0 |
-| Centaur | 0.49 | 7.5% | 13.0% | 0 |
-| Huge Baby | 0.45 | 6.7% | 12.2% | 0 |
+| Banana | 0.66 | 10.6% | 17.0% | 0 |
+| Alchemist | 0.61 | 9.5% | 16.3% | 0 |
+| Blimp | 0.51 | 9.1% | 11.7% | 0 |
+| Centaur | 0.48 | 7.7% | 12.6% | 0 |
+| Huge Baby | 0.45 | 6.8% | 12.0% | 0 |
 
 Race 2, Wild Wilds (4/3; a fair share is 1.40):
 
 | racer | points | 1st | 2nd | bronze |
 | --- | --- | --- | --- | --- |
-| Scoocher | 7.52 | 48.4% | 22.0% | 4.93 |
-| Suckerfish | 3.85 | 30.3% | 33.9% | 1.62 |
-| Lovable Loser | 3.77 | 4.5% | 9.7% | 3.30 |
-| Sisyphus | 3.69 | 0.5% | 1.8% | 3.62 |
-| Twin | 3.46 | 30.8% | 22.7% | 1.55 |
-| Dicemonger | 3.33 | 23.5% | 21.2% | 1.76 |
+| Scoocher | 7.63 | 48.3% | 21.7% | 5.04 |
+| Dicemonger | 4.00 | 28.5% | 20.1% | 2.26 |
+| Suckerfish | 3.94 | 30.4% | 33.1% | 1.73 |
+| Sisyphus | 3.73 | 0.5% | 1.8% | 3.66 |
+| Lovable Loser | 3.72 | 4.4% | 8.9% | 3.28 |
+| Flip Flop | 3.65 | 33.6% | 25.2% | 1.55 |
 | … | | | | |
-| Banana | 1.40 | 9.0% | 15.1% | 0.59 |
-| Alchemist | 1.29 | 9.2% | 15.3% | 0.46 |
-| Coach | 1.28 | 11.0% | 16.7% | 0.34 |
-| Centaur | 1.26 | 7.4% | 13.3% | 0.56 |
-| Blimp | 1.12 | 11.4% | 13.6% | 0.25 |
+| Banana | 1.44 | 9.0% | 14.5% | 0.65 |
+| Alchemist | 1.40 | 8.6% | 14.8% | 0.61 |
+| Centaur | 1.31 | 7.6% | 12.9% | 0.62 |
+| Coach | 1.28 | 10.8% | 16.2% | 0.36 |
+| Blimp | 1.11 | 11.0% | 12.9% | 0.28 |
+
+**Dicemonger is second on the Wild Wilds.** Every racer may reroll its main move once with
+Dicemonger in the race, and Dicemonger moves 1 each time another does. Racers now reroll whenever
+the roll would land somewhere worse than an average roll, not just on a 1 to 3. On the Wild Wilds,
+with stars, arrows and rocks, that's far more often, and each reroll carries Dicemonger a space
+closer to the stars.
 
 The chance of each score in a race of 6, strongest racers first, with each racer's likeliest score
 labeled:
@@ -83,21 +89,21 @@ directly; selected racers:
 
 | racer | Mild 3p | 4p | 5p | 6p | Wild 3p | 4p | 5p | 6p |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Lovable Loser | 3.33 | 3.20 | 3.07 | 2.88 | 2.87 | 2.76 | 2.69 | 2.60 |
-| Sisyphus | 1.65 | 2.27 | 2.91 | 3.58 | 1.56 | 2.08 | 2.64 | 3.20 |
-| Scoocher | 1.25 | 1.77 | 2.38 | 2.98 | 1.92 | 3.26 | 5.37 | 8.30 |
-| Romantic | 1.14 | 1.55 | 2.02 | 2.48 | 1.25 | 1.60 | 2.05 | 2.52 |
-| Legs | 1.46 | 1.53 | 1.41 | 1.22 | 1.57 | 1.74 | 1.77 | 1.73 |
-| Stickler | 1.22 | 1.18 | 1.04 | 0.88 | 1.42 | 1.47 | 1.45 | 1.42 |
-| Cheerleader | 1.23 | 1.21 | 1.07 | 0.90 | 1.43 | 1.60 | 1.67 | 1.76 |
-| Hypnotist | 1.23 | 1.14 | 0.96 | 0.76 | 1.58 | 1.70 | 1.66 | 1.57 |
-| M.O.U.T.H. | 1.20 | 1.10 | 0.89 | 0.66 | 1.46 | 1.50 | 1.40 | 1.26 |
-| Alchemist | 1.00 | 0.81 | 0.62 | 0.49 | 1.11 | 1.01 | 0.92 | 0.89 |
-| Third Wheel | 0.69 | 0.69 | 0.75 | 0.80 | 0.95 | 1.03 | 1.17 | 1.32 |
+| Lovable Loser | 3.29 | 3.19 | 3.03 | 2.83 | 2.83 | 2.73 | 2.66 | 2.57 |
+| Sisyphus | 1.66 | 2.28 | 2.92 | 3.59 | 1.57 | 2.10 | 2.67 | 3.24 |
+| Scoocher | 1.23 | 1.76 | 2.37 | 2.97 | 1.92 | 3.30 | 5.45 | 8.45 |
+| Romantic | 1.14 | 1.55 | 2.02 | 2.49 | 1.26 | 1.62 | 2.08 | 2.54 |
+| Legs | 1.45 | 1.53 | 1.40 | 1.22 | 1.58 | 1.76 | 1.80 | 1.76 |
+| Stickler | 1.21 | 1.14 | 1.00 | 0.85 | 1.43 | 1.48 | 1.47 | 1.44 |
+| Cheerleader | 1.22 | 1.20 | 1.06 | 0.89 | 1.47 | 1.63 | 1.72 | 1.81 |
+| Hypnotist | 1.22 | 1.13 | 0.94 | 0.74 | 1.59 | 1.72 | 1.69 | 1.61 |
+| M.O.U.T.H. | 1.20 | 1.10 | 0.88 | 0.65 | 1.47 | 1.53 | 1.43 | 1.31 |
+| Alchemist | 0.99 | 0.80 | 0.61 | 0.48 | 1.15 | 1.06 | 1.00 | 0.99 |
+| Third Wheel | 0.69 | 0.68 | 0.74 | 0.78 | 0.97 | 1.06 | 1.22 | 1.37 |
 
 ![Points per race by racer and player count](charts/players.svg)
 
-**Scoocher's dominance is a big-table effect.** At 3 players it earns 1.25 fair shares on the
+**Scoocher's dominance is a big-table effect.** At 3 players it earns 1.23 fair shares on the
 Mild Mile, behind Lovable Loser, Sisyphus, Legs, Egg and Flip Flop. Each extra racer is another
 power going off every turn, so by 6 players it's 3 fair shares on the Mild Mile and over 8 on the
 Wild Wilds. Romantic, Suckerfish, Dicemonger, Copycat and Heckler also feed on traffic and climb with
@@ -108,8 +114,8 @@ the same at any count while a fair share of gold and silver shrinks, so its mult
 3 to 6 players. Lovable Loser slips slightly instead: being alone in last gets harder in a crowd.
 
 **Some racers want small tables.** Alchemist, Banana, M.O.U.T.H., Hypnotist, Coach, Magician,
-Gunk and Stickler all lose ground as the count rises on the Mild Mile; Alchemist halves (1.00 to
-0.49).
+Gunk and Stickler all lose ground as the count rises on the Mild Mile; Alchemist halves (0.99 to
+0.48).
 
 **At 3 players the field flattens.** Most racers sit between 0.8 and 1.3 fair shares. Only Lovable
 Loser stands out, and Third Wheel, Huge Baby and Blimp trail.
@@ -123,20 +129,20 @@ race-1 or race-2 points:
 
 | racer | with | Mild Mile | Wild Wilds |
 | --- | --- | --- | --- |
-| Suckerfish | Scoocher | +0.04 | +6.62 (3.10 → 9.72) |
-| Scoocher | Suckerfish | +0.10 | +5.28 (6.93 → 12.21) |
-| Copycat | Scoocher | +0.48 | +5.13 (2.69 → 7.82) |
-| Scoocher | Gunk | +0.52 | +3.46 |
-| Baba Yaga | Hypnotist | +1.12 (0.67 → 1.78) | +1.65 |
-| Copycat | Hypnotist | +0.99 (1.38 → 2.37) | +1.18 |
-| Heckler | Gunk | +0.79 | +0.74 |
-| Huge Baby | M.O.U.T.H. | +0.75 (0.36 → 1.11) | +1.02 |
-| Lovable Loser | Gunk | +0.77 | +0.87 |
-| Copycat | Flip Flop | +0.64 | +0.59 |
-| Lovable Loser | Sisyphus | −1.43 (3.23 → 1.81) | −1.24 |
-| Scoocher | M.O.U.T.H. | −0.58 | −2.95 (7.86 → 4.91) |
-| Dicemonger | Scoocher | −0.83 (1.57 → 0.74) | −0.94 |
-| Legs | Dicemonger | −0.63 | −0.83 |
+| Suckerfish | Scoocher | +0.07 | +6.68 (3.18 → 9.86) |
+| Scoocher | Suckerfish | +0.09 | +5.27 (7.03 → 12.29) |
+| Copycat | Scoocher | +0.46 | +5.16 (2.81 → 7.97) |
+| Scoocher | Gunk | +0.55 | +3.51 |
+| Baba Yaga | Hypnotist | +1.11 (0.67 → 1.78) | +1.65 |
+| Copycat | Hypnotist | +0.99 (1.37 → 2.35) | +1.12 |
+| Heckler | Gunk | +0.77 | +0.74 |
+| Huge Baby | M.O.U.T.H. | +0.75 (0.36 → 1.11) | +1.00 |
+| Lovable Loser | Gunk | +0.74 | +0.73 |
+| Copycat | Flip Flop | +0.66 | +0.66 |
+| Lovable Loser | Sisyphus | −1.42 (3.19 → 1.76) | −1.25 |
+| Scoocher | M.O.U.T.H. | −0.59 | −2.91 (7.96 → 5.05) |
+| Dicemonger | Scoocher | −0.84 (1.55 → 0.71) | −1.12 |
+| Legs | Dicemonger | −0.67 | −0.57 |
 
 Every pair, as the row racer's points minus the column racer's when both are in a race of 6:
 
@@ -175,26 +181,26 @@ eat it, while it eats the racers around it.
 `node scripts/lineup.ts` takes each racer's points in each of the four races from the dataset,
 except Twin's, which is raced again with earlier winners drawn from the earlier races. It values a
 team as its best assignment of four racers to four races. A racer's draft value is the average
-value of random teams it's on, against the average team (8.95 points a game). `lineup.ts --write`
+value of random teams it's on, against the average team (9.26 points a game). `lineup.ts --write`
 saves these to `ratings.json` for the engine to play by.
 
 | racer | race 1 (Mild 3/2) | race 2 (Wild 4/3) | race 3 (Mild 4/3) | race 4 (Wild 5/4) | usually played in | draft value |
 | --- | --- | --- | --- | --- | --- | --- |
-| Scoocher | 2.38 | 7.52 | 3.24 | 8.23 | 4 | +4.69 |
-| Twin | 0.29 | 2.86 | 2.15 | 4.70 | 4 (always) | +1.45 |
-| Lovable Loser | 3.07 | 3.77 | 3.19 | 3.91 | 1 | +1.33 |
-| Suckerfish | 1.62 | 3.85 | 2.28 | 4.49 | 4 | +1.27 |
-| Sisyphus | 2.91 | 3.69 | 2.92 | 3.71 | 1 | +1.18 |
-| Romantic | 2.02 | 2.87 | 2.77 | 3.53 | 3 | +0.75 |
-| Dicemonger | 1.48 | 3.33 | 2.06 | 3.78 | 2 | +0.72 |
-| Copycat | 1.49 | 3.27 | 2.08 | 3.83 | 4 | +0.71 |
-| Egg | 1.56 | 3.11 | 2.01 | 3.55 | 2 | +0.49 |
-| Flip Flop | 1.41 | 2.91 | 1.96 | 3.51 | 4 | +0.39 |
-| Heckler | 1.40 | 2.86 | 1.94 | 3.51 | 4 | +0.38 |
+| Scoocher | 2.37 | 7.63 | 3.22 | 8.33 | 4 | +4.66 |
+| Twin | 0.27 | 2.97 | 2.12 | 4.84 | 4 (always) | +1.46 |
+| Lovable Loser | 3.03 | 3.72 | 3.14 | 3.86 | 1 | +1.25 |
+| Suckerfish | 1.60 | 3.94 | 2.25 | 4.57 | 4 | +1.23 |
+| Dicemonger | 1.45 | 4.00 | 2.02 | 4.49 | 2 | +1.22 |
+| Sisyphus | 2.92 | 3.73 | 2.93 | 3.76 | 1 | +1.15 |
+| Flip Flop | 1.40 | 3.65 | 1.95 | 4.23 | 4 | +0.92 |
+| Romantic | 2.02 | 2.91 | 2.77 | 3.56 | 3 | +0.72 |
+| Copycat | 1.48 | 3.40 | 2.06 | 3.97 | 4 | +0.72 |
+| Egg | 1.65 | 3.28 | 2.12 | 3.71 | 2 | +0.54 |
+| Heckler | 1.40 | 2.88 | 1.94 | 3.53 | 4 | +0.30 |
 | … | | | | | | |
-| Huge Baby | 0.45 | 1.49 | 0.64 | 1.73 | 2 | −0.93 |
-| Blimp | 0.52 | 1.12 | 0.73 | 1.37 | 1 | −1.00 |
-| Centaur | 0.49 | 1.26 | 0.69 | 1.47 | 1 | −1.02 |
+| Huge Baby | 0.45 | 1.56 | 0.63 | 1.80 | 2 | −0.97 |
+| Blimp | 0.51 | 1.11 | 0.72 | 1.35 | 1 | −1.05 |
+| Centaur | 0.48 | 1.31 | 0.69 | 1.51 | 1 | −1.06 |
 
 ![Draft value by racer](charts/draft-value.svg)
 
@@ -211,7 +217,8 @@ the stars. Inchworm, Huge Baby, Dicemonger, Egg and M.O.U.T.H. go to race 2 for 
 reason.
 
 **In the draft, Scoocher is worth about 4.7 points a game over an average pick,** three times the
-next racer. After it come Twin (saved for race 4), Lovable Loser, Suckerfish and Sisyphus.
+next racer. After it come Twin (saved for race 4), Lovable Loser, Suckerfish, Dicemonger and
+Sisyphus, all within a quarter point of each other.
 
 ## Optional powers
 
@@ -220,16 +227,17 @@ next racer. After it come Twin (saved for race 4), Lovable Loser, Suckerfish and
 
 | racer | current choice | alternatives |
 | --- | --- | --- |
-| Alchemist | by where each option lands: 0.64 / 1.34 | always move 4 (previous) +0.00 / −0.11, never 0.28 / 1.05 |
-| Cheerleader | by where each option lands: 1.09 / 2.40 | always cheer +0.00 / −0.10, never 0.29 / 1.08 |
-| Flip Flop | by where each swap lands: 1.43 / 2.95 | farthest 4+ ahead (previous) −0.02 / −0.40, 2+ ahead −0.31 / −0.57, 6+ ahead −0.03 / −0.41, never 0.29 / 1.05 |
-| Genius | predict 1 when leading, else 6: 0.82 / 1.66 | always 6 (previous) −0.03 / −0.04, 1 when in the top two −0.01 / −0.03; always 1 is worst (−0.26 / −0.29) |
-| Hypnotist | any opponent ahead but Copycat and Baba Yaga: 0.99 / 2.38 | also Baba Yaga −0.02 / +0.03, 7+ ahead −0.33 / −0.54, never 0.28 / 1.00 |
-| Legs | by where each option lands: 1.44 / 2.55 | always move 5 (previous) −0.01 / −0.62, never 0.31 / 1.08 |
-| Magician | reroll 1–4, then 1–3: 0.95 / 1.58 | 1–3 both times −0.04 / −0.07, 1–2 −0.21 / −0.18, 1–5 then 1–3 −0.09 / −0.08 |
-| Rocket Scientist | by where each option lands: 0.89 / 2.24 | 4+ (previous) −0.02 / −0.20, 5+ +0.01 / −0.26, always −0.24 / −0.84 |
-| Suckerfish | ride, except another player's Scoocher near the finish: 1.62 / 3.69 | always ride +0.02 / +0.03, never 0.31 / 1.09 |
-| Third Wheel | farthest pair ahead: 0.76 / 1.67 | nearest pair ahead −0.01 / −0.01, never 0.29 / 1.05 |
+| Alchemist | by where each option lands, a star worth 15 spaces: 0.63 / 1.44 | always move 4 (previous) +0.00 / −0.20, never 0.27 / 1.08 |
+| Cheerleader | by where each option lands, two moves from last place: 1.08 / 2.46 | one move of 3 (previous) +0.00 / −0.05, always cheer +0.00 / −0.16, never 0.29 / 1.13 |
+| Flip Flop | by where each swap lands, a star worth 15 spaces: 1.42 / 3.68 | a star worth 3 (previous) +0.00 / −0.74, 6 +0.00 / −0.49, 30 +0.00 / −0.01; farthest 4+ ahead −0.01 / −1.10, never 0.29 / 1.09 |
+| Genius | predict 1 when leading, else 6: 0.81 / 1.70 | always 6 (previous) −0.03 / −0.03, 1 when in the top two −0.01 / −0.00; always 1 is worst (−0.27 / −0.27) |
+| Hypnotist | any opponent ahead but Copycat and Baba Yaga: 0.97 / 2.42 | also Baba Yaga −0.01 / +0.03, 7+ ahead −0.32 / −0.54, never 0.28 / 1.06 |
+| Legs | by where each option lands: 1.44 / 2.57 | a star worth 15 spaces +0.00 / −0.10, always move 5 (previous) −0.01 / −0.65, never 0.31 / 1.13 |
+| Magician | reroll when the roll lands worse than an average roll, a star worth 15 spaces: 0.98 / 2.17 | 1–4 then 1–3 (previous) −0.05 / −0.60, a star worth 3 +0.00 / −0.04, 1–3 both times −0.08 / −0.68, 1–2 −0.25 / −0.77 |
+| Mastermind | the likeliest winner on this track: 1.05 / 2.11 | the best-rated racer (previous) −0.18 / −0.27 |
+| Rocket Scientist | by where each option lands, but not to within 6 of the finish without crossing: 0.99 / 2.33 | even just short of the finish (previous) −0.11 / −0.06, within 3 −0.04 / +0.00, within 9 −0.01 / −0.10, 4+ −0.13 / −0.28, always −0.35 / −0.97 |
+| Suckerfish | ride, except another player's Scoocher near the finish: 1.60 / 3.81 | always ride +0.02 / −0.00, never 0.31 / 1.13 |
+| Third Wheel | farthest pair ahead: 0.75 / 1.72 | nearest pair ahead −0.00 / +0.01, never 0.29 / 1.10 |
 
 ![Each alternative's points against the current choice](charts/choices.svg)
 
@@ -240,8 +248,30 @@ Suckerfish's, which gives up a few hundredths on purpose (see "Findings").
 so the guess doesn't change how far Genius goes on average, only which roll comes with the extra
 turn. A right 6 makes the best roll better, which a trailing racer needs to reach the medals. A
 right 1 makes the worst roll harmless, which is worth more to the leader. Guessing 1 from 2nd
-place doesn't help. Every
-racer's power is worth a lot over no power at all: "never" costs 0.4 to 2.6 points a race.
+place doesn't help.
+
+**A star is worth about 15 spaces, not 3.** It's a sure point, while a few spaces only matter if
+they change who finishes 1st or 2nd. Flip Flop now swaps onto a star even if it's behind, and
+Magician and Alchemist land on stars when they can. Legs is the exception: valuing stars that
+highly costs it 0.10, since it often gives up moving 5 for them.
+
+**Mastermind should predict the likeliest winner, not the best racer.** Ratings are points per
+race, so the best-rated racer is often Lovable Loser or Sisyphus, who almost never win.
+
+**Rocket Scientist shouldn't double to just short of the finish.** Doubling to within 6 spaces of
+the line without crossing it leaves it tripped there while the others get a turn to finish
+first.
+
+**Dicemonger's rerolls follow Magician's rule.** Any racer rerolling Dicemonger's offer when the
+roll lands worse than an average roll, instead of on a 1 to 3, scored 0.25 more a race on the
+Wild Wilds and 0.007 less on the Mild Mile (100,000 races each, ±0.006).
+
+Tried and rejected, besides the alternatives in the table: Suckerfish declining rides inside the
+Wild Wilds' 12–16 loop (−0.84 to −0.98 on the Wild Wilds), Hypnotist also skipping Party Animal,
+Suckerfish and Flip Flop (−0.03 / −0.15), and Cheerleader not cheering when an opponent shares
+last place (−0.20 / −0.25).
+
+Every racer's power is worth a lot over no power at all: "never" costs 0.4 to 2.7 points a race.
 
 Pulling a Copycat back makes it copy Hypnotist and pull straight back, forever, and pulling Baba
 Yaga onto your own space trips you, which stalled races when it repeated; so Hypnotist skips both.
@@ -256,21 +286,21 @@ hundreds of times in one turn, and each playout replays every decision before it
 
 | racer | race 1, Mild Mile | race 2, Wild Wilds |
 | --- | --- | --- |
-| Flip Flop | 1.44 → 1.89 (+0.45) | 2.90 → 4.30 (+1.40) |
-| Mastermind | 0.84 → 1.16 (+0.32) | 1.81 → 2.19 (+0.38) |
-| Cheerleader | 1.06 → 1.04 | 2.38 → 2.68 (+0.31) |
-| Suckerfish | 1.61 → 1.68 | 3.72 → 4.03 (+0.30) |
-| Rocket Scientist | 0.86 → 0.98 (+0.11) | 2.20 → 2.46 (+0.26) |
-| Alchemist | 0.65 → 0.67 | 1.31 → 1.46 (+0.15) |
-| Hypnotist | 0.99 → 0.94 | 2.33 → 2.47 (+0.13) |
-| Duelist | 0.97 → 0.84 (−0.14) | 1.69 → 1.67 |
-| Legs, Genius, Third Wheel | within ±0.1 | within ±0.1 |
+| Flip Flop | 1.42 → 1.92 (+0.50) | 3.64 → 4.26 (+0.62) |
+| Cheerleader | 1.09 → 1.04 | 2.46 → 2.73 (+0.27) |
+| Suckerfish | 1.61 → 1.66 | 3.89 → 4.08 (+0.19) |
+| Mastermind | 1.01 → 1.17 (+0.15) | 2.14 → 2.25 (+0.12) |
+| Legs | 1.43 → 1.45 | 2.55 → 2.70 (+0.15) |
+| Hypnotist | 0.96 → 0.93 | 2.41 → 2.55 (+0.14) |
+| Rocket Scientist | 0.98 → 1.00 | 2.34 → 2.43 (+0.10) |
+| Duelist | 0.95 → 0.85 (−0.10) | 1.72 → 1.66 |
+| Alchemist, Genius, Third Wheel | within ±0.1 | within ±0.1 |
 
 ![Hand-written choices against choices by playouts](charts/playouts.svg)
 
 **On the Mild Mile the hand-written choices are close to the best.** The exceptions are Flip Flop,
-whose best swap depends on more than distance, and Mastermind, which does better predicting the
-likely winner of this particular race than the best-rated racer.
+whose best swap depends on more than distance, and Mastermind, which does better still predicting
+from this particular race than from each racer's chance of winning in general.
 
 **On the Wild Wilds the track matters most.** Moving 5 or the roll, 4 or the roll, double or not,
 riding or not, swapping with whom: each lands on a different space, and a star, a rock or an
@@ -286,6 +316,12 @@ Cheerleader and Suckerfish still leave a quarter point or more behind. Suckerfis
 kept as it was: it scored 2.95 against 3.75 for always riding, because a ride the −4 arrow sends
 back still passes the star on 13 again.
 
+**Then stars got their due.** Logging each decision against its playouts showed Flip Flop's
+best swaps landing on stars, often backwards, and Rocket Scientist's worst doubles stopping just
+short of the finish. The changes in "Optional powers" above cut the gaps on the Wild Wilds:
+Flip Flop from +1.40 to +0.62, Mastermind from +0.38 to +0.12, Rocket Scientist from +0.26 to
++0.10.
+
 Not covered: Magician's rerolls and the before-race picks (Egg, Twin), which happen outside a
 turn's snapshot or outside `choose`.
 
@@ -294,15 +330,16 @@ turn's snapshot or outside `choose`.
 `node scripts/twin.ts` reruns Twin, Egg, Mastermind and Copycat with a rating to choose by (each
 racer's points in that race) and, for Twin, earlier winners to copy. The earlier winners are drawn
 from earlier races' chances of 1st, leaving out this race's lineup. Points per race, 100,000 races
-of 5, against the dataset, where they pick by the built-in ratings (`ratings.json`) and Twin's
-earlier winners are averaged over both races on the track:
+of 5, against the dataset, where they pick by the built-in ratings (`ratings.json`: points on the
+race's own track at its number of racers, or for Mastermind, chance of 1st on the track) and
+Twin's earlier winners are averaged over both races on the track:
 
 | racer | race 1 | race 2 | race 3 | race 4 |
 | --- | --- | --- | --- | --- |
-| Twin | 0.92 → 0.28 | 3.46 → 2.86 | 1.28 → 2.13 | 3.99 → 4.70 |
-| Egg | 1.56 → 1.68 | 3.11 → 3.25 | 2.01 → 2.14 | 3.55 → 3.83 |
-| Mastermind | 0.86 → 0.88 | 1.85 → 1.83 | 1.28 → 1.27 | 2.27 → 2.29 |
-| Copycat | 1.49 → 1.48 | 3.27 → 3.26 | 2.08 → 2.09 | 3.83 → 3.94 |
+| Twin | 0.91 → 0.27 | 3.62 → 2.96 | 1.25 → 2.11 | 4.15 → 4.87 |
+| Egg | 1.65 → 1.67 | 3.28 → 3.41 | 2.12 → 2.11 | 3.71 → 3.99 |
+| Mastermind | 1.02 → 1.05 | 2.12 → 2.12 | 1.52 → 1.49 | 2.62 → 2.63 |
+| Copycat | 1.48 → 1.46 | 3.40 → 3.35 | 2.06 → 2.06 | 3.97 → 4.04 |
 
 ![Racers that pick racers, with ratings and earlier winners](charts/twin.svg)
 
@@ -310,11 +347,11 @@ earlier winners are averaged over both races on the track:
 With three earlier winners to choose from, it can usually copy a strong one, often Scoocher,
 which wins half the races it's in. In race 1 it has nothing to copy.
 
-**Rating each race separately adds little over the built-in ratings:** 0.0 to 0.3 points for Egg,
-Mastermind and Copycat. Against random picks, choosing by any rating was worth half a point to a
-point a race to Egg and Mastermind.
+**Rating each race separately adds little over the built-in ratings:** −0.05 to +0.3 points for
+Egg, Mastermind and Copycat, most of it in race 4. Against random picks, choosing by any rating
+was worth half a point to a point a race to Egg and Mastermind.
 
-The rest of the order hardly moves (rank correlation 0.96–1.00); what moves is mostly Twin.
+The rest of the order hardly moves (rank correlation 0.94–1.00); what moves is mostly Twin.
 
 ## Whole games
 
@@ -323,11 +360,11 @@ and plays each team in its best race order (`ratings.json`).
 
 | first-round pick | score | wins |
 | --- | --- | --- |
-| 1 | 10.88 | 28.3% |
-| 2 | 11.18 | 30.3% |
-| 3 | 9.30 | 16.3% |
-| 4 | 8.38 | 13.1% |
-| 5 | 7.80 | 12.0% |
+| 1 | 11.24 | 27.8% |
+| 2 | 11.62 | 30.7% |
+| 3 | 9.71 | 16.7% |
+| 4 | 8.69 | 13.2% |
+| 5 | 8.06 | 11.6% |
 
 **Draft order decides a lot.** Only 10 racers are flipped up per round, and the value is
 concentrated in a few of them (Scoocher above all), so the first picks take most of it. The 2nd
@@ -336,9 +373,9 @@ pick, so it picks first in that round, while the first pick goes second. Between
 59% of games, against 40% for an even share. That's from an even roll-off, so it's the game's
 biggest swing that isn't on the track.
 
-**Team value predicts the winner, loosely.** The team with the best estimated value wins 43.4% of
+**Team value predicts the winner, loosely.** The team with the best estimated value wins 42.3% of
 games, against 20% for an even share, and the estimate correlates 0.47 with the final score.
-Estimates run low (9.02 against 9.51 actual), probably because they come from races against
+Estimates run low (8.98 against 9.86 actual), probably because they come from races against
 random opponents rather than drafted, stronger ones.
 
 ## The two-racer variants
@@ -348,10 +385,10 @@ and races two at a time. 100,000 games each, with standard games for comparison:
 
 | game | 1st pick wins | 2nd pick | 3rd pick | best estimated team wins |
 | --- | --- | --- | --- | --- |
-| 2 players, two racers each | 50.6% | 49.4% | | 57.1% |
-| 3 players, two racers each | 41.3% | 30.1% | 28.6% | 58.5% |
-| 3 players, standard | 34.8% | 33.7% | 31.5% | 36.0% |
-| 5 players, standard | 28.3% | 30.3% | 16.3% (then 13.1%, 12.0%) | 43.4% |
+| 2 players, two racers each | 50.6% | 49.4% | | 56.8% |
+| 3 players, two racers each | 41.3% | 29.9% | 28.8% | 56.6% |
+| 3 players, standard | 35.0% | 34.1% | 30.9% | 35.8% |
+| 5 players, standard | 27.8% | 30.7% | 16.7% (then 13.2%, 11.6%) | 42.3% |
 
 ![Chance of winning by draft position](charts/games.svg)
 
@@ -365,7 +402,7 @@ A table could fix it by giving the last pick of the first draft the first pick o
 **Standard drafts are fair at 3 players but not at 5,** where only the first two players ever
 start a round.
 
-**Team quality matters more with two racers each.** The best estimated team wins 57–59% of the
+**Team quality matters more with two racers each.** The best estimated team wins 57% of the
 time in the variants, against 36% in standard 3-player games, where one racer per race leaves
 more to luck.
 
@@ -376,12 +413,12 @@ opponents who take the highest-rated racer left (100,000 games of 5 each):
 
 | my draft | wins | score |
 | --- | --- | --- |
-| highest rating, as opponents do | 19.8% | 9.46 |
-| most added to my best race order | 20.2% | 9.57 |
-| my gain plus the most it would add to an opponent (denial) | 20.1% | 9.52 |
+| highest rating, as opponents do | 20.0% | 9.87 |
+| most added to my best race order | 20.5% | 9.99 |
+| my gain plus the most it would add to an opponent (denial) | 20.2% | 9.95 |
 
-**Drafting smarter barely pays.** Both alternatives beat the highest rating by 0.06 to 0.11 points
-a game and 0.3 to 0.4 points of win rate. That's about the size of the noise over 100,000 games,
+**Drafting smarter barely pays.** Both alternatives beat the highest rating by 0.08 to 0.12 points
+a game and 0.2 to 0.5 points of win rate. That's about the size of the noise over 100,000 games,
 and invisible at a table. The value is concentrated in a few racers, so the racer
 that adds most to your team, the one that adds most to an opponent's, and the highest-rated one
 are nearly always the same pick. Where you sit in the draft matters far more than how you draft.
@@ -393,17 +430,17 @@ differently from the opponents, who play their best race order (100,000 games of
 
 | my choices | wins | score | my M.O.U.T.H. met their Scoocher | wins in those games |
 | --- | --- | --- | --- | --- |
-| best race order, as opponents do | 20.1% | 9.51 | 0.6% of games | 15.5% |
-| by score: with two left, save the safe one when ahead, the likely winner when behind | 19.9% | 9.45 | | |
-| counter: draft M.O.U.T.H. once an opponent has Scoocher, and race it in Scoocher's race | 19.7% | 9.29 | 4.5% of games | 10.2% |
+| best race order, as opponents do | 20.0% | 9.87 | 0.6% of games | 11.2% |
+| by score: with two left, save the safe one when ahead, the likely winner when behind | 19.6% | 9.78 | | |
+| counter: draft M.O.U.T.H. once an opponent has Scoocher, and race it in Scoocher's race | 19.3% | 9.62 | 4.9% of games | 9.4% |
 
 ![Strategies' chances of winning](charts/strategies.svg)
 
-**Just play your best race order.** Switching by score gives up 0.06 points a game, and
+**Just play your best race order.** Switching by score gives up 0.09 points a game, and
 the racers' spreads are too alike for the safety or the long shot to make it back.
 
 **Countering Scoocher doesn't pay for the counterer.** When your M.O.U.T.H. meets their Scoocher
-you win only 10.2% of the time. Slowing or eating Scoocher helps the other three opponents as much
+you win only 9.4% of the time. Slowing or eating Scoocher helps the other three opponents as much
 as you, while it costs you a better draft pick and M.O.U.T.H.'s own best race.
 
 ## Spread of points
@@ -413,24 +450,26 @@ there. Race 4 on the Wild Wilds (5/4), selected:
 
 | racer | mean | sd | 0 points | at least gold |
 | --- | --- | --- | --- | --- |
-| Scoocher | 8.23 | 4.88 | 1% | 84% |
-| Suckerfish | 4.49 | 3.86 | 16% | 52% |
-| Lovable Loser | 3.91 | 2.76 | 11% | 40% |
-| Copycat | 3.83 | 3.40 | 21% | 47% |
-| Dicemonger | 3.78 | 2.44 | 6% | 44% |
-| Sisyphus | 3.71 | 1.53 | 2% | 25% |
-| Romantic | 3.53 | 2.36 | 22% | 52% |
-| Heckler | 3.51 | 2.38 | 23% | 51% |
-| Mastermind | 2.27 | 2.16 | 33% | 20% |
+| Scoocher | 8.33 | 4.90 | 1% | 85% |
+| Suckerfish | 4.57 | 3.88 | 14% | 53% |
+| Dicemonger | 4.49 | 2.44 | 2% | 53% |
+| Flip Flop | 4.23 | 2.59 | 8% | 56% |
+| Copycat | 3.97 | 3.42 | 19% | 49% |
+| Lovable Loser | 3.86 | 2.75 | 12% | 40% |
+| Sisyphus | 3.76 | 1.56 | 2% | 26% |
+| Romantic | 3.56 | 2.36 | 21% | 52% |
+| Heckler | 3.53 | 2.37 | 21% | 51% |
+| Mastermind | 2.62 | 2.20 | 28% | 24% |
 
 ![Chance of scoring nothing against chance of at least gold in race 4](charts/spread.svg)
 
 **Protecting a lead in race 4:** pick a racer that rarely scores nothing. Sisyphus (2%),
-Dicemonger (6%) and Lovable Loser (11%) are nearly sure of a few points, and Sisyphus is the
-steadiest of all (sd 1.53).
+Dicemonger (2%) and Flip Flop (8%) are nearly sure of a few points, and Sisyphus is the steadiest
+of all (sd 1.56).
 
-**Catching up in race 4:** pick a racer that often wins. Suckerfish (52%), Romantic (52%) and
-Heckler (51%) take gold about half the time, against Sisyphus's 25%. Scoocher is both the
+**Catching up in race 4:** pick a racer that often wins. Flip Flop (56%), Suckerfish and
+Dicemonger (53%) take gold more than half the time, against Sisyphus's 26%. Dicemonger and Flip
+Flop are both safe and likely to win. Scoocher is both the
 safest and the likeliest to win, so it's the best racer whichever position you're in.
 
 ## Seat order
@@ -439,12 +478,12 @@ safest and the likeliest to win, so it's the best racer whichever position you'r
 
 | players | seat 1 | seat 2 | seat 3 | seat 4 | seat 5 | seat 6 | seat 1 − average |
 | --- | --- | --- | --- | --- | --- | --- | --- |
-| 3 | 2.00 | 1.87 | 1.75 | | | | +0.12 |
+| 3 | 2.00 | 1.88 | 1.75 | | | | +0.12 |
 | 4 | 1.57 | 1.48 | 1.38 | 1.32 | | | +0.13 |
-| 5 | 1.28 | 1.22 | 1.16 | 1.10 | 1.08 | | +0.11 |
-| 6 | 1.08 | 1.04 | 1.00 | 0.96 | 0.94 | 0.92 | +0.09 |
+| 5 | 1.29 | 1.22 | 1.16 | 1.11 | 1.08 | | +0.12 |
+| 6 | 1.08 | 1.04 | 1.00 | 0.96 | 0.93 | 0.92 | +0.09 |
 
-That's race 1 on the Mild Mile; the Wild Wilds is a little flatter (+0.07 to +0.11).
+That's race 1 on the Mild Mile; the Wild Wilds is a little flatter (+0.06 to +0.10).
 
 ![Points by seat](charts/seats.svg)
 
@@ -482,7 +521,7 @@ only 1 point. It's kept because it costs Scoocher's owner a lot. (Measured under
 printing.)
 
 **The Wild Wilds has a cycle.** The arrow on 16 sends racers back to 12, so anything moving 1
-space at a time circles 12–16 and crosses the star on 13 each lap. Scoocher averages 4.93 bronze
+space at a time circles 12–16 and crosses the star on 13 each lap. Scoocher averages 5.04 bronze
 a race there. With Suckerfish too, the pair farmed about 21 a race until bronze was capped at the
 43 points of chips in the box. The cap is shared across the whole game, so in full games the pair
 also starves everyone else's stars.
@@ -546,7 +585,7 @@ reading flipped. None matters beyond its own racer:
 | reading | race 1 | race 2 |
 | --- | --- | --- |
 | main moves pushed below 0 go backwards (Hague yes, Garfield no) | under 0.1 for everyone | under 0.1 for everyone |
-| triggers queue and resolve even if the board changed (Garfield's own play) | Romantic +0.11 (of 2.02) | Scoocher +0.13 (of 7.52) |
+| triggers queue and resolve even if the board changed (Garfield's own play) | Romantic +0.11 (of 2.02) | Romantic +0.14 (of 2.91), Scoocher +0.11 (of 7.63) |
 
 ![Change in each racer's points with each reading flipped](charts/sensitivity.svg)
 
@@ -568,6 +607,10 @@ Two more were settled rather than left open:
   model's choices avoid it.
 - Huge Baby on 12 traps a racer between 11's arrow (+1) and 16's (−4). The loop rule ends it
   after one pass.
+- Flip Flop can swap with a racer on its own space, but neither scores the space again: a warp
+  that doesn't change spaces triggers nothing (Garfield and Hague,
+  [BGG](https://boardgamegeek.com/thread/3584489/article/46674967)). The model used to score the
+  star again, which playouts found and farmed.
 
 ## Next
 

@@ -1,4 +1,5 @@
 import { type Name, type Race, type Racer, shuffle } from "./game.ts";
+import RATINGS from "./ratings.json" with { type: "json" };
 
 /**
  * A racer's rules as hooks. The engine calls "own" hooks only for the racer whose turn or move it
@@ -66,16 +67,16 @@ function stoppedWith(race: Race, mover: Racer, at: number, together: Racer[]) {
 
 /**
  * What stopping on `to` is worth, in spaces, for choices that pick where to land: an arrow's move
- * counts, a star is worth about 3 spaces and a rock costs a turn's roll. Crossing the finish beats
+ * counts, a star is worth `star` spaces and a rock costs a turn's roll. Crossing the finish beats
  * any space.
  */
-function landing(race: Race, to: number) {
+export function landing(race: Race, to: number, star = 3) {
   const n = race.track.length;
   let at = Math.max(0, to);
   let bonus = 0;
   for (let i = 0; i < 3 && at < n; i++) {
     const space = race.track.spaces[at];
-    if (space?.star) bonus += 3;
+    if (space?.star) bonus += star;
     if (space?.trip) bonus -= 3.5;
     if (!space?.arrow) break;
     at = Math.max(0, at + space.arrow);
@@ -83,8 +84,17 @@ function landing(race: Race, to: number) {
   return at >= n ? n + 10 : at + bonus;
 }
 
+/** Where an arrow chain from `to` stops. */
+function settle(race: Race, to: number) {
+  for (let i = 0; i < 3 && to < race.track.length && race.track.spaces[to]?.arrow; i++) to = Math.max(0, to + race.track.spaces[to]!.arrow!);
+  return to;
+}
+
+/** A racer's chance of 1st in a race of 5 on this track, from `ratings.json`. */
+const first = (race: Race, name: Name) => RATINGS.first[name][race.track.name === "Wild Wilds" ? 1 : 0];
+
 /** `landing` averaged over a die roll from `from`. */
-const rolled = (race: Race, from: number) => [1, 2, 3, 4, 5, 6].reduce((s, d) => s + landing(race, from + d), 0) / 6;
+export const rolled = (race: Race, from: number, star = 3) => [1, 2, 3, 4, 5, 6].reduce((s, d) => s + landing(race, from + d, star), 0) / 6;
 
 function duel(race: Race, me: Racer, q: Racer) {
   if (me.pos !== q.pos || !race.active(me) || !race.active(q) || !race.choose(me, "Duelist", q)) return;
@@ -106,7 +116,8 @@ export const RACERS: Record<Name, Powers> = {
    * TRANSMUTE 'N' SCOOT: When I roll a 1 or 2 for my main move, I can move 4 instead.
    */
   "Alchemist": {
-    choose: (race, me, roll: number) => landing(race, me.pos + 4) >= landing(race, me.pos + roll),
+    // A star is a sure point: 15 spaces beat 3 by 0.09 points a race on the Wild Wilds (choices.ts).
+    choose: (race, me, roll: number) => landing(race, me.pos + 4, 15) >= landing(race, me.pos + roll, 15),
     base: (race, me, roll, base) => (roll <= 2 && race.choose(me, "Alchemist", roll) ? 4 : base),
   },
 
@@ -187,8 +198,13 @@ export const RACERS: Record<Name, Powers> = {
    */
   "Cheerleader": {
     // Cheering every turn beat cheering only from last place by about half a point a race, unless
-    // my own move lands somewhere worse than where I am, like a rock.
-    choose: (race, me) => landing(race, (race.last().includes(me) ? me.pos + 2 : me.pos) + 1) >= me.pos,
+    // my own move lands somewhere worse than where I am, like a rock. From last place it's two
+    // moves: 14 → 16, back to 12 on the arrow, then onto the star on 13.
+    choose(race, me) {
+      if (!race.last().includes(me)) return landing(race, me.pos + 1) >= me.pos;
+      const star = race.track.spaces[me.pos + 2]?.star ? 3 : 0;
+      return landing(race, settle(race, me.pos + 2) + 1) + star >= me.pos;
+    },
     startTurn(race, me) {
       const last = race.last();
       if (!race.choose(me, "Cheerleader")) return;
@@ -232,7 +248,7 @@ export const RACERS: Record<Name, Powers> = {
   "Copycat": {
     copies(race, me) {
       const lead = race.lead().filter((o) => o !== me);
-      return lead.length ? lead.reduce((a, b) => (race.policy.rating(b.name) > race.policy.rating(a.name) ? b : a)) : null;
+      return lead.length ? lead.reduce((a, b) => (race.policy.rating(b.name, race) > race.policy.rating(a.name, race) ? b : a)) : null;
     },
   },
 
@@ -313,20 +329,27 @@ export const RACERS: Record<Name, Powers> = {
    *
    * Terms, p. 23, Stopping on a space: Racers are stopped on a space after they've finished moving
    * onto it, or otherwise arriving there by other means, like through Flip Flop's warping power.
+   *
+   * Richard Garfield, 2025-09-30: "you can swap with a player on your space but it doesn't trigger
+   * the VP." Alex Hague agreed: "warping 0" doesn't count for triggering.
+   * https://boardgamegeek.com/thread/3584489/article/46674967
    */
   "Flip Flop": {
     choose(race, me) {
+      // A star is a sure point, worth swapping backwards for: 15 spaces gained the most (choices.ts).
       // A Copycat would copy the new leader's Flip Flop and swap straight back, forever.
-      const roll = rolled(race, me.pos);
-      const better = race.onTrack().filter((o) => o !== me && landing(race, o.pos) > roll && !race.powers(o).includes("Copycat"));
-      return better.sort((a, b) => landing(race, b.pos) - landing(race, a.pos))[0] ?? null;
+      const roll = rolled(race, me.pos, 15);
+      const better = race.onTrack().filter((o) => o.pos !== me.pos && landing(race, o.pos, 15) > roll && !race.powers(o).includes("Copycat"));
+      return better.sort((a, b) => landing(race, b.pos, 15) - landing(race, a.pos, 15))[0] ?? null;
     },
     replaceMain(race, me) {
       const t: Racer | null = race.choose(me, "Flip Flop");
       if (!t) return false;
       race.use(me, "Flip Flop", () => {
+        const same = me.pos === t.pos;
         [me.pos, t.pos] = [t.pos, me.pos];
         race.say(`${me.name} swaps with ${t.name}`);
+        if (same) return;
         race.arrive(me);
         race.arrive(t);
       });
@@ -575,7 +598,8 @@ export const RACERS: Record<Name, Powers> = {
    * If I predict myself, I can win both 1st and 2nd.
    */
   "Mastermind": {
-    choose: (race, me) => race.best([me.name, ...race.racers.map((o) => o.name)]),
+    // The likeliest winner beat the best-rated racer, whose points include bronze, by 0.18–0.29 (choices.ts).
+    choose: (race) => race.racers.map((o) => o.name).reduce((a, b) => (first(race, b) > first(race, a) ? b : a)),
     startTurn(race, me) {
       if (me.turns === 1) race.use(me, "Mastermind", () => (me.prediction = race.choose(me, "Mastermind")));
     },
@@ -629,7 +653,11 @@ export const RACERS: Record<Name, Powers> = {
    * and Gunk—resolve in turn order.
    */
   "Rocket Scientist": {
-    choose: (race, me, roll: number) => landing(race, me.pos + 2 * roll) - 3.5 >= landing(race, me.pos + roll),
+    // Tripping within 6 of the finish lets others finish first: +0.11 / +0.06 a race (choices.ts).
+    choose(race, me, roll: number) {
+      const left = race.track.length - (me.pos + 2 * roll);
+      return !(left > 0 && left <= 6) && landing(race, me.pos + 2 * roll) - 3.5 >= landing(race, me.pos + roll);
+    },
     base(race, me, roll, base) {
       if (!race.choose(me, "Rocket Scientist", roll)) return base;
       race.afterMain.push(() => race.trip(me));

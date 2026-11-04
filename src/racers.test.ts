@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { mulberry32, type Name, NAMES, Race, type RaceOptions } from "./game.ts";
+import { mulberry32, type Name, NAMES, Race, type RaceOptions, WILD_WILDS } from "./game.ts";
 
 function setup(names: Name[], pos: number[], dice: number[] = [], o: Partial<RaceOptions> = {}) {
   const race = new Race({ racers: names, dice, rng: mulberry32(1), ...o });
@@ -96,9 +96,13 @@ const cards: Record<Name, () => void> = {
   },
   "Flip Flop"() {
     // I can skip rolling for my main move and swap spaces with another racer instead.
-    const race = setup(["Flip Flop", "Banana"], [0, 10]);
+    let race = setup(["Flip Flop", "Banana"], [0, 10]);
     race.turn(race.racers[0]);
     assert.deepEqual(race.racers.map((r) => r.pos), [10, 0]);
+    // Richard Garfield: swapping with a racer on my own star doesn't score it.
+    race = setup(["Flip Flop", "Banana"], [13, 13], [], { track: WILD_WILDS, policy: { choose: { "Flip Flop": (r) => r.racers[1] } } });
+    race.turn(race.racers[0]);
+    assert.equal(race.racers[0].bronze, 0);
   },
   "Genius"() {
     // I can predict what number I'll roll for my main move. If I'm right, I take an extra turn.

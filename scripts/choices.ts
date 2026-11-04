@@ -1,7 +1,7 @@
 import { parseArgs } from "node:util";
 import { defaultPolicy, mulberry32, NAMES, type Name, type Policy, Race, type Racer, shuffle } from "../src/game.ts";
 import { collect } from "../src/parallel.ts";
-import { RACERS } from "../src/racers.ts";
+import { landing, RACERS, rolled } from "../src/racers.ts";
 import { parquet, pointsSql, query, racerRows, type RacerRow, slug, write } from "../src/results.ts";
 import { trackFor } from "../src/tables.ts";
 
@@ -13,16 +13,26 @@ const farthest = (race: Race, me: Racer, gap: (o: Racer) => boolean) =>
   race.onTrack().filter((o) => o.player !== me.player && gap(o)).sort((a, b) => b.pos - a.pos)[0] ?? null;
 
 const variants: Partial<Record<Name, Record<string, Partial<Policy>>>> = {
-  "Alchemist": { "always (previous)": { choose: { Alchemist: () => true } }, never: { choose: { Alchemist: () => false } } },
+  "Alchemist": {
+    "always (previous)": { choose: { Alchemist: () => true } },
+    never: { choose: { Alchemist: () => false } },
+    "star worth 15 spaces": { choose: { Alchemist: (race, me, roll: number) => landing(race, me.pos + 4, 15) >= landing(race, me.pos + roll, 15) } },
+  },
   "Cheerleader": {
     always: { choose: { Cheerleader: () => true } },
     never: { choose: { Cheerleader: () => false } },
+    "one move of 3 when last (previous)": { choose: { Cheerleader: (race, me) => landing(race, (race.last().includes(me) ? me.pos + 2 : me.pos) + 1) >= me.pos } },
   },
   "Flip Flop": {
     "farthest 4+ ahead (previous)": { choose: { "Flip Flop": (race, me) => farthest(race, me, (o) => o.pos - me.pos >= 4 && !race.powers(o).includes("Copycat")) } },
     "2 or more ahead": { choose: { "Flip Flop": (race, me) => farthest(race, me, (o) => o.pos - me.pos >= 2 && !race.powers(o).includes("Copycat")) } },
     "6 or more ahead": { choose: { "Flip Flop": (race, me) => farthest(race, me, (o) => o.pos - me.pos >= 6 && !race.powers(o).includes("Copycat")) } },
     never: { choose: { "Flip Flop": () => null } },
+    ...Object.fromEntries([3, 6, 30].map((star) => [`star worth ${star} spaces${star === 3 ? " (previous)" : ""}`, { choose: { "Flip Flop": (race, me) => {
+      const roll = rolled(race, me.pos, star);
+      const better = race.onTrack().filter((o) => o !== me && o.pos !== me.pos && landing(race, o.pos, star) > roll && !race.powers(o).includes("Copycat"));
+      return better.sort((a, b) => landing(race, b.pos, star) - landing(race, a.pos, star))[0] ?? null;
+    } } }])),
   },
   "Genius": {
     ...Object.fromEntries([1, 2, 3, 4, 5, 6].map((g) => [`guess ${g}${g === 6 ? " (previous)" : ""}`, { choose: { Genius: () => g } }])),
@@ -33,8 +43,19 @@ const variants: Partial<Record<Name, Record<string, Partial<Policy>>>> = {
     "7 or more ahead": { choose: { Hypnotist: (race, me) => farthest(race, me, (o) => o.pos - me.pos > 6) } },
     never: { choose: { Hypnotist: () => null } },
   },
-  "Legs": { "always (previous)": { choose: { Legs: () => true } }, never: { choose: { Legs: () => false } } },
+  "Legs": {
+    "always (previous)": { choose: { Legs: () => true } },
+    never: { choose: { Legs: () => false } },
+    "star worth 15 spaces": { choose: { Legs: (race, me) => landing(race, me.pos + 5, 15) >= rolled(race, me.pos, 15) } },
+  },
+  "Mastermind": {
+    "best-rated racer (previous)": { choose: { Mastermind: (race: Race, me: Racer) => race.best([me.name, ...race.racers.map((o) => o.name)]) } },
+  },
   "Magician": {
+    "reroll 1–4, then 1–3 (previous)": { reroll: (race, r, roll, left) => (race.has(r, "Magician") ? roll <= (left >= 2 ? 4 : 3) : defaultPolicy.reroll(race, r, roll, left)) },
+    "where it lands, star worth 3": {
+      reroll: (race, r, roll, left) => (race.has(r, "Magician") ? landing(race, r.pos + roll) < rolled(race, r.pos) : defaultPolicy.reroll(race, r, roll, left)),
+    },
     "reroll 1–3": { reroll: (race, r, roll, left) => (race.has(r, "Magician") ? roll <= 3 : defaultPolicy.reroll(race, r, roll, left)) },
     "reroll 1–2": { reroll: (race, r, roll, left) => (race.has(r, "Magician") ? roll <= 2 : defaultPolicy.reroll(race, r, roll, left)) },
     "reroll 1–5, then 1–3": { reroll: (race, r, roll, left) => (race.has(r, "Magician") ? roll <= (left >= 2 ? 5 : 3) : defaultPolicy.reroll(race, r, roll, left)) },
@@ -45,6 +66,15 @@ const variants: Partial<Record<Name, Record<string, Partial<Policy>>>> = {
     "3 or more": { choose: { "Rocket Scientist": (race, me, roll: number) => roll >= 3 || me.pos + 2 * roll >= race.track.length } },
     "5 or more": { choose: { "Rocket Scientist": (race, me, roll: number) => roll >= 5 || me.pos + 2 * roll >= race.track.length } },
     "only to finish": { choose: { "Rocket Scientist": (race, me, roll: number) => me.pos + 2 * roll >= race.track.length } },
+    ...Object.fromEntries([0, 3, 9].map((k) => [k ? `not to within ${k} of the finish without crossing` : "even to just short of the finish (previous)", {
+      choose: { "Rocket Scientist": (race: Race, me: Racer, roll: number) => {
+        const left = race.track.length - (me.pos + 2 * roll);
+        return landing(race, me.pos + 2 * roll) - 3.5 >= landing(race, me.pos + roll) && !(left > 0 && left <= k);
+      } },
+    }])),
+    ...Object.fromEntries([2, 5].map((trip) => [`tripping costs ${trip} spaces`, {
+      choose: { "Rocket Scientist": (race: Race, me: Racer, roll: number) => landing(race, me.pos + 2 * roll) - trip >= landing(race, me.pos + roll) },
+    }])),
   },
   "Suckerfish": {
     "always ride": { choose: { Suckerfish: (_race, me, to: number) => to > me.pos } },

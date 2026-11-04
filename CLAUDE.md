@@ -21,9 +21,11 @@ The engine and its tests are in `src/`, scripts to run in `scripts/`, their raw 
 - `sim.ts`: quick Monte Carlo. `node scripts/sim.ts --n 100000 --players 5` prints per-racer
   odds; `--mode game` runs whole games; `--log` prints every event and `--csv` a row per racer
   per race, both on one core with `--seed`.
-- `ratings.json`: each racer's points, chance of 1st and draft value by race, from
-  `lineup.ts --write`. The engine drafts, orders races and picks racers (Egg, Twin, Mastermind,
-  Copycat) by it, and standalone races draw Twin's earlier winners from its chances of 1st, so
+- `ratings.json`: each racer's points, chance of 1st and draft value by race, and points per race
+  on each track at 3 to 6 racers, from `lineup.ts --write`. The engine drafts and orders races by
+  it, and picks racers (Egg, Twin, Copycat) by the points on the race's own track and size.
+  Mastermind predicts by chance of 1st on the track, and standalone races draw Twin's earlier
+  winners from it too, so
   regenerate it after a change that moves racers' points. It comes from the previous dataset, so
   it's one pass behind; one pass is close enough.
 - `results/` holds raw data as Parquet, a row per racer per race or per player per game, never
@@ -106,5 +108,4 @@ a login.
 - A race no one can finish, like four racers on space 29 with Coach (+1) and Stickler (exact
   finishes only), stops after 1,000 turns as `stalled`, and only racers already across score.
 - Optional powers follow each racer's `choose`, a greedy guess. Hypnotist and Flip Flop avoid
-  targets that would ping-pong forever with a Copycat. Mastermind predicts itself unless `rating`
-  says otherwise, and with no ratings, drafts, Egg and Twin picks are random.
+  targets that would ping-pong forever with a Copycat.

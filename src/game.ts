@@ -1,4 +1,4 @@
-import { type Powers, RACERS } from "./racers.ts";
+import { landing, type Powers, RACERS, rolled } from "./racers.ts";
 import RATINGS from "./ratings.json" with { type: "json" };
 
 export const NAMES = [
@@ -71,8 +71,10 @@ export type Racer = {
 };
 
 export type Policy = {
-  /** Higher is better. Used for Egg, Twin, Copycat ties, Mastermind and drafting. */
-  rating(name: Name): number;
+  /**
+   * Higher is better. Used for Egg, Twin and Copycat ties in `race`, and for drafting without one.
+   */
+  rating(name: Name, race?: Race): number;
   /** Whether to reroll the main move, with `left` rerolls to go. */
   reroll(race: Race, r: Racer, roll: number, left: number): boolean;
   /** Overrides for racers' optional choices; see `Powers.choose` in `racers.ts`. */
@@ -80,12 +82,15 @@ export type Policy = {
 };
 
 export const defaultPolicy: Policy = {
-  // Draft value from `lineup.ts --write`: points a game over an average pick.
-  rating: (name) => RATINGS.draft[name],
-  reroll(race, r, roll, left) {
+  // From `lineup.ts --write`: points per race on this track at this many racers, or draft value.
+  rating: (name, race) =>
+    (race && (RATINGS as { races?: Record<string, Record<number, Record<Name, number>>> }).races?.[race.track.name][race.racers.length]?.[name]) ?? RATINGS.draft[name],
+  reroll(race, r, roll) {
     if (race.has(r, "Alchemist") && roll <= 2) return false;
     if (race.has(r, "Sisyphus") && roll === 6) return true;
-    return roll <= (left >= 2 ? 4 : 3);
+    // Where the roll lands beat rerolling 1–4 then 1–3 by 0.62 points a race on the Wild Wilds for
+    // Magician (choices.ts), and rerolling 1–3 by 0.25 for anyone taking Dicemonger's reroll.
+    return landing(race, r.pos + roll, 15) < rolled(race, r.pos, 15);
   },
   choose: {},
 };
@@ -390,7 +395,7 @@ export class Race {
   }
 
   best(names: Name[]) {
-    return best(names, this.policy.rating);
+    return best(names, (name) => this.policy.rating(name, this));
   }
 
   gain(r: Racer, p: Name) {
@@ -490,6 +495,7 @@ export class Race {
       this.use(b[0], b[1]);
     }
     this.say(`${r.name} warps ${r.pos} → ${pos}`);
+    if (pos === r.pos) return;
     r.pos = pos;
     this.arrive(r);
   }

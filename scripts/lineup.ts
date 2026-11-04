@@ -73,7 +73,14 @@ console.log(`\nDraft value: a team's best total with this racer, against the ave
 
 if (args.write) {
   const round = (x: number) => Math.round(x * 100) / 100;
+  // Each track's points average its two races' chip values.
+  const byTrack = Object.fromEntries(await Promise.all(["Mild Mile", "Wild Wilds"].map(async (track, t) =>
+    [track, Object.fromEntries(await Promise.all([3, 4, 5, 6].map(async (n) => {
+      const rows = await query(`select racer, avg(${pointsSql(t)} + ${pointsSql(t + 2)}) / 2 points from ${races(t, n)} group by racer order by racer`);
+      return [n, Object.fromEntries(rows.map((r) => [r.racer, round(r.points)]))];
+    })))])));
   const ratings = {
+    races: byTrack,
     points: Object.fromEntries(NAMES.map((name) => [name, table4[name].map(round)])),
     draft: Object.fromEntries(NAMES.map((name) => [name, round(draft.get(name)! - mean)])),
     first: Object.fromEntries(NAMES.map((name) => [name, games.map((race) =>
