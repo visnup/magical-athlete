@@ -28,9 +28,14 @@ const variants: Partial<Record<Name, Record<string, Partial<Policy>>>> = {
     "2 or more ahead": { choose: { "Flip Flop": (race, me) => farthest(race, me, (o) => o.pos - me.pos >= 2 && !race.powers(o).includes("Copycat")) } },
     "6 or more ahead": { choose: { "Flip Flop": (race, me) => farthest(race, me, (o) => o.pos - me.pos >= 6 && !race.powers(o).includes("Copycat")) } },
     never: { choose: { "Flip Flop": () => null } },
+    "never with a Copycat (previous)": { choose: { "Flip Flop": (race, me) => {
+      const roll = rolled(race, me.pos, 15);
+      const better = race.onTrack().filter((o) => o.pos !== me.pos && landing(race, o.pos, 15) > roll && !race.powers(o).includes("Copycat"));
+      return better.sort((a, b) => landing(race, b.pos, 15) - landing(race, a.pos, 15))[0] ?? null;
+    } } },
     ...Object.fromEntries([3, 6, 30].map((star) => [`star worth ${star} spaces${star === 3 ? " (previous)" : ""}`, { choose: { "Flip Flop": (race, me) => {
       const roll = rolled(race, me.pos, star);
-      const better = race.onTrack().filter((o) => o !== me && o.pos !== me.pos && landing(race, o.pos, star) > roll && !race.powers(o).includes("Copycat"));
+      const better = race.onTrack().filter((o) => o !== me && o.pos !== me.pos && landing(race, o.pos, star) > roll);
       return better.sort((a, b) => landing(race, b.pos, star) - landing(race, a.pos, star))[0] ?? null;
     } } }])),
   },

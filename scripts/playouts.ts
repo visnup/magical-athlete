@@ -11,7 +11,7 @@ import { points, trackFor } from "../src/tables.ts";
  * better a choice can get than the current heuristic. Rerolls (Magician) and before-race picks
  * (Egg, Twin) aren't covered: they happen outside a turn's snapshot or outside `choose`.
  */
-const options: Partial<Record<Name, (race: Race, me: Racer) => unknown[]>> = {
+export const options: Partial<Record<Name, (race: Race, me: Racer) => unknown[]>> = {
   "Alchemist": () => [true, false],
   "Cheerleader": () => [true, false],
   "Duelist": () => [true, false],

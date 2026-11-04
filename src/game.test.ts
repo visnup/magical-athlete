@@ -38,8 +38,9 @@ test("random races finish, except rare rules deadlocks", () => {
     stalled += +result.stalled;
     assert.ok(result.finishers.length <= 2);
   }
-  // e.g. four racers on the last space with Coach (+1) and Stickler (exact finishes only)
-  assert.ok(stalled < 5, `${stalled} stalled`);
+  // e.g. four racers on the last space with Coach (+1) and Stickler (exact finishes only), or
+  // Flip Flop and Copycat as the last two left, swapping every turn
+  assert.ok(stalled < 25, `${stalled} stalled`);
   assert.equal(seen.size, NAMES.length);
 });
 

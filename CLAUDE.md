@@ -25,21 +25,22 @@ The engine and its tests are in `src/`, scripts to run in `scripts/`, their raw 
   on each track at 3 to 6 racers, from `lineup.ts --write`. The engine drafts and orders races by
   it, and picks racers (Egg, Twin, Copycat) by the points on the race's own track and size.
   Mastermind predicts by chance of 1st on the track, and standalone races draw Twin's earlier
-  winners from it too, so
-  regenerate it after a change that moves racers' points. It comes from the previous dataset, so
-  it's one pass behind; one pass is close enough.
+  winners from it too. It comes from the previous dataset, so it's one pass behind; refresh it
+  with `lineup.ts --write` and rerun `make` after a change that moves racers' points.
 - `results/` holds raw data as Parquet, a row per racer per race or per player per game, never
   averages. `races.ts` writes the shared race dataset: a million races of random lineups at each
   track and player count (`races-<mild|wild>-<n>p.parquet`), in batches of 100,000 that `write`
   joins with DuckDB and zstd. Races 1 and 3 are on the Mild Mile and 2 and 4 on the Wild Wilds,
   and differ only in chip values, so a row is scored by the race it stands for (`pointsSql`,
   `rowPoints`). For Twin, each race gets the earlier winners of one of its track's two races at
-  random (0 or 2 on the Mild Mile, 1 or 3 on the Wild Wilds), so Twin averages over them. Scripts summarize with DuckDB (`query` in
-  `results.ts`), which reads the files directly; so can `duckdb` or pandas.
-  `make` reruns whatever a change in `scripts/` made stale, then the charts (about 20 minutes
+  random (0 or 2 on the Mild Mile, 1 or 3 on the Wild Wilds), so Twin averages over them.
+  Scripts summarize with DuckDB (`query` in `results.ts`), which reads the files directly; so can
+  `duckdb` or pandas. `results/README.md` is the Hugging Face dataset card.
+- `make` reruns whatever a change in `scripts/` made stale, then the charts (about 20 minutes
   from scratch). For `src/`, it first hashes the engine's results on a fixed sample
   (`fingerprint.ts`, into `engine.sha`) and reruns only if they changed, so a refactor that
-  leaves results alone reruns nothing. A fresh clone's file times are arbitrary, so it may rerun everything.
+  leaves results alone reruns nothing. A fresh clone's file times are arbitrary, so it may rerun
+  everything.
 - Scripts that read the race dataset, each run as `node scripts/<script>.ts`:
   - `points.ts --race k`: the headline points table.
   - `players.ts`: each racer's points as a multiple of a fair share at 3 to 6 players.
@@ -50,12 +51,19 @@ The engine and its tests are in `src/`, scripts to run in `scripts/`, their raw 
   - `lineup.ts`: which race to play each racer in, and draft value.
   - `twin.ts`: Twin, Egg, Mastermind and Copycat with ratings and earlier winners.
   - `choices.ts`: each optional power's current choice against alternatives.
-  - `playouts.ts`: each optional power decided by playing out every option (`Race.playout`).
+  - `playouts.ts`: each optional power decided by playing out every option (`Race.playout`). A
+    decision on the same board in the same turn, with bronze left in the box or not, is reused:
+    Suckerfish riding Scoocher around the 12–16 loop decides hundreds of times a turn, and each
+    playout replays the turn so far.
   - `games.ts`: whole games, by draft position and estimated team value.
   - `draft.ts`: drafting strategies for one player against greedy opponents.
   - `endgame.ts`: choosing racers during a game by score, and countering Scoocher.
   - `sensitivity.ts`: the races rerun with each unsettled rule (`Rules` in `game.ts`) read the
     other way.
+- Scripts for digging, not part of `make`:
+  - `decisions.ts --racer X --race k`: logs each of a racer's decisions against playouts and lists
+    where playouts clearly disagree.
+  - `dicemonger.ts`: whether to decline Dicemonger's reroll so it doesn't move.
 - `charts.ts` draws `charts/*.svg` for `README.md` from `results/`.
 - `parallel.ts` splits a script's races into up to 256 seeded chunks that a worker thread per core
   (`worker.ts`) takes in turn, so one slow chunk doesn't hold up the rest and results don't
@@ -66,8 +74,51 @@ The engine and its tests are in `src/`, scripts to run in `scripts/`, their raw 
   example, `racers.test.ts`, one test per card named for its text, plus the rulebook's notes, and
   `terms.test.ts`, the terms, fiddly details and track spaces on p. 23.
 - `TODO.md` is the plan: checking the model first, then the analysis.
-- `README.md` is what the simulator has shown so far. Run `make` and update its tables
-  when the model changes.
+- `README.md` is what the simulator has shown so far.
+
+## Publishing a change
+
+1. `make`, in the background.
+2. Update `README.md`: each section names the script behind its tables. The dataset readers
+   (`points.ts --race 1` and `--race 2`, `players.ts`, `matchups.ts`, `spread.ts`, `seats.ts`)
+   print theirs; `make` prints the rest.
+3. `uvx --from huggingface_hub hf upload visnup/magical-athlete results . --repo-type dataset`
+4. Commit and push.
+
+Pitfalls:
+
+- Don't edit `src/` while `make` runs: each batch's workers load the engine fresh, so one
+  dataset would mix two engines. Scripts that only read `src/` can run alongside.
+- `choices.ts --racer X` rewrites `results/choices-<x>.parquet`, so run it before or after
+  `make`, not during, and rerun it with the final options before publishing.
+- DuckDB's `group by` returns rows in a different order each run. Sort anything that feeds a
+  simulation, like the odds Twin's earlier winners are drawn from, or the same seed gives
+  different results.
+- A change to `src/` that doesn't change the engine's results, like how results are written,
+  needs `make -B`.
+
+## Finding better choices
+
+Each optional power's `choose` in `racers.ts` is a hand-written rule. To improve one:
+
+1. `playouts.ts` shows how far each rule trails deciding by playouts, the upper bound on what a
+   better rule could gain.
+2. `decisions.ts --racer X --race k` lists where playouts clearly beat the rule, by 1+ points.
+   Only clear disagreements count: picking the best of several noisy estimates (40 playouts
+   each, ±0.4) overstates it. Look for a pattern in positions and rolls, like Flip Flop's best
+   swaps landing on stars.
+3. Write the pattern as an option in `choices.ts` and run `choices.ts --racer X`: 100,000 races
+   per track, all options on the same seeds, ±0.01.
+4. Adopt it if it beats the current rule beyond that noise. Its comment in `racers.ts` gives the
+   gain, and the old rule stays in `choices.ts` marked "(previous)". Rejected options go in
+   `README.md` with their cost.
+5. Refresh `ratings.json` and run `make`.
+
+Rules found this way: a star is worth about 15 spaces (`landing`), not 3. A decision that's good
+in one turn's playouts isn't always a rule: declining Suckerfish's rides in the 12–16 loop looked
+better there and cost 0.9 a race. Defensive play against a strong racer, like declining
+Dicemonger's reroll or countering Scoocher with M.O.U.T.H., costs the player more than it costs
+the racer.
 
 ## Official rulings
 
@@ -107,5 +158,7 @@ a login.
   be sharing a space."
 - A race no one can finish, like four racers on space 29 with Coach (+1) and Stickler (exact
   finishes only), stops after 1,000 turns as `stalled`, and only racers already across score.
-- Optional powers follow each racer's `choose`, a greedy guess. Hypnotist and Flip Flop avoid
-  targets that would ping-pong forever with a Copycat.
+- Optional powers follow each racer's `choose`, a hand-written rule tuned against playouts (see
+  "Finding better choices"). Hypnotist avoids targets that would ping-pong forever with a
+  Copycat. Flip Flop doesn't, since trading places with one pays on balance, so Flip Flop and
+  Copycat as the last two left never finish.

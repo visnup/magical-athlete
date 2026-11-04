@@ -31,8 +31,10 @@
 - [x] Decisions logged against playouts: stars are worth about 15 spaces (Flip Flop, Magician,
       Alchemist, Dicemonger's rerolls), Mastermind predicts the likeliest winner, Rocket Scientist
       doesn't double to just short of the finish, and Cheerleader cheers from last as two moves.
-- [ ] Flip Flop still trails playouts by 0.5 a race on both tracks, and Cheerleader by 0.27 on the
+- [x] Flip Flop's remaining 0.5 a race behind playouts: swapping with Copycat was the only
+      pattern (+0.10 on the Wild Wilds). The rest is noise on the Mild Mile and scattered on the
       Wild Wilds.
+- [ ] Cheerleader trails playouts by 0.33 on the Wild Wilds.
 - [x] Race order: a team's value is its best assignment of four racers to four races (24
       orderings). A draft pick's value is how much it raises that (`lineup.ts`).
 - [x] Whole games played well (`games.ts`, `endgame.ts`): drafting by rating and playing the best

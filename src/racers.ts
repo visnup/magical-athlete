@@ -337,9 +337,10 @@ export const RACERS: Record<Name, Powers> = {
   "Flip Flop": {
     choose(race, me) {
       // A star is a sure point, worth swapping backwards for: 15 spaces gained the most (choices.ts).
-      // A Copycat would copy the new leader's Flip Flop and swap straight back, forever.
+      // Swapping with a Copycat can trade places with it every turn, and as the last two left
+      // neither finishes, but it gains 0.10 at 5 racers and 0.15 at 3 on the Wild Wilds.
       const roll = rolled(race, me.pos, 15);
-      const better = race.onTrack().filter((o) => o.pos !== me.pos && landing(race, o.pos, 15) > roll && !race.powers(o).includes("Copycat"));
+      const better = race.onTrack().filter((o) => o.pos !== me.pos && landing(race, o.pos, 15) > roll);
       return better.sort((a, b) => landing(race, b.pos, 15) - landing(race, a.pos, 15))[0] ?? null;
     },
     replaceMain(race, me) {
