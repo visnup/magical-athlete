@@ -85,7 +85,7 @@ export function landing(race: Race, to: number, star = 3) {
 }
 
 /** Where an arrow chain from `to` stops. */
-function settle(race: Race, to: number) {
+export function settle(race: Race, to: number) {
   for (let i = 0; i < 3 && to < race.track.length && race.track.spaces[to]?.arrow; i++) to = Math.max(0, to + race.track.spaces[to]!.arrow!);
   return to;
 }
@@ -199,9 +199,12 @@ export const RACERS: Record<Name, Powers> = {
   "Cheerleader": {
     // Cheering every turn beat cheering only from last place by about half a point a race, unless
     // my own move lands somewhere worse than where I am, like a rock. From last place it's two
-    // moves: 14 → 16, back to 12 on the arrow, then onto the star on 13.
+    // moves: 14 → 16, back to 12 on the arrow, then onto the star on 13. An opponent's M.O.U.T.H.
+    // in last could land on someone to eat: skipping it gained 0.03 on the Wild Wilds.
     choose(race, me) {
-      if (!race.last().includes(me)) return landing(race, me.pos + 1) >= me.pos;
+      const last = race.last();
+      if (last.some((o) => o.player !== me.player && race.powers(o).includes("M.O.U.T.H."))) return false;
+      if (!last.includes(me)) return landing(race, me.pos + 1) >= me.pos;
       const star = race.track.spaces[me.pos + 2]?.star ? 3 : 0;
       return landing(race, settle(race, me.pos + 2) + 1) + star >= me.pos;
     },
@@ -338,7 +341,7 @@ export const RACERS: Record<Name, Powers> = {
     choose(race, me) {
       // A star is a sure point, worth swapping backwards for: 15 spaces gained the most (choices.ts).
       // Swapping with a Copycat can trade places with it every turn, and as the last two left
-      // neither finishes, but it gains 0.10 at 5 racers and 0.15 at 3 on the Wild Wilds.
+      // neither finishes, but it gains 0.12 at 5 racers and 0.10 at 3 on the Wild Wilds.
       const roll = rolled(race, me.pos, 15);
       const better = race.onTrack().filter((o) => o.pos !== me.pos && landing(race, o.pos, 15) > roll);
       return better.sort((a, b) => landing(race, b.pos, 15) - landing(race, a.pos, 15))[0] ?? null;

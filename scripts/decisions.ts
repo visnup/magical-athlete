@@ -11,7 +11,7 @@ import { options } from "./playouts.ts";
  * `choices.ts`. Picking the best of several noisy estimates overstates it, so a disagreement only
  * counts if it survives 10 times the playouts on just the two options.
  */
-type Decision = { me: number; place: number; args: string[]; hand: string; best: string; gain: number };
+type Decision = { me: number; place: number; last: string; args: string[]; hand: string; best: string; gain: number };
 
 /** An option as a kind of choice: a racer by its power and where it is, anything else as itself. */
 function kind(x: unknown, me: Racer) {
@@ -38,7 +38,8 @@ export function decisionsTask(name: Name, race: number, players: number, k: numb
           let gain = 0;
           if (i !== h && values[i] - values[h] >= margin) gain = value(opts[i], 10 * k) - value(opts[h], 10 * k);
           const ahead = r.onTrack().filter((o) => o.pos > me.pos).length + r.finishers.length;
-          decisions.push({ me: me.pos, place: ahead + 1, args: args.map((a) => kind(a, me)), hand: kind(opts[h], me), best: kind(opts[i], me), gain });
+          const last = r.last().map((o) => (o === me ? "me" : o.name)).sort().join("+");
+          decisions.push({ me: me.pos, place: ahead + 1, last, args: args.map((a) => kind(a, me)), hand: kind(opts[h], me), best: kind(opts[i], me), gain });
           return hand;
         },
       },
@@ -83,5 +84,7 @@ if (import.meta.main) {
   const where = (s: string) => s.replace(/^.* (ahead|behind|on my space)$/, "a racer $1");
   show("rule → playouts", (d) => `${where(d.hand)} → ${where(d.best)}`);
   show("playouts' choice", (d) => d.best);
-  show("by position and place", (d) => `${d.hand === "null" ? "rule passes" : "rule acts"}, playouts ${d.best === "null" ? "pass" : "act"} | from ${d.me}, place ${d.place}${d.args.length ? ` | ${d.args.join(", ")}` : ""}`);
+  const passes = (s: string) => s === "null" || s === "false";
+  show("by position and place", (d) => `${passes(d.hand) ? "rule passes" : "rule acts"}, playouts ${passes(d.best) ? "pass" : "act"} | from ${d.me}, place ${d.place}${d.args.length ? ` | ${d.args.join(", ")}` : ""}`);
+  show("by who's in last", (d) => `${passes(d.hand) ? "rule passes" : "rule acts"}, playouts ${passes(d.best) ? "pass" : "act"} | last: ${d.last.includes("+") ? `${d.last.split("+").length} racers${d.last.includes("me") ? " with me" : ""}` : d.last}`);
 }

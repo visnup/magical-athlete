@@ -32,9 +32,10 @@
       Alchemist, Dicemonger's rerolls), Mastermind predicts the likeliest winner, Rocket Scientist
       doesn't double to just short of the finish, and Cheerleader cheers from last as two moves.
 - [x] Flip Flop's remaining 0.5 a race behind playouts: swapping with Copycat was the only
-      pattern (+0.10 on the Wild Wilds). The rest is noise on the Mild Mile and scattered on the
+      pattern (+0.12 on the Wild Wilds). The rest is noise on the Mild Mile and scattered on the
       Wild Wilds.
-- [ ] Cheerleader trails playouts by 0.33 on the Wild Wilds.
+- [x] Cheerleader's 0.33 behind playouts on the Wild Wilds: not cheering an opponent's M.O.U.T.H.
+      was the only pattern (+0.03). Only 0.15 survives a recheck, and the rest is scattered.
 - [x] Race order: a team's value is its best assignment of four racers to four races (24
       orderings). A draft pick's value is how much it raises that (`lineup.ts`).
 - [x] Whole games played well (`games.ts`, `endgame.ts`): drafting by rating and playing the best

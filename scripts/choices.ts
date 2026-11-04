@@ -1,7 +1,7 @@
 import { parseArgs } from "node:util";
 import { defaultPolicy, mulberry32, NAMES, type Name, type Policy, Race, type Racer, shuffle } from "../src/game.ts";
 import { collect } from "../src/parallel.ts";
-import { landing, RACERS, rolled } from "../src/racers.ts";
+import { landing, RACERS, rolled, settle } from "../src/racers.ts";
 import { parquet, pointsSql, query, racerRows, type RacerRow, slug, write } from "../src/results.ts";
 import { trackFor } from "../src/tables.ts";
 
@@ -11,6 +11,12 @@ import { trackFor } from "../src/tables.ts";
  */
 const farthest = (race: Race, me: Racer, gap: (o: Racer) => boolean) =>
   race.onTrack().filter((o) => o.player !== me.player && gap(o)).sort((a, b) => b.pos - a.pos)[0] ?? null;
+
+const cheer = (race: Race, me: Racer) => {
+  if (!race.last().includes(me)) return landing(race, me.pos + 1) >= me.pos;
+  const star = race.track.spaces[me.pos + 2]?.star ? 3 : 0;
+  return landing(race, settle(race, me.pos + 2) + 1) + star >= me.pos;
+};
 
 const variants: Partial<Record<Name, Record<string, Partial<Policy>>>> = {
   "Alchemist": {
@@ -22,6 +28,16 @@ const variants: Partial<Record<Name, Record<string, Partial<Policy>>>> = {
     always: { choose: { Cheerleader: () => true } },
     never: { choose: { Cheerleader: () => false } },
     "one move of 3 when last (previous)": { choose: { Cheerleader: (race, me) => landing(race, (race.last().includes(me) ? me.pos + 2 : me.pos) + 1) >= me.pos } },
+    "for an opponent's M.O.U.T.H. too (previous)": { choose: { Cheerleader: cheer } },
+    "not for an opponent's M.O.U.T.H. only if it would eat": { choose: { Cheerleader: (race, me) => {
+      const last = race.last();
+      const [o] = last;
+      if (last.length === 1 && o.player !== me.player && race.powers(o).includes("M.O.U.T.H.")) {
+        const to = settle(race, o.pos + 2);
+        if (race.onTrack().filter((x) => x !== o && x.pos === to).length === 1) return false;
+      }
+      return cheer(race, me);
+    } } },
   },
   "Flip Flop": {
     "farthest 4+ ahead (previous)": { choose: { "Flip Flop": (race, me) => farthest(race, me, (o) => o.pos - me.pos >= 4 && !race.powers(o).includes("Copycat")) } },

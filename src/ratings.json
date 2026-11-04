@@ -2,52 +2,52 @@
   "races": {
     "Mild Mile": {
       "3": {
-        "Alchemist": 1.99,
-        "Baba Yaga": 1.99,
-        "Banana": 1.98,
-        "Blimp": 1.55,
+        "Alchemist": 2,
+        "Baba Yaga": 1.97,
+        "Banana": 1.99,
+        "Blimp": 1.54,
         "Centaur": 1.63,
         "Cheerleader": 2.43,
-        "Coach": 2,
-        "Copycat": 2.26,
-        "Dicemonger": 2.11,
+        "Coach": 2.01,
+        "Copycat": 2.17,
+        "Dicemonger": 2.1,
         "Duelist": 1.69,
-        "Egg": 2.68,
-        "Flip Flop": 2.48,
+        "Egg": 2.67,
+        "Flip Flop": 2.47,
         "Genius": 1.9,
         "Gunk": 2.29,
-        "Hare": 1.95,
-        "Heckler": 2.15,
+        "Hare": 1.96,
+        "Heckler": 2.16,
         "Huge Baby": 1.51,
-        "Hypnotist": 2.42,
-        "Inchworm": 1.7,
+        "Hypnotist": 2.43,
+        "Inchworm": 1.71,
         "Lackey": 1.93,
         "Leaptoad": 1.88,
-        "Legs": 2.87,
-        "Lovable Loser": 5.68,
+        "Legs": 2.88,
+        "Lovable Loser": 5.67,
         "M.O.U.T.H.": 2.4,
-        "Magician": 2.36,
-        "Mastermind": 1.98,
+        "Magician": 2.37,
+        "Mastermind": 1.97,
         "Party Animal": 1.9,
         "Rocket Scientist": 2.16,
-        "Romantic": 2.27,
-        "Scoocher": 2.45,
+        "Romantic": 2.28,
+        "Scoocher": 2.46,
         "Sisyphus": 2.8,
         "Skipper": 2.12,
         "Stickler": 2.43,
         "Suckerfish": 2.35,
-        "Third Wheel": 1.38,
+        "Third Wheel": 1.39,
         "Twin": 1.76
       },
       "4": {
         "Alchemist": 1.21,
-        "Baba Yaga": 1.32,
+        "Baba Yaga": 1.34,
         "Banana": 1.25,
-        "Blimp": 0.93,
+        "Blimp": 0.94,
         "Centaur": 0.94,
         "Cheerleader": 1.79,
         "Coach": 1.29,
-        "Copycat": 1.9,
+        "Copycat": 1.78,
         "Dicemonger": 1.86,
         "Duelist": 1.3,
         "Egg": 2.17,
@@ -55,256 +55,256 @@
         "Genius": 1.31,
         "Gunk": 1.59,
         "Hare": 1.6,
-        "Heckler": 1.82,
+        "Heckler": 1.83,
         "Huge Baby": 0.85,
         "Hypnotist": 1.7,
         "Inchworm": 1.14,
-        "Lackey": 1.54,
+        "Lackey": 1.56,
         "Leaptoad": 1.45,
-        "Legs": 2.28,
-        "Lovable Loser": 4.08,
-        "M.O.U.T.H.": 1.67,
-        "Magician": 1.65,
-        "Mastermind": 1.48,
+        "Legs": 2.29,
+        "Lovable Loser": 4.06,
+        "M.O.U.T.H.": 1.66,
+        "Magician": 1.66,
+        "Mastermind": 1.49,
         "Party Animal": 1.42,
-        "Rocket Scientist": 1.56,
+        "Rocket Scientist": 1.57,
         "Romantic": 2.3,
         "Scoocher": 2.61,
-        "Sisyphus": 2.87,
-        "Skipper": 1.72,
-        "Stickler": 1.72,
-        "Suckerfish": 2.07,
+        "Sisyphus": 2.86,
+        "Skipper": 1.73,
+        "Stickler": 1.73,
+        "Suckerfish": 2.08,
         "Third Wheel": 1.03,
         "Twin": 1.31
       },
       "5": {
         "Alchemist": 0.74,
-        "Baba Yaga": 0.96,
+        "Baba Yaga": 0.95,
         "Banana": 0.8,
         "Blimp": 0.61,
         "Centaur": 0.58,
         "Cheerleader": 1.27,
-        "Coach": 0.86,
-        "Copycat": 1.77,
+        "Coach": 0.87,
+        "Copycat": 1.62,
         "Dicemonger": 1.74,
         "Duelist": 1.1,
-        "Egg": 1.89,
+        "Egg": 1.88,
         "Flip Flop": 1.68,
         "Genius": 0.96,
-        "Gunk": 1.08,
-        "Hare": 1.28,
+        "Gunk": 1.09,
+        "Hare": 1.29,
         "Heckler": 1.67,
         "Huge Baby": 0.54,
         "Hypnotist": 1.13,
         "Inchworm": 0.85,
         "Lackey": 1.37,
-        "Leaptoad": 1.19,
-        "Legs": 1.68,
-        "Lovable Loser": 3.08,
+        "Leaptoad": 1.2,
+        "Legs": 1.69,
+        "Lovable Loser": 3.09,
         "M.O.U.T.H.": 1.06,
-        "Magician": 1.14,
+        "Magician": 1.15,
         "Mastermind": 1.27,
-        "Party Animal": 1.16,
-        "Rocket Scientist": 1.17,
+        "Party Animal": 1.17,
+        "Rocket Scientist": 1.18,
         "Romantic": 2.4,
         "Scoocher": 2.8,
-        "Sisyphus": 2.92,
-        "Skipper": 1.46,
-        "Stickler": 1.22,
+        "Sisyphus": 2.93,
+        "Skipper": 1.47,
+        "Stickler": 1.23,
         "Suckerfish": 1.93,
         "Third Wheel": 0.89,
         "Twin": 1.08
       },
       "6": {
-        "Alchemist": 0.48,
-        "Baba Yaga": 0.7,
+        "Alchemist": 0.49,
+        "Baba Yaga": 0.71,
         "Banana": 0.53,
         "Blimp": 0.41,
-        "Centaur": 0.38,
-        "Cheerleader": 0.89,
+        "Centaur": 0.39,
+        "Cheerleader": 0.9,
         "Coach": 0.59,
-        "Copycat": 1.7,
+        "Copycat": 1.53,
         "Dicemonger": 1.63,
-        "Duelist": 0.95,
-        "Egg": 1.7,
+        "Duelist": 0.96,
+        "Egg": 1.69,
         "Flip Flop": 1.45,
         "Genius": 0.72,
-        "Gunk": 0.74,
-        "Hare": 1.01,
-        "Heckler": 1.56,
-        "Huge Baby": 0.36,
-        "Hypnotist": 0.74,
-        "Inchworm": 0.67,
+        "Gunk": 0.75,
+        "Hare": 1.02,
+        "Heckler": 1.57,
+        "Huge Baby": 0.37,
+        "Hypnotist": 0.75,
+        "Inchworm": 0.68,
         "Lackey": 1.24,
         "Leaptoad": 1,
         "Legs": 1.22,
-        "Lovable Loser": 2.4,
-        "M.O.U.T.H.": 0.66,
+        "Lovable Loser": 2.39,
+        "M.O.U.T.H.": 0.67,
         "Magician": 0.8,
-        "Mastermind": 1.19,
-        "Party Animal": 0.95,
-        "Rocket Scientist": 0.88,
-        "Romantic": 2.45,
+        "Mastermind": 1.18,
+        "Party Animal": 0.97,
+        "Rocket Scientist": 0.89,
+        "Romantic": 2.46,
         "Scoocher": 2.92,
         "Sisyphus": 3,
         "Skipper": 1.27,
         "Stickler": 0.86,
-        "Suckerfish": 1.79,
-        "Third Wheel": 0.78,
-        "Twin": 0.96
+        "Suckerfish": 1.8,
+        "Third Wheel": 0.79,
+        "Twin": 0.95
       }
     },
     "Wild Wilds": {
       "3": {
-        "Alchemist": 3,
-        "Baba Yaga": 3.14,
-        "Banana": 2.91,
-        "Blimp": 2.44,
+        "Alchemist": 2.99,
+        "Baba Yaga": 3.15,
+        "Banana": 2.92,
+        "Blimp": 2.45,
         "Centaur": 2.74,
         "Cheerleader": 3.8,
-        "Coach": 2.75,
-        "Copycat": 3.69,
-        "Dicemonger": 4.25,
+        "Coach": 2.76,
+        "Copycat": 3.71,
+        "Dicemonger": 4.27,
         "Duelist": 2.63,
-        "Egg": 4.1,
-        "Flip Flop": 4.58,
-        "Genius": 2.97,
-        "Gunk": 3.57,
+        "Egg": 4.12,
+        "Flip Flop": 4.69,
+        "Genius": 2.98,
+        "Gunk": 3.58,
         "Hare": 2.58,
         "Heckler": 3.68,
-        "Huge Baby": 2.95,
-        "Hypnotist": 4.12,
+        "Huge Baby": 2.94,
+        "Hypnotist": 4.11,
         "Inchworm": 3.1,
-        "Lackey": 2.85,
-        "Leaptoad": 3.01,
-        "Legs": 4.11,
-        "Lovable Loser": 6.82,
+        "Lackey": 2.86,
+        "Leaptoad": 3,
+        "Legs": 4.12,
+        "Lovable Loser": 6.84,
         "M.O.U.T.H.": 3.85,
-        "Magician": 3.83,
-        "Mastermind": 3.31,
+        "Magician": 3.85,
+        "Mastermind": 3.32,
         "Party Animal": 3.66,
-        "Rocket Scientist": 3.71,
-        "Romantic": 3.29,
-        "Scoocher": 4.84,
-        "Sisyphus": 3.7,
-        "Skipper": 3.2,
+        "Rocket Scientist": 3.73,
+        "Romantic": 3.3,
+        "Scoocher": 4.86,
+        "Sisyphus": 3.71,
+        "Skipper": 3.21,
         "Stickler": 3.72,
-        "Suckerfish": 3.89,
+        "Suckerfish": 3.93,
         "Third Wheel": 2.51,
-        "Twin": 3.93
+        "Twin": 3.96
       },
       "4": {
-        "Alchemist": 2.04,
-        "Baba Yaga": 2.38,
+        "Alchemist": 2.05,
+        "Baba Yaga": 2.4,
         "Banana": 2.04,
-        "Blimp": 1.66,
-        "Centaur": 1.86,
-        "Cheerleader": 3.14,
-        "Coach": 1.9,
-        "Copycat": 3.51,
-        "Dicemonger": 4.13,
+        "Blimp": 1.65,
+        "Centaur": 1.88,
+        "Cheerleader": 3.13,
+        "Coach": 1.89,
+        "Copycat": 3.5,
+        "Dicemonger": 4.14,
         "Duelist": 2.13,
-        "Egg": 3.63,
-        "Flip Flop": 4.22,
+        "Egg": 3.65,
+        "Flip Flop": 4.34,
         "Genius": 2.24,
-        "Gunk": 2.72,
-        "Hare": 2.14,
-        "Heckler": 3.38,
-        "Huge Baby": 2.11,
-        "Hypnotist": 3.33,
-        "Inchworm": 2.56,
-        "Lackey": 2.25,
+        "Gunk": 2.73,
+        "Hare": 2.15,
+        "Heckler": 3.39,
+        "Huge Baby": 2.12,
+        "Hypnotist": 3.32,
+        "Inchworm": 2.57,
+        "Lackey": 2.27,
         "Leaptoad": 2.42,
-        "Legs": 3.42,
+        "Legs": 3.43,
         "Lovable Loser": 4.88,
         "M.O.U.T.H.": 2.98,
         "Magician": 2.92,
-        "Mastermind": 2.69,
-        "Party Animal": 3.06,
-        "Rocket Scientist": 3.03,
-        "Romantic": 3.16,
-        "Scoocher": 6.12,
+        "Mastermind": 2.7,
+        "Party Animal": 3.05,
+        "Rocket Scientist": 3.04,
+        "Romantic": 3.17,
+        "Scoocher": 6.13,
         "Sisyphus": 3.7,
         "Skipper": 2.7,
-        "Stickler": 2.87,
-        "Suckerfish": 3.93,
-        "Third Wheel": 2.04,
-        "Twin": 3.75
+        "Stickler": 2.88,
+        "Suckerfish": 3.95,
+        "Third Wheel": 2.05,
+        "Twin": 3.77
       },
       "5": {
-        "Alchemist": 1.52,
-        "Baba Yaga": 1.95,
-        "Banana": 1.56,
+        "Alchemist": 1.53,
+        "Baba Yaga": 1.96,
+        "Banana": 1.57,
         "Blimp": 1.23,
-        "Centaur": 1.41,
+        "Centaur": 1.42,
         "Cheerleader": 2.62,
         "Coach": 1.41,
-        "Copycat": 3.68,
-        "Dicemonger": 4.24,
-        "Duelist": 1.87,
-        "Egg": 3.49,
-        "Flip Flop": 3.94,
+        "Copycat": 3.64,
+        "Dicemonger": 4.26,
+        "Duelist": 1.89,
+        "Egg": 3.53,
+        "Flip Flop": 4.05,
         "Genius": 1.82,
         "Gunk": 2.14,
-        "Hare": 1.76,
-        "Heckler": 3.21,
+        "Hare": 1.78,
+        "Heckler": 3.22,
         "Huge Baby": 1.68,
-        "Hypnotist": 2.59,
-        "Inchworm": 2.36,
-        "Lackey": 1.98,
-        "Leaptoad": 2.11,
+        "Hypnotist": 2.61,
+        "Inchworm": 2.37,
+        "Lackey": 1.99,
+        "Leaptoad": 2.1,
         "Legs": 2.79,
         "Lovable Loser": 3.79,
         "M.O.U.T.H.": 2.22,
-        "Magician": 2.31,
-        "Mastermind": 2.37,
-        "Party Animal": 2.59,
-        "Rocket Scientist": 2.52,
-        "Romantic": 3.23,
-        "Scoocher": 7.98,
-        "Sisyphus": 3.75,
-        "Skipper": 2.39,
-        "Stickler": 2.26,
-        "Suckerfish": 4.25,
-        "Third Wheel": 1.86,
+        "Magician": 2.32,
+        "Mastermind": 2.38,
+        "Party Animal": 2.6,
+        "Rocket Scientist": 2.53,
+        "Romantic": 3.24,
+        "Scoocher": 8,
+        "Sisyphus": 3.74,
+        "Skipper": 2.42,
+        "Stickler": 2.27,
+        "Suckerfish": 4.27,
+        "Third Wheel": 1.87,
         "Twin": 3.89
       },
       "6": {
         "Alchemist": 1.23,
-        "Baba Yaga": 1.68,
-        "Banana": 1.28,
+        "Baba Yaga": 1.69,
+        "Banana": 1.3,
         "Blimp": 0.96,
         "Centaur": 1.16,
-        "Cheerleader": 2.27,
-        "Coach": 1.13,
-        "Copycat": 4.05,
-        "Dicemonger": 4.43,
+        "Cheerleader": 2.28,
+        "Coach": 1.12,
+        "Copycat": 3.98,
+        "Dicemonger": 4.44,
         "Duelist": 1.72,
-        "Egg": 3.55,
-        "Flip Flop": 3.7,
-        "Genius": 1.55,
-        "Gunk": 1.73,
+        "Egg": 3.59,
+        "Flip Flop": 3.82,
+        "Genius": 1.56,
+        "Gunk": 1.74,
         "Hare": 1.48,
-        "Heckler": 3.06,
-        "Huge Baby": 1.4,
-        "Hypnotist": 2.03,
-        "Inchworm": 2.28,
-        "Lackey": 1.83,
-        "Leaptoad": 1.86,
+        "Heckler": 3.07,
+        "Huge Baby": 1.41,
+        "Hypnotist": 2.05,
+        "Inchworm": 2.29,
+        "Lackey": 1.84,
+        "Leaptoad": 1.87,
         "Legs": 2.27,
-        "Lovable Loser": 3.04,
-        "M.O.U.T.H.": 1.67,
-        "Magician": 1.87,
-        "Mastermind": 2.19,
-        "Party Animal": 2.22,
-        "Rocket Scientist": 2.14,
-        "Romantic": 3.3,
+        "Lovable Loser": 3.03,
+        "M.O.U.T.H.": 1.68,
+        "Magician": 1.88,
+        "Mastermind": 2.21,
+        "Party Animal": 2.23,
+        "Rocket Scientist": 2.15,
+        "Romantic": 3.31,
         "Scoocher": 10.22,
         "Sisyphus": 3.79,
-        "Skipper": 2.2,
-        "Stickler": 1.83,
-        "Suckerfish": 4.75,
-        "Third Wheel": 1.74,
+        "Skipper": 2.21,
+        "Stickler": 1.84,
+        "Suckerfish": 4.76,
+        "Third Wheel": 1.75,
         "Twin": 4.18
       }
     }
@@ -312,21 +312,21 @@
   "points": {
     "Alchemist": [
       0.61,
-      1.4,
+      1.41,
       0.87,
-      1.63
+      1.65
     ],
     "Baba Yaga": [
       0.79,
       1.79,
-      1.12,
+      1.11,
       2.12
     ],
     "Banana": [
       0.66,
-      1.44,
-      0.93,
-      1.68
+      1.45,
+      0.94,
+      1.69
     ],
     "Blimp": [
       0.51,
@@ -336,129 +336,129 @@
     ],
     "Centaur": [
       0.48,
-      1.31,
-      0.69,
-      1.51
+      1.32,
+      0.68,
+      1.52
     ],
     "Cheerleader": [
       1.06,
-      2.4,
+      2.41,
       1.49,
-      2.83
+      2.84
     ],
     "Coach": [
-      0.71,
+      0.72,
       1.28,
       1.01,
       1.55
     ],
     "Copycat": [
-      1.48,
-      3.4,
-      2.06,
-      3.97
+      1.35,
+      3.38,
+      1.88,
+      3.9
     ],
     "Dicemonger": [
-      1.45,
-      4,
-      2.02,
-      4.49
+      1.46,
+      4.02,
+      2.03,
+      4.51
     ],
     "Duelist": [
       0.92,
-      1.7,
+      1.72,
       1.29,
-      2.04
+      2.07
     ],
     "Egg": [
       1.65,
-      3.28,
-      2.12,
-      3.71
+      3.31,
+      2.11,
+      3.75
     ],
     "Flip Flop": [
-      1.4,
-      3.65,
-      1.95,
-      4.23
+      1.41,
+      3.75,
+      1.96,
+      4.34
     ],
     "Genius": [
       0.8,
-      1.67,
+      1.68,
       1.12,
       1.97
     ],
     "Gunk": [
       0.9,
-      1.96,
+      1.95,
       1.27,
-      2.33
+      2.32
     ],
     "Hare": [
-      1.07,
-      1.58,
-      1.49,
-      1.94
+      1.08,
+      1.6,
+      1.5,
+      1.96
     ],
     "Heckler": [
       1.4,
-      2.88,
+      2.89,
       1.94,
-      3.53
+      3.54
     ],
     "Huge Baby": [
       0.45,
       1.56,
-      0.63,
+      0.64,
       1.8
     ],
     "Hypnotist": [
       0.94,
-      2.37,
+      2.39,
       1.32,
-      2.82
+      2.84
     ],
     "Inchworm": [
-      0.7,
-      2.22,
-      0.99,
-      2.49
+      0.71,
+      2.23,
+      1,
+      2.5
     ],
     "Lackey": [
       1.14,
-      1.8,
+      1.81,
       1.59,
-      2.16
+      2.17
     ],
     "Leaptoad": [
-      0.99,
+      1,
       1.94,
-      1.39,
-      2.28
+      1.4,
+      2.27
     ],
     "Legs": [
-      1.4,
-      2.51,
-      1.96,
+      1.41,
+      2.52,
+      1.97,
       3.06
     ],
     "Lovable Loser": [
       3.03,
       3.72,
-      3.14,
+      3.15,
       3.86
     ],
     "Magician": [
-      0.95,
-      2.13,
-      1.33,
+      0.96,
+      2.14,
+      1.35,
       2.49
     ],
     "Mastermind": [
-      1.02,
-      2.12,
+      1.03,
+      2.13,
       1.52,
-      2.62
+      2.63
     ],
     "M.O.U.T.H.": [
       0.88,
@@ -467,284 +467,284 @@
       2.43
     ],
     "Party Animal": [
-      0.97,
-      2.32,
-      1.35,
-      2.86
+      0.98,
+      2.33,
+      1.36,
+      2.87
     ],
     "Rocket Scientist": [
-      0.97,
-      2.28,
-      1.36,
-      2.76
+      0.98,
+      2.29,
+      1.37,
+      2.77
     ],
     "Romantic": [
-      2.02,
-      2.91,
-      2.77,
-      3.56
+      2.03,
+      2.92,
+      2.78,
+      3.57
     ],
     "Scoocher": [
       2.37,
-      7.63,
-      3.22,
-      8.33
+      7.65,
+      3.23,
+      8.35
     ],
     "Sisyphus": [
       2.92,
       3.73,
-      2.93,
-      3.76
+      2.94,
+      3.75
     ],
     "Skipper": [
-      1.22,
-      2.17,
-      1.7,
-      2.61
+      1.23,
+      2.2,
+      1.71,
+      2.64
     ],
     "Stickler": [
-      1,
-      2.05,
-      1.43,
-      2.47
+      1.02,
+      2.06,
+      1.45,
+      2.48
     ],
     "Suckerfish": [
       1.6,
-      3.94,
+      3.95,
       2.25,
-      4.57
+      4.59
     ],
     "Third Wheel": [
       0.74,
-      1.7,
-      1.05,
-      2.02
+      1.71,
+      1.04,
+      2.03
     ],
     "Twin": [
-      0.27,
+      0.28,
       2.97,
-      2.12,
+      2.1,
       4.84
     ]
   },
   "draft": {
-    "Alchemist": -0.93,
-    "Baba Yaga": -0.68,
+    "Alchemist": -0.94,
+    "Baba Yaga": -0.69,
     "Banana": -0.89,
     "Blimp": -1.05,
-    "Centaur": -1.06,
+    "Centaur": -1.07,
     "Cheerleader": -0.24,
     "Coach": -0.83,
-    "Copycat": 0.72,
-    "Dicemonger": 1.22,
-    "Duelist": -0.65,
-    "Egg": 0.54,
-    "Flip Flop": 0.92,
-    "Genius": -0.74,
-    "Gunk": -0.55,
+    "Copycat": 0.66,
+    "Dicemonger": 1.23,
+    "Duelist": -0.66,
+    "Egg": 0.56,
+    "Flip Flop": 1.01,
+    "Genius": -0.75,
+    "Gunk": -0.56,
     "Hare": -0.45,
     "Heckler": 0.3,
-    "Huge Baby": -0.97,
-    "Hypnotist": -0.27,
+    "Huge Baby": -0.98,
+    "Hypnotist": -0.26,
     "Inchworm": -0.45,
-    "Lackey": -0.37,
-    "Leaptoad": -0.53,
+    "Lackey": -0.38,
+    "Leaptoad": -0.52,
     "Legs": 0.02,
     "Lovable Loser": 1.25,
     "Magician": -0.48,
     "Mastermind": -0.39,
-    "M.O.U.T.H.": -0.54,
+    "M.O.U.T.H.": -0.55,
     "Party Animal": -0.27,
-    "Rocket Scientist": -0.33,
+    "Rocket Scientist": -0.32,
     "Romantic": 0.72,
-    "Scoocher": 4.66,
-    "Sisyphus": 1.15,
-    "Skipper": -0.26,
+    "Scoocher": 4.67,
+    "Sisyphus": 1.14,
+    "Skipper": -0.25,
     "Stickler": -0.46,
     "Suckerfish": 1.23,
-    "Third Wheel": -0.78,
-    "Twin": 1.46
+    "Third Wheel": -0.79,
+    "Twin": 1.45
   },
   "first": {
     "Alchemist": [
-      0.095,
-      0.086,
-      0.095,
-      0.086
+      0.094,
+      0.088,
+      0.094,
+      0.088
     ],
     "Baba Yaga": [
       0.151,
-      0.163,
+      0.164,
       0.151,
-      0.163
+      0.164
     ],
     "Banana": [
-      0.106,
+      0.108,
       0.09,
-      0.106,
+      0.108,
       0.09
     ],
     "Blimp": [
-      0.091,
-      0.11,
-      0.091,
-      0.11
+      0.092,
+      0.108,
+      0.092,
+      0.108
     ],
     "Centaur": [
-      0.077,
       0.076,
-      0.077,
+      0.076,
+      0.076,
       0.076
     ],
     "Cheerleader": [
       0.204,
-      0.212,
+      0.214,
       0.204,
-      0.212
+      0.214
     ],
     "Coach": [
-      0.123,
-      0.108,
-      0.123,
-      0.108
+      0.124,
+      0.107,
+      0.124,
+      0.107
     ],
     "Copycat": [
-      0.295,
-      0.325,
-      0.295,
-      0.325
+      0.252,
+      0.279,
+      0.252,
+      0.279
     ],
     "Dicemonger": [
-      0.321,
-      0.285,
-      0.321,
-      0.285
+      0.324,
+      0.286,
+      0.324,
+      0.286
     ],
     "Duelist": [
-      0.17,
-      0.159,
-      0.17,
-      0.159
+      0.171,
+      0.162,
+      0.171,
+      0.162
     ],
     "Egg": [
-      0.258,
-      0.242,
-      0.258,
-      0.242
+      0.254,
+      0.246,
+      0.254,
+      0.246
     ],
     "Flip Flop": [
-      0.306,
-      0.336,
-      0.306,
-      0.336
+      0.313,
+      0.344,
+      0.313,
+      0.344
     ],
     "Genius": [
-      0.174,
-      0.151,
-      0.174,
-      0.151
+      0.175,
+      0.154,
+      0.175,
+      0.154
     ],
     "Gunk": [
-      0.165,
-      0.165,
-      0.165,
-      0.165
+      0.167,
+      0.164,
+      0.167,
+      0.164
     ],
     "Hare": [
-      0.222,
-      0.173,
-      0.222,
-      0.173
+      0.223,
+      0.175,
+      0.223,
+      0.175
     ],
     "Heckler": [
-      0.323,
-      0.419,
-      0.323,
-      0.419
+      0.322,
+      0.421,
+      0.322,
+      0.421
     ],
     "Huge Baby": [
-      0.068,
+      0.069,
       0.097,
-      0.068,
+      0.069,
       0.097
     ],
     "Hypnotist": [
       0.185,
-      0.221,
+      0.224,
       0.185,
-      0.221
+      0.224
     ],
     "Inchworm": [
-      0.123,
-      0.113,
-      0.123,
-      0.113
+      0.125,
+      0.115,
+      0.125,
+      0.115
     ],
     "Lackey": [
-      0.229,
+      0.228,
       0.169,
-      0.229,
+      0.228,
       0.169
     ],
     "Leaptoad": [
-      0.198,
-      0.158,
-      0.198,
-      0.158
-    ],
-    "Legs": [
-      0.295,
-      0.295,
-      0.295,
-      0.295
-    ],
-    "Lovable Loser": [
-      0.036,
-      0.044,
-      0.036,
-      0.044
-    ],
-    "Magician": [
-      0.174,
+      0.202,
       0.156,
-      0.174,
+      0.202,
       0.156
     ],
-    "Mastermind": [
-      0.036,
-      0.044,
-      0.036,
-      0.044
+    "Legs": [
+      0.297,
+      0.296,
+      0.297,
+      0.296
     ],
-    "M.O.U.T.H.": [
-      0.129,
+    "Lovable Loser": [
+      0.037,
+      0.046,
+      0.037,
+      0.046
+    ],
+    "Magician": [
+      0.176,
       0.158,
-      0.129,
+      0.176,
       0.158
     ],
+    "Mastermind": [
+      0.037,
+      0.045,
+      0.037,
+      0.045
+    ],
+    "M.O.U.T.H.": [
+      0.128,
+      0.159,
+      0.128,
+      0.159
+    ],
     "Party Animal": [
-      0.206,
-      0.3,
-      0.206,
-      0.3
+      0.21,
+      0.302,
+      0.21,
+      0.302
     ],
     "Rocket Scientist": [
-      0.207,
-      0.27,
-      0.207,
-      0.27
+      0.209,
+      0.271,
+      0.209,
+      0.271
     ],
     "Romantic": [
-      0.533,
-      0.443,
-      0.533,
-      0.443
+      0.535,
+      0.444,
+      0.535,
+      0.444
     ],
     "Scoocher": [
       0.65,
-      0.483,
+      0.484,
       0.65,
-      0.483
+      0.484
     ],
     "Sisyphus": [
       0.003,
@@ -753,22 +753,22 @@
       0.005
     ],
     "Skipper": [
-      0.259,
-      0.225,
-      0.259,
-      0.225
+      0.263,
+      0.229,
+      0.263,
+      0.229
     ],
     "Stickler": [
-      0.157,
-      0.163,
-      0.157,
-      0.163
+      0.161,
+      0.165,
+      0.161,
+      0.165
     ],
     "Suckerfish": [
-      0.302,
-      0.304,
-      0.302,
-      0.304
+      0.303,
+      0.306,
+      0.303,
+      0.306
     ],
     "Third Wheel": [
       0.136,
@@ -777,9 +777,9 @@
       0.143
     ],
     "Twin": [
-      0.036,
+      0.038,
       0.266,
-      0.35,
+      0.346,
       0.345
     ]
   }

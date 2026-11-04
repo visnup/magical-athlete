@@ -156,8 +156,11 @@ a login.
 - Skipper "steals" a correct Genius's extra turn: the Genius doesn't get it afterwards.
 - Duelist duels everyone it shares the Start with before the first turn, since it "just needs to
   be sharing a space."
-- A race no one can finish, like four racers on space 29 with Coach (+1) and Stickler (exact
-  finishes only), stops after 1,000 turns as `stalled`, and only racers already across score.
+- A loop where no one can finish ends the race (fiddly details 5), and only racers already across
+  score. It's detected as the same board on the same racer's turn with no dice rolled since, like
+  Flip Flop and Copycat as the last two left. A deadlock that still rolls, like four racers on
+  space 29 with Coach (+1) and Stickler (exact finishes only), stops after 1,000 turns. Both
+  count as `stalled`.
 - Optional powers follow each racer's `choose`, a hand-written rule tuned against playouts (see
   "Finding better choices"). Hypnotist avoids targets that would ping-pong forever with a
   Copycat. Flip Flop doesn't, since trading places with one pays on balance, so Flip Flop and

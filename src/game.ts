@@ -215,6 +215,8 @@ export class Race {
   /** Effects that wait until the main move is done, like Rocket Scientist's trip. */
   afterMain: (() => void)[] = [];
   turns = 0;
+  /** Dice rolled, so a board that repeats without one is a loop. */
+  rolls = 0;
   loops = 0;
   eliminations = 0;
   seen = new Set<string>();
@@ -251,6 +253,7 @@ export class Race {
 
   d6() {
     const roll = this.dice.shift() ?? 1 + Math.floor(this.rng() * 6);
+    this.rolls++;
     if (this.playouts) this.rolled.push(roll);
     return roll;
   }
@@ -675,6 +678,9 @@ export class Race {
   /** Runs turns until the race ends, starting with `next`'s turn if given. */
   race(next?: Racer): RaceResult {
     let stalled = false;
+    // Fiddly details 5: a loop where no one can finish ends the race, like Flip Flop and Copycat
+    // as the last two left, swapping places every turn.
+    const boards = new Map<string, number>();
     try {
       let seat = this.current.seat;
       const n = this.racers.length;
@@ -696,6 +702,12 @@ export class Race {
             }
           }
         }
+        const board = `${r!.seat}|${this.racers.map((x) => `${x.pos},${+x.tripped},${x.place},${x.eliminated}`).join(";")}`;
+        if (boards.get(board) === this.rolls) {
+          stalled = true;
+          break;
+        }
+        boards.set(board, this.rolls);
         this.turn(r!);
         seat = (r!.seat + 1) % n;
       }
