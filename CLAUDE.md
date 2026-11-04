@@ -16,6 +16,14 @@ The engine and its tests are in `src/`, scripts to run in `scripts/`, their raw 
 - `racers.ts`: each racer's rules as hooks, with its default choice and everything the rulebook
   says about it (flavor text, card, notes, and passages elsewhere that name it), plus official
   rulings from BoardGameGeek with links.
+- `second-wind.ts`: the Second Wind expansion's 36 racers, from the card list at
+  https://johnnlds.github.io/Magical-Athlete-Racers/. There's no rulebook for them, so each card's
+  comment gives our reading. They stay out of the base game's datasets and analysis: `NAMES` is
+  the base 36, `SECOND_WIND` the expansion and `ALL` both. The engine's hooks for them only run when one
+  could be in play (`Race.extended`), so `engine.sha` doesn't move. `scripts/second-wind.ts`
+  races lineups of 5 from all 72 (`results/second-wind-<mild|wild>-5p.parquet`, a row per
+  player, so Switcharoo's swaps count) and writes `second-wind.json`, the ratings its next run
+  plays by. It has its own section in `README.md`.
 - `game.ts`: the engine, which calls those hooks. `Race` runs one race, `playGame` drafts and
   runs four.
 - `sim.ts`: quick Monte Carlo. `node scripts/sim.ts --n 100000 --players 5` prints per-racer
@@ -71,7 +79,7 @@ The engine and its tests are in `src/`, scripts to run in `scripts/`, their raw 
   exported function of a module that does nothing at the top level, so scripts guard their main
   code with `if (import.meta.main)`. `tables.ts` runs races of random lineups.
 - `node --test` runs `game.test.ts`, which includes the rulebook's Romantic/Scoocher/Banana
-  example, `racers.test.ts`, one test per card named for its text, plus the rulebook's notes, and
+  example, `racers.test.ts` and `second-wind.test.ts`, one test per card named for its text, plus the rulebook's notes, and
   `terms.test.ts`, the terms, fiddly details and track spaces on p. 23.
 - `TODO.md` is the plan: checking the model first, then the analysis.
 - `README.md` is what the simulator has shown so far.
@@ -173,7 +181,7 @@ a login.
 - **Chip values.** Gold 3/4/4/5 and silver 2/3/3/4 by race, from the physical chips.
 - **Mild Mile geometry.** Start is space 0, 29 is the last space, and 30 is across the finish.
   Blimp's second corner is space 15, where the track turns the second time (not 12, which would
-  count Start's rounded end as the first).
+  count Start's rounded end as the first). The first corner, where Nepo Baby starts, is 12.
 
 ## Interpretations
 

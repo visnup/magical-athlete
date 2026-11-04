@@ -650,6 +650,91 @@ over 200,000 races, on an earlier version of the simulator):
 - also decline late in the race: 0.76;
 - never duel: 0.32.
 
+## Second Wind
+
+The Second Wind expansion adds 36 more racers, from a Streaker who earns a point for every
+overtake to a Doppelgängster who steals the winner's finish and their power with it. Everything above
+is the base game alone. This section shuffles the two sets together.
+
+There's no rulebook for these racers yet, only their cards, from
+[this card list](https://johnnlds.github.io/Magical-Athlete-Racers/). Wherever a card leaves
+something open, the reading is ours, and each one is listed with its card in
+`src/second-wind.ts`. For example, Doppelgängster steals only once a race, Cheatah and its
+neighbor play the guessing game as well as it can be played, and Nemesis's every roll counts as
+using its power, so Scoocher moves for it. Read these numbers as a first look, not a verdict.
+
+*From `node scripts/second-wind.ts`*, a million 5-player races per track with lineups drawn from
+all 72 racers. A fair share is 1.00 in race 1 and 1.40 in race 2. Each racer is in about 69,000
+races, so differences under about 0.03 (race 1) or 0.05 (race 2) are noise:
+
+| racer | race 1 | race 2 |
+| --- | --- | --- |
+| Streaker | 3.34 | 4.20 |
+| Understudy | 1.69 | 3.66 |
+| Penguin | 1.60 | 2.90 |
+| Nemesis | 1.67 | 2.76 |
+| Diva | 1.46 | 2.79 |
+| Stepdad | 1.80 | 2.43 |
+| Party Pooper | 1.10 | 3.10 |
+| Overtaker | 1.53 | 2.28 |
+| Tail | 1.25 | 2.46 |
+| Nepo Baby | 1.50 | 2.16 |
+| Mush | 1.22 | 2.30 |
+| Doppelgängster | 1.16 | 2.29 |
+| Bite Mark | 1.10 | 2.23 |
+| Spoilsport | 1.20 | 2.05 |
+| Kingtripper | 1.05 | 2.01 |
+| Switcharoo | 1.01 | 1.96 |
+| Hotel | 0.60 | 2.30 |
+| Show-Off | 1.11 | 1.75 |
+| Hopfrog | 0.94 | 1.91 |
+| Gloth | 1.00 | 1.84 |
+| Magical Athlete | 1.12 | 1.67 |
+| Stunner | 0.89 | 1.85 |
+| Le Saboteur | 0.86 | 1.85 |
+| Mole | 0.87 | 1.70 |
+| Soulmate | 0.79 | 1.74 |
+| Mr. Dice Guy | 0.72 | 1.79 |
+| The Hose | 0.78 | 1.71 |
+| Kraken | 0.77 | 1.67 |
+| Blunderdog | 0.83 | 1.47 |
+| Hog Knight | 0.77 | 1.42 |
+| Null | 0.64 | 1.45 |
+| Critic | 0.51 | 1.38 |
+| Icarus | 0.75 | 1.10 |
+| Re-Runner | 0.40 | 1.21 |
+| Speed Demon | 0.33 | 1.18 |
+| Cheatah | 0.42 | 0.89 |
+
+**Streaker is the expansion's Scoocher.** A point for every move that passes anyone adds up to
+about 3 bronze a race, on either track. That makes it the best racer in race 1 of all 72, ahead of
+Sisyphus and Lovable Loser, and second only to Scoocher in race 2. It rarely wins (6%), and it
+doesn't need to.
+
+**Penguin and Nemesis win the most of the new racers.** Every racer that passes Penguin trips it,
+and a tripped Penguin doubles its roll instead of skipping its move, so the pack keeps launching
+it: gold in 39% of races on the Mild Mile and 44% on the Wild Wilds. Nemesis rolls along with
+everyone else and moves whenever it matches, about once a round: 41% and 37%. Only Scoocher,
+Romantic and Heckler win as often.
+
+**Understudy is as good as what it copies.** Before the race, it takes the power of the
+best-rated opponent in its race.
+
+**Some cards depend on the game around them.** Re-Runner's power does nothing inside a race: it's a
+powerless racer (0.40), and its value is racing again in every later race. Speed Demon gets +1 per
+point its player has, and these races start everyone at 0, so it's understated here. Hotel charges
+a point to anyone who stops on it, and with nobody holding points in race 1, it trips them
+instead (0.60 against 2.30 in race 2, mostly from stars). Icarus is eliminated in 61% of races
+(+3 to every move, but a 6 knocks it out).
+
+**Cheatah is the weakest.** Its guessing game pays about 3.24 spaces a turn, a little less than
+an ordinary roll, so it plays like a racer with no power.
+
+**The base racers shift a little.** Scoocher drops from 2.37 to 2.13 in race 1 and from 7.66 to
+6.50 in race 2, and Suckerfish, Twin and Copycat fall too. They feed on the strongest base racers,
+probably Scoocher above all, and those now turn up half as often. Legs, Alchemist and Centaur
+gain 0.1 to 0.3 on both tracks.
+
 ## Against real play and another simulator
 
 What players report on BoardGameGeek agrees with the model on the main points:

@@ -1,5 +1,6 @@
 import { type Name, type Race, type Racer, shuffle } from "./game.ts";
 import RATINGS from "./ratings.json" with { type: "json" };
+import { SECOND_WIND_RACERS } from "./second-wind.ts";
 
 /**
  * A racer's rules as hooks. The engine calls "own" hooks only for the racer whose turn or move it
@@ -27,8 +28,24 @@ export type Powers = {
   beforeRoll?(race: Race, me: Racer): void;
   /** After the main move's final roll. Returns true if the roller skips the move. */
   onRoll?(race: Race, me: Racer, roller: Racer, roll: number, skipped: boolean): boolean | void;
-  /** Own. Replaces the main move's distance before modifiers. */
-  base?(race: Race, me: Racer, roll: number, base: number): number;
+  /** Own. Replaces the main move's distance before modifiers; negative goes backwards, null not at all. */
+  base?(race: Race, me: Racer, roll: number, base: number): number | null;
+  /** Own. Rolls for the main move in place of one die. */
+  roll?(race: Race, me: Racer): number;
+  /** Whether to make `roller` reroll its main move. */
+  forcesReroll?(race: Race, me: Racer, roller: Racer, roll: number): boolean;
+  /** Whether `roller`'s die rolls are all 1s. */
+  stuns?(race: Race, me: Racer, roller: Racer): boolean;
+  /** Every 6 rolled is rolled again, and this power happens. */
+  rerollsSixes?: boolean;
+  /** Own. A tripped racer takes its main move anyway as it recovers (`race.recovering`). */
+  rollsTripped?: boolean;
+  /** Whether `winner`, about to finish 1st, is eliminated instead. */
+  steals?(race: Race, me: Racer, winner: Racer): boolean;
+  /** After `winner` finishes 1st. */
+  onFirst?(race: Race, me: Racer, winner: Racer): void;
+  /** When the race ends, for racers still on the track. */
+  endRace?(race: Race, me: Racer): void;
   /** Added to anyone's main move. */
   modify?(race: Race, me: Racer, mover: Racer, start: number): number;
   /**
@@ -56,10 +73,10 @@ export type Powers = {
   copies?(race: Race, me: Racer): Racer | null;
 };
 
-const others = (race: Race, me: Racer, at = me.pos) => race.at(at).filter((q) => q !== me);
+export const others = (race: Race, me: Racer, at = me.pos) => race.at(at).filter((q) => q !== me);
 
 /** The one other racer `me` stopped with, unless they arrived at the same time (Fiddly details 2). */
-function stoppedWith(race: Race, mover: Racer, at: number, together: Racer[]) {
+export function stoppedWith(race: Race, mover: Racer, at: number, together: Racer[]) {
   if (!race.stays(mover, at)) return null;
   const qs = others(race, mover, at);
   return qs.length === 1 && !(together.includes(mover) && together.includes(qs[0])) ? qs[0] : null;
@@ -91,7 +108,7 @@ export function settle(race: Race, to: number) {
 }
 
 /** A racer's chance of 1st in a race of 5 on this track, from `ratings.json`. */
-const first = (race: Race, name: Name) => RATINGS.first[name][race.track.name === "Wild Wilds" ? 1 : 0];
+const first = (race: Race, name: Name) => (RATINGS.first as Record<string, number[]>)[name]?.[race.track.name === "Wild Wilds" ? 1 : 0] ?? 0;
 
 /** `landing` averaged over a die roll from `from`. */
 export const rolled = (race: Race, from: number, star = 3) => [1, 2, 3, 4, 5, 6].reduce((s, d) => s + landing(race, from + d, star), 0) / 6;
@@ -99,8 +116,8 @@ export const rolled = (race: Race, from: number, star = 3) => [1, 2, 3, 4, 5, 6]
 function duel(race: Race, me: Racer, q: Racer) {
   if (me.pos !== q.pos || !race.active(me) || !race.active(q) || !race.choose(me, "Duelist", q)) return;
   race.use(me, "Duelist", () => {
-    const mine = race.d6();
-    const theirs = race.d6();
+    const mine = race.d6(me);
+    const theirs = race.d6(q);
     race.move(mine >= theirs ? me : q, 2);
   });
 }
@@ -840,4 +857,5 @@ export const RACERS: Record<Name, Powers> = {
       if (options.length) race.gain(me, race.choose(me, "Twin", options));
     },
   },
+  ...SECOND_WIND_RACERS,
 };

@@ -10,7 +10,7 @@ RESULTS := $(RACES) results/lineup-draft.parquet results/twin-rated.parquet resu
 	results/draft-5p.parquet results/endgame-5p.parquet results/sensitivity-queue-wild.parquet results/playouts.parquet
 
 .PHONY: all test
-all: charts/sensitivity.svg
+all: charts/sensitivity.svg results/second-wind-wild-5p.parquet
 
 test:
 	node --test
@@ -39,6 +39,9 @@ results/sensitivity-queue-wild.parquet: scripts/sensitivity.ts $(RACES)
 	node scripts/sensitivity.ts
 results/playouts.parquet: scripts/playouts.ts $(ENGINE)
 	node scripts/playouts.ts
+# engine.sha only covers the base game, so the expansion reruns on any change to src/.
+results/second-wind-wild-5p.parquet: scripts/second-wind.ts $(SRC) results/races-wild-5p.parquet
+	node scripts/second-wind.ts
 
 charts/sensitivity.svg: scripts/charts.ts scripts/spread.ts $(RESULTS)
 	node scripts/charts.ts

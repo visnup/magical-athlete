@@ -9,24 +9,37 @@ export const NAMES = [
   "Mastermind", "M.O.U.T.H.", "Party Animal", "Rocket Scientist", "Romantic", "Scoocher",
   "Sisyphus", "Skipper", "Stickler", "Suckerfish", "Third Wheel", "Twin",
 ] as const;
-export type Name = (typeof NAMES)[number];
+
+/** The Second Wind expansion's racers (`second-wind.ts`), kept out of the base game's analysis. */
+export const SECOND_WIND = [
+  "Bite Mark", "Blunderdog", "Cheatah", "Critic", "Diva", "Doppelgängster",
+  "Gloth", "Hog Knight", "Hopfrog", "Hotel", "Icarus", "Kingtripper",
+  "Kraken", "Le Saboteur", "Magical Athlete", "Mole", "Mr. Dice Guy", "Mush",
+  "Nemesis", "Nepo Baby", "Null", "Overtaker", "Party Pooper", "Penguin",
+  "Re-Runner", "Show-Off", "Soulmate", "Speed Demon", "Spoilsport", "Stepdad",
+  "Streaker", "Stunner", "Switcharoo", "Tail", "The Hose", "Understudy",
+] as const;
+export const ALL = [...NAMES, ...SECOND_WIND];
+export type Name = (typeof NAMES)[number] | (typeof SECOND_WIND)[number];
 
 export type Space = { arrow?: number; trip?: boolean; star?: boolean };
 export type Track = {
   name: string;
   /** Spaces are 0 (Start) to length - 1; reaching `length` crosses the finish line. */
   length: number;
-  /** Blimp's "second corner". */
+  /** Where the track turns at the far end: 12 and 15, counting Start's rounded end as neither. */
+  corner1: number;
   corner2: number;
   spaces: Record<number, Space>;
 };
 
-export const MILD_MILE: Track = { name: "Mild Mile", length: 30, corner2: 15, spaces: {} };
+export const MILD_MILE: Track = { name: "Mild Mile", length: 30, corner1: 12, corner2: 15, spaces: {} };
 
 /** From the board; the rulebook doesn't show it. Arrows point back along the bottom row at 16 and 24. */
 export const WILD_WILDS: Track = {
   name: "Wild Wilds",
   length: 30,
+  corner1: 12,
   corner2: 15,
   spaces: {
     1: { star: true },
@@ -68,6 +81,8 @@ export type Racer = {
   guess: number | null;
   trips: number;
   uses: number;
+  /** What Second Wind powers remember during a race, like Hog Knight's rider. */
+  state: Record<string, any>;
 };
 
 export type Policy = {
@@ -224,6 +239,14 @@ export class Race {
   hooks = new Map<number, Hook[]>();
   /** Whether any racer copies powers, so `all()` depends on the lead. */
   copying?: boolean;
+  /** Whether a Null is racing, so `all()` depends on everyone's position. */
+  nulling?: boolean;
+  /** Whether any Second Wind power could be in play, which `d6` checks for. */
+  extended: boolean;
+  /** Whether this main move goes backwards (Le Saboteur). */
+  backward = false;
+  /** Whether this main move is a tripped Penguin's. */
+  recovering = false;
   /** For `playout`: the race as this turn started, and the dice and choices since. */
   playouts: boolean;
   snapshot: Race | null = null;
@@ -246,22 +269,47 @@ export class Race {
     this.log = o.log ? [] : null;
     this.racers = o.racers.map((name, seat) => ({
       name, seat, player: o.players?.[seat] ?? seat, pos: 0, tripped: false, place: null, eliminated: null,
-      bronze: 0, copied: [], turns: 0, prediction: null, guess: null, trips: 0, uses: 0,
+      bronze: 0, copied: [], turns: 0, prediction: null, guess: null, trips: 0, uses: 0, state: {},
     }));
     this.current = this.racers[o.first ?? 0];
+    const sw = new Set<Name>(SECOND_WIND);
+    this.extended = [...o.racers, ...this.deck].some((n) => sw.has(n));
   }
 
-  d6() {
+  draw() {
     const roll = this.dice.shift() ?? 1 + Math.floor(this.rng() * 6);
     this.rolls++;
     if (this.playouts) this.rolled.push(roll);
     return roll;
   }
 
+  /** A die roll, by `r` if it's someone's: Stunner makes it a 1, and Party Pooper rerolls sixes. */
+  d6(r?: Racer) {
+    let roll = this.draw();
+    if (!this.extended) return roll;
+    if (r && this.all().some(([o, , h]) => h.stuns?.(this, o, r))) return 1;
+    for (let p; roll === 6 && (p = this.all().find(([o, , h]) => h.rerollsSixes && this.active(o)));) {
+      roll = this.draw();
+      const [o, q] = p;
+      this.use(o, q, () => this.move(o, 1));
+    }
+    return roll;
+  }
+
+  /** Ends the race at once, as Spoilsport does. */
+  end(): never {
+    throw new RaceOver();
+  }
+
+  /** Points `player` has, counting this race's bronze. */
+  points(player: number) {
+    return this.bank[player] + this.racers.reduce((s, r) => s + (r.player === player ? r.bronze : 0), 0);
+  }
+
   /** A copy of this race to play on, with its own random numbers and no dice scripted. */
   clone(rng: () => number): Race {
     const c: Race = Object.assign(Object.create(Race.prototype), this);
-    c.racers = this.racers.map((r) => ({ ...r, copied: [...r.copied] }));
+    c.racers = this.racers.map((r) => ({ ...r, copied: [...r.copied], state: { ...r.state } }));
     const same = (r: Racer) => c.racers[r.seat];
     c.current = same(this.current);
     c.finishers = this.finishers.map(same);
@@ -347,6 +395,7 @@ export class Race {
 
   powers(r: Racer, depth = 0): Name[] {
     if (!this.active(r)) return [];
+    if (this.nulling && this.racers.some((n) => n.pos < r.pos && this.active(n) && (n.name === "Null" || n.copied.includes("Null")))) return [];
     const ps: Name[] = [r.name, ...r.copied];
     for (const p of [...ps]) {
       const target = depth < 2 ? RACERS[p].copies?.(this, r) : null;
@@ -371,6 +420,8 @@ export class Race {
   all(): Hook[] {
     // Powers depend only on whose turn it is, who's still racing, and the lead, for copiers.
     this.copying ??= this.racers.some((r) => [r.name, ...r.copied].some((p) => RACERS[p].copies));
+    this.nulling ??= this.racers.some((r) => r.name === "Null" || r.copied.includes("Null"));
+    if (this.nulling) return this.byPriority().flatMap((o) => this.powers(o).map((p): Hook => [o, p, RACERS[p]]));
     let active = 0;
     let lead = 0;
     let max = -Infinity;
@@ -401,13 +452,15 @@ export class Race {
     return best(names, (name) => this.policy.rating(name, this));
   }
 
-  gain(r: Racer, p: Name) {
-    if (r.copied.length >= 2) return;
+  /** Gives `r` the power `p`, and its "before my race" power if it's before the race. */
+  gain(r: Racer, p: Name, before = true) {
+    if (before && r.copied.length >= 2) return;
     r.copied.push(p);
     this.hooks.clear();
     this.copying = undefined;
+    this.nulling = undefined;
     this.say(`${r.name} gains ${p}`);
-    RACERS[p].beforeRace?.(this, r);
+    if (before) RACERS[p].beforeRace?.(this, r);
   }
 
   state() {
@@ -469,6 +522,16 @@ export class Race {
   }
 
   finish(r: Racer) {
+    if (this.extended && !this.finishers.length) {
+      const d = this.all().find(([o, , h]) => o !== r && h.steals?.(this, o, r));
+      if (d) {
+        this.use(d[0], d[1], () => {
+          this.eliminate(r);
+          this.gain(d[0], r.name, false);
+        });
+        return;
+      }
+    }
     r.pos = this.track.length;
     r.place = this.finishers.length + 1;
     this.finishers.push(r);
@@ -481,6 +544,7 @@ export class Race {
         this.finishers.push(m);
         this.say(`${m.name} predicted it`);
       }
+      if (this.extended) for (const [o, , h] of this.all()) h.onFirst?.(this, o, r);
     }
     if (this.finishers.length >= 2) throw new RaceOver();
     this.lastOneLeft();
@@ -602,8 +666,14 @@ export class Race {
     for (const [, h] of this.own(r)) if (this.active(r)) h.startTurn?.(this, r);
     if (!this.active(r)) return;
     // A tripped racer recovers at its main move, even if it tripped earlier this turn.
-    if (r.tripped) r.tripped = false;
-    else if (skip) this.use(r, skip[0]);
+    if (r.tripped) {
+      r.tripped = false;
+      if (this.extended && this.own(r).some(([, h]) => h.rollsTripped)) {
+        this.recovering = true;
+        this.main(r, start);
+        this.recovering = false;
+      }
+    } else if (skip) this.use(r, skip[0]);
     else this.main(r, start);
     if (!this.active(r)) return;
     const moved = Math.abs(r.pos - start);
@@ -623,18 +693,26 @@ export class Race {
         break;
       }
     }
+    this.backward = false;
     if (base === null) {
       for (const [, h] of this.own(r)) h.beforeRoll?.(this, r);
-      let roll = this.d6();
+      const roller = this.extended ? this.own(r).find(([, h]) => h.roll) : undefined;
+      const rollMain = () => (roller ? roller[1].roll!(this, r) : this.d6(r));
+      let roll = rollMain();
       const rerollers = this.own(r).filter(([, h]) => h.rerolls);
       let left = rerollers.reduce((sum, [, h]) => sum + h.rerolls!, 0);
       for (; left > 0 && this.policy.reroll(this, r, roll, left); left--) {
-        roll = this.d6();
+        roll = rollMain();
         this.use(r, rerollers[0][0]);
+      }
+      if (this.extended) {
+        for (const [o, p, h] of this.all()) {
+          if (o !== r && this.active(o) && h.forcesReroll?.(this, o, r, roll)) this.use(o, p, () => (roll = rollMain()));
+        }
       }
       const granters = this.all().filter(([, , h]) => h.onReroll);
       if (granters.length && this.policy.reroll(this, r, roll, 1)) {
-        roll = this.d6();
+        roll = rollMain();
         this.use(granters[0][0], granters[0][1], () => {
           for (const [o, , h] of granters) h.onReroll!(this, o, r);
         });
@@ -645,14 +723,22 @@ export class Race {
       if (skipped || !this.active(r)) return;
       base = roll;
       for (const [p, h] of this.own(r)) {
-        const b = h.base?.(this, r, roll, base) ?? base;
+        if (!h.base) continue;
+        const b = h.base(this, r, roll, base);
+        if (b === null) {
+          for (const [o, q] of used) this.use(o, q);
+          this.use(r, p);
+          return;
+        }
         if (b !== base) {
           base = b;
           used.push([r, p]);
         }
       }
     }
-    let dist = base;
+    // Blunderdog's backward main move.
+    const back = this.backward || base < 0;
+    let dist = Math.abs(base);
     for (const [o, p, h] of this.all()) {
       const d = this.active(o) ? (h.modify?.(this, o, r, start) ?? 0) : 0;
       if (d) {
@@ -662,7 +748,7 @@ export class Race {
     }
     for (const [o, p] of used) this.use(o, p);
     if (!this.active(r)) return;
-    this.move(r, this.rules.backwards ? dist : Math.max(0, dist));
+    this.move(r, back ? -Math.max(0, dist) : this.rules.backwards ? dist : Math.max(0, dist));
     for (const f of this.afterMain) f();
   }
 
@@ -714,6 +800,7 @@ export class Race {
     } catch (e) {
       if (!(e instanceof RaceOver)) throw e;
     }
+    if (this.extended) for (const [o, , h] of this.all()) h.endRace?.(this, o);
     return {
       racers: this.racers,
       finishers: this.finishers.map((r) => r.seat),

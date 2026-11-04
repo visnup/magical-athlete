@@ -45,6 +45,10 @@ configs:
     data_files: lineup-draft.parquet
   - config_name: sensitivity
     data_files: sensitivity-*.parquet
+  - config_name: second-wind-mild-5p
+    data_files: second-wind-mild-5p.parquet
+  - config_name: second-wind-wild-5p
+    data_files: second-wind-wild-5p.parquet
 ---
 
 # Magical Athlete simulations
@@ -124,6 +128,11 @@ The other files with these columns each race one racer under test, or a rule var
 - `sensitivity-<rule>-<track>`: 5-player races with an unsettled rule read the other way
   (`backwards`: main moves pushed below 0 go backwards; `queue`: triggers queue and resolve even
   after the board changed).
+
+`second-wind-<track>-5p` is a million 5-player races drawn from all 72 racers, the base 36 and the
+Second Wind expansion's 36, with the same columns. Each row is a player's: `gold`, `silver` and
+`bronze` are what its player won, which differs from its racer's only when Switcharoo swapped
+control. The expansion's readings of its cards are in `src/second-wind.ts`.
 
 ## Game rows
 
