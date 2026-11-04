@@ -97,10 +97,12 @@ save("places", {
   ],
 });
 
-// Player count: average points per race by number of players, with 95% intervals.
+// Player count: average points per race by number of players, for selected racers.
 const byPlayers = await query(`
-  select track, players, racer, avg(points) mean, 1.96 * stddev_samp(points) / sqrt(count(*)) e
-  from (${scored(`${players()} players, racer`, "*")}) group by all order by players`);
+  select track, players, racer, avg(points) mean
+  from (${scored(`${players()} players, racer`, "*")})
+  where racer in ('Scoocher', 'Lovable Loser', 'Sisyphus', 'Romantic', 'Suckerfish', 'Dicemonger', 'Legs', 'Alchemist', 'Huge Baby')
+  group by all order by players`);
 save("players", {
   width: 720,
   marginRight: 90,
@@ -109,9 +111,8 @@ save("players", {
   fx: { domain: tracks, label: null, axis: "top", padding: 0.3 },
   color: { domain: tracks, range: trackColors },
   marks: [
-    Plot.areaY(byPlayers, { x: "players", y1: (r) => r.mean - r.e, y2: (r) => r.mean + r.e, fx: "track", z: "racer", fill: "track", fillOpacity: 0.25 }),
-    Plot.lineY(byPlayers, { x: "players", y: "mean", fx: "track", z: "racer", stroke: "track", marker: "dot" }),
-    Plot.text(byPlayers, Plot.selectLast({ x: "players", y: "mean", fx: "track", z: "racer", text: "racer", textAnchor: "start", dx: 6, fontSize: 8 })),
+    Plot.lineY(byPlayers, { x: "players", y: "mean", fx: "track", z: "racer", stroke: "track", marker: true }),
+    Plot.text(byPlayers, Plot.selectLast({ x: "players", y: "mean", fx: "track", z: "racer", text: "racer", textAnchor: "start", stroke: "white", fill: "black", dx: 6, fontSize: 8 })),
   ],
 });
 
