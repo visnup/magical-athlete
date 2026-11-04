@@ -129,7 +129,7 @@ for (const race of [0, 1]) {
     marginTop: 100,
     x: { label: "opponent", tickRotate: -90, axis: "top", tickSize: 0 },
     y: { label: "racer", tickSize: 0 },
-    color: { type: "quantize", scheme: "rdbu", domain: [-limit, limit], n: 10 },
+    color: { type: "quantize", scheme: "prgn", domain: [-limit, limit], n: 10 },
     marks: [Plot.cell(matchups, { x: "opponent", y: "racer", fill: "diff", sort: { x: "fill", y: "-fill", reduce: "mean" } })],
   }, `${tracks[race]}: row racer's points minus the column opponent's per race`);
 }
