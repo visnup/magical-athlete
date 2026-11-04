@@ -80,7 +80,7 @@ save("places", {
   height: 720,
   marginLeft: 100,
   x: { label: "chance of 1st (dark) and 2nd (light) in one race of 5", percent: true, grid: true },
-  y: { domain: byMedal.toSorted((a, b) => b[1] - a[1]).map(([racer]) => racer), label: null, padding: 0.15 },
+  y: { domain: byMedal.toSorted((a, b) => b[1] - a[1]).map(([racer]) => racer), label: null, padding: 0.15, grid: true },
   fx: { domain: tracks, label: null, axis: "top", padding: 0.1 },
   color: { domain: tracks, range: trackColors },
   marks: [Plot.barX(medals, { x: "p", y: "racer", fx: "track", fill: "track", fillOpacity: (r) => (r.place === "1st" ? 1 : 0.4) })],
