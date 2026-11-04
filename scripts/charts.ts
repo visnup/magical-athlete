@@ -61,8 +61,6 @@ save("points", {
   y: { domain: order, label: null },
   fx: { domain: tracks, label: null, axis: "top" },
   marks: [
-    Plot.barX(tracks.flatMap((track) => order.flatMap((racer) => Array.from({ length: 13 }, (_, points) => ({ track, racer, points })))), { ...scores, fill: "#f2f2f2" }),
-    Plot.barX(distribution, { ...scores, fill: "white" }),
     Plot.barX(distribution, { ...scores, fill: (r) => (r.track === tracks[0] ? "#1f4e8c" : "#b51f30"), fillOpacity: (r) => r.chance / peak[r.track] }),
     Plot.tickX(rows.map((rs) => rs[0]), { x: "mean", y: "racer", fx: "track", stroke: "#222", strokeWidth: 1.5 }),
     Plot.text(likeliest, { x: "points", y: "racer", fx: "track", text: (r) => `${Math.round(100 * r.chance)}%`, fill: "black", stroke: "white", fontSize: 8 }),

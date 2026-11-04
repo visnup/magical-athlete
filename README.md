@@ -129,7 +129,7 @@ trip spaces, racers reroll far more often, and each reroll carries Dicemonger an
 after), Centaur, who knocks back racers it passes by 2, and Huge Baby.
 
 The chance of each score in a race of 5, strongest racers first, with each racer's two likeliest
-scores labeled and its average marked. Gray scores never happened:
+scores labeled and its average marked:
 
 ![Chance of each score in a race of 6, by racer and track](charts/points.svg)
 
