@@ -50,7 +50,7 @@ const distribution = await query(`
   from counts join means using (track, racer) join ranked using (racer)`);
 const order = [...new Map(distribution.toSorted((a, b) => b.rank - a.rank).map((r) => [r.racer, r])).keys()];
 const rows = [...Map.groupBy(distribution, (r) => `${r.track}\0${r.racer}`).values()];
-const likeliest = rows.map((rs) => rs.reduce((a, b) => (b.chance > a.chance ? b : a)));
+const likeliest = rows.flatMap((rs) => rs.toSorted((a, b) => b.chance - a.chance).slice(0, 2));
 const peak = Object.fromEntries(tracks.map((t) => [t, Math.max(...distribution.filter((r) => r.track === t).map((r) => r.chance))]));
 const scores = { x1: (r: Row) => r.points - 0.5, x2: (r: Row) => r.points + 0.5, y: "racer", fx: "track", inset: 0.5 };
 save("points", {
