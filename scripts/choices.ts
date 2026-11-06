@@ -1,7 +1,7 @@
 import { parseArgs } from "node:util";
 import { defaultPolicy, mulberry32, NAMES, type Name, type Policy, Race, type Racer, shuffle } from "../src/game.ts";
 import { collect } from "../src/parallel.ts";
-import { landing, RACERS, rolled, settle } from "../src/racers.ts";
+import { landing, pairs, RACERS, rolled, settle } from "../src/racers.ts";
 import { parquet, pointsSql, query, racerRows, type RacerRow, slug, write } from "../src/results.ts";
 import { trackFor } from "../src/tables.ts";
 
@@ -105,10 +105,8 @@ const variants: Partial<Record<Name, Record<string, Partial<Policy>>>> = {
     "nearest pair ahead": {
       choose: {
         "Third Wheel": (race, me) => {
-          const counts = new Map<number, number>();
-          for (const o of race.onTrack()) counts.set(o.pos, (counts.get(o.pos) ?? 0) + 1);
-          const pairs = [...counts].filter(([pos, c]) => c === 2 && pos > me.pos).map(([pos]) => pos);
-          return pairs.length ? Math.min(...pairs) : null;
+          const ahead = pairs(race).filter((pos) => pos > me.pos);
+          return ahead.length ? Math.min(...ahead) : null;
         },
       },
     },

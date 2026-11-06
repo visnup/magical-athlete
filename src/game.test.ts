@@ -1,12 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { mulberry32, NAMES, type Name, playGame, Race, type RaceOptions, shuffle } from "./game.ts";
-
-function setup(names: Name[], pos: number[], dice: number[] = [], o: Partial<RaceOptions> = {}) {
-  const race = new Race({ racers: names, dice, rng: mulberry32(1), ...o });
-  race.racers.forEach((r, i) => (r.pos = pos[i]));
-  return race;
-}
+import { mulberry32, NAMES, type Name, playGame, Race, shuffle } from "./game.ts";
+import { setup } from "./setup.ts";
 
 test("rulebook example: Romantic passes Scoocher and Banana", () => {
   const race = setup(["Romantic", "Scoocher", "Banana"], [1, 3, 4], [5]);

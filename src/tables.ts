@@ -4,13 +4,13 @@ import RATINGS from "./ratings.json" with { type: "json" };
 import { racerRows, type RacerRow, rowPoints } from "./results.ts";
 
 /** Points `r` scored in `result`, if it was race `race` (0–3) of a game. */
-export function points(result: RaceResult, r: Racer, race: number) {
-  return +(result.finishers[0] === r.seat) * GOLD[race] + +(result.finishers[1] === r.seat) * SILVER[race] + r.bronze;
-}
+export const points = (result: RaceResult, r: Racer, race: number) =>
+  rowPoints({ gold: +(result.finishers[0] === r.seat), silver: +(result.finishers[1] === r.seat), bronze: r.bronze }, race);
 
 export const trackFor = (race: number) => [MILD_MILE, WILD_WILDS][race % 2];
 
-export type Row = { points: number; first: number };
+/** "Race 1, Mild Mile (3/2)": race `race` (0–3), its track and chip values. */
+export const raceTitle = (race: number) => `Race ${race + 1}, ${trackFor(race).name} (${GOLD[race]}/${SILVER[race]})`;
 
 /** Options that can cross to a worker thread: plain data, no functions. */
 export type Options = {
@@ -68,21 +68,6 @@ export function tableTask(r: number, o: Options, seed: number, n: number) {
 
 /** A row per racer per race in race `r` (0–3), from random lineups. */
 export const tableRows = (r: number, o: Options = {}) => collect<RacerRow>(import.meta.url, "tableTask", [r, o], o.n ?? 100000);
-
-/** Each racer's average points and chance of 1st from `rows`, scored as race `r` (0–3). */
-export function summarize(rows: Pick<RacerRow, "racer" | "gold" | "silver" | "bronze">[], r: number) {
-  const sums = new Map(NAMES.map((name) => [name, [0, 0, 0]]));
-  for (const row of rows) {
-    const s = sums.get(row.racer as Name)!;
-    s[0] += rowPoints(row, r);
-    s[1] += row.gold;
-    s[2]++;
-  }
-  return new Map<Name, Row>([...sums].map(([name, [p, f, k]]) => [name, { points: p / k, first: f / k }]));
-}
-
-/** Each racer's average points and chance of 1st in race `r` (0–3), from random lineups. */
-export const table = async (r: number, o: Options = {}) => summarize(await tableRows(r, o), r);
 
 export function forcedTask(name: Name, r: number, o: Options, seed: number, n: number) {
   const rng = mulberry32(seed);

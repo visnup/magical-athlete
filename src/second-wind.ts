@@ -1,14 +1,5 @@
 import type { Name, Race, Racer } from "./game.ts";
-import { landing, others, type Powers, rolled } from "./racers.ts";
-
-/** Swaps two racers' spaces, a warp for both, like Flip Flop. */
-function swap(race: Race, a: Racer, b: Racer) {
-  if (a.pos === b.pos) return;
-  [a.pos, b.pos] = [b.pos, a.pos];
-  race.say(`${a.name} swaps with ${b.name}`);
-  race.arrive(a);
-  race.arrive(b);
-}
+import { landing, others, type Powers, rolled, swap } from "./racers.ts";
 
 /** An index into `weights`, drawn in proportion to them. */
 function draw(race: Race, weights: number[]) {

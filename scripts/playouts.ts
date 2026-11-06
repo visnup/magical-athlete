@@ -1,7 +1,7 @@
 import { parseArgs } from "node:util";
 import { mulberry32, NAMES, type Name, type Policy, Race, type Racer, shuffle } from "../src/game.ts";
 import { collect } from "../src/parallel.ts";
-import { RACERS } from "../src/racers.ts";
+import { pairs, RACERS } from "../src/racers.ts";
 import { racerRows, type RacerRow, rowPoints, write } from "../src/results.ts";
 import { points, trackFor } from "../src/tables.ts";
 
@@ -22,11 +22,7 @@ export const options: Partial<Record<Name, (race: Race, me: Racer) => unknown[]>
   "Mastermind": (race) => race.racers.map((r) => r.name),
   "Rocket Scientist": () => [true, false],
   "Suckerfish": () => [true, false],
-  "Third Wheel": (race) => {
-    const counts = new Map<number, number>();
-    for (const o of race.onTrack()) counts.set(o.pos, (counts.get(o.pos) ?? 0) + 1);
-    return [null, ...[...counts].filter(([, c]) => c === 2).map(([pos]) => pos)];
-  },
+  "Third Wheel": (race) => [null, ...pairs(race)],
 };
 
 /**

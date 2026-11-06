@@ -1,13 +1,14 @@
 import { parseArgs } from "node:util";
-import { GOLD, MILD_MILE, mulberry32, NAMES, type Name, playGame, Race, shuffle, SILVER, WILD_WILDS } from "../src/game.ts";
+import { GOLD, mulberry32, NAMES, type Name, playGame, Race, shuffle, SILVER } from "../src/game.ts";
 import { parallel } from "../src/parallel.ts";
+import { trackFor } from "../src/tables.ts";
 
 type Stats = { n: number; first: number; second: number; bronze: number; trips: number; uses: number; out: number; turns: number; score: number; wins: number };
 
 /** Runs `n` races (or games) and tallies each racer; `emit` gets --csv and --log lines in order. */
-function simulate(mode: string, players: number, race: number, seed: number, n: number, emit?: { csv?: boolean; log?: boolean }) {
+export function simulate(mode: string, players: number, race: number, seed: number, n: number, emit?: { csv?: boolean; log?: boolean }) {
   const rng = mulberry32(seed);
-  const track = [MILD_MILE, WILD_WILDS][race % 2];
+  const track = trackFor(race);
   const stats = Object.fromEntries(
     NAMES.map((name) => [name, { n: 0, first: 0, second: 0, bronze: 0, trips: 0, uses: 0, out: 0, turns: 0, score: 0, wins: 0 }]),
   ) as Record<Name, Stats>;
@@ -39,7 +40,8 @@ function simulate(mode: string, players: number, race: number, seed: number, n: 
         }
       }
     } else {
-      const game = playGame({ players, rng });
+      const game = playGame({ players, rng, log: emit?.log });
+      if (emit?.log) console.log(game.logs.flat().join("\n"));
       const top = Math.max(...game.scores);
       game.teams.forEach((team, seat) => {
         const won = +(game.scores[seat] === top);
@@ -58,10 +60,6 @@ function simulate(mode: string, players: number, race: number, seed: number, n: 
     }
   }
   return { stats, loops, stalled };
-}
-
-export function simTask(mode: string, players: number, race: number, seed: number, n: number) {
-  return simulate(mode, players, race, seed, n);
 }
 
 if (import.meta.main) {
@@ -88,13 +86,12 @@ if (import.meta.main) {
     }
     simulate(args.mode, players, race, Number(args.seed), n, { csv: args.csv, log: args.log });
   } else {
-    const { stats, loops, stalled } = await parallel<ReturnType<typeof simulate>>(import.meta.url, "simTask", [args.mode, players, race], n);
+    const { stats, loops, stalled } = await parallel<ReturnType<typeof simulate>>(import.meta.url, "simulate", [args.mode, players, race], n);
     const pct = (x: number, d: number) => `${((100 * x) / d).toFixed(1)}%`.padStart(6);
     const avg = (x: number, d: number) => (x / d).toFixed(2).padStart(6);
     const rows = Object.entries(stats).filter(([, s]) => s.n);
     if (args.mode === "race") {
-      const track = [MILD_MILE, WILD_WILDS][race % 2];
-      console.log(`${n} races of ${players} on the ${track.name}, scored as race ${race + 1} (${GOLD[race]}/${SILVER[race]}); an even share is ${avg((GOLD[race] + SILVER[race]) / players, 1)} points\n`);
+      console.log(`${n} races of ${players} on the ${trackFor(race).name}, scored as race ${race + 1} (${GOLD[race]}/${SILVER[race]}); an even share is ${avg((GOLD[race] + SILVER[race]) / players, 1)} points\n`);
       console.log(`${"racer".padEnd(17)}points   1st    2nd  bronze  trips   uses  out  turns`);
       for (const [name, s] of rows.sort(([, a], [, b]) => b.score / b.n - a.score / a.n)) {
         console.log(`${name.padEnd(17)}${avg(s.score, s.n)}${pct(s.first, s.n)} ${pct(s.second, s.n)} ${avg(s.bronze, s.n)} ${avg(s.trips, s.n)} ${avg(s.uses, s.n)} ${pct(s.out, s.n)} ${avg(s.turns, s.n)}`);

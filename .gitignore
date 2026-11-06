@@ -2,3 +2,4 @@
 node_modules
 results/*.parquet
 engine.sha
+.DS_Store

@@ -1,7 +1,6 @@
 import { parseArgs } from "node:util";
-import { GOLD, SILVER } from "../src/game.ts";
 import { pointsSql, query, races } from "../src/results.ts";
-import { trackFor } from "../src/tables.ts";
+import { raceTitle } from "../src/tables.ts";
 
 /**
  * How each racer's points per race change when another racer is in the race, against when it
@@ -24,7 +23,7 @@ if (import.meta.main) {
       for (const r of xs) console.log(`| ${r.racer} | ${r.other} | ${r.with.toFixed(2)} | ${r.without.toFixed(2)} | ${r.effect > 0 ? "+" : ""}${r.effect.toFixed(2)} |`);
     };
     const top = Number(args.top);
-    console.log(`\n## Race ${race + 1}, ${trackFor(race).name} (${GOLD[race]}/${SILVER[race]})`);
+    console.log(`\n## ${raceTitle(race)}`);
     show("Helped most by", rows.toSorted((a, b) => b.effect - a.effect).slice(0, top));
     show("Hurt most by", rows.toSorted((a, b) => a.effect - b.effect).slice(0, top));
   }

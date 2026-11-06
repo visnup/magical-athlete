@@ -2,7 +2,7 @@ import * as Plot from "@observablehq/plot";
 import { mkdirSync, writeFileSync } from "node:fs";
 import { JSDOM } from "jsdom";
 import { SECOND_WIND } from "../src/game.ts";
-import { parquet, pointsSql, query, races } from "../src/results.ts";
+import { parquet, playersSql, pointsSql, query, races } from "../src/results.ts";
 import { spreadSql } from "./spread.ts";
 
 /** Draws the charts in README.md into charts/, from the raw data in results/. */
@@ -81,7 +81,6 @@ const ends = (data: Row[], right: (r: Row) => boolean, options: Plot.TextOptions
   Plot.text(data.filter((r) => !right(r)), { ...options, textAnchor: "end", dx: -4, fontSize: 8 }),
 ];
 
-const players = (column = "filename") => `regexp_extract(${column}, '(\\d)p(-double)?\\.parquet$', 1)::int`;
 const scored = (columns: string, n: number | "*" = 5) =>
   [0, 1].map((race) => `select '${tracks[race]}' track, ${columns}, ${pointsSql(race)} points from ${races(race, n)}`).join(" union all ");
 
@@ -158,7 +157,7 @@ save("places", {
 // Player count: fair shares per race by number of players, for the racers that rise or fall most.
 const byPlayers = await query(`
   select track, players, racer, avg(points) * players / if(track = 'Mild Mile', 5, 7) shares
-  from (${scored(`${players()} players, racer`, "*")})
+  from (${scored(`${playersSql} players, racer`, "*")})
   where racer in ('Scoocher', 'Sisyphus', 'Romantic', 'Suckerfish', 'Dicemonger', 'Lovable Loser', 'M.O.U.T.H.', 'Alchemist', 'Hypnotist')
   group by track, players, racer order by players`);
 save("players", {
@@ -283,7 +282,7 @@ save("twin", {
 
 // Whole games: wins by draft position, against an even share.
 const games = await query(`
-  select ${players()} players, filename like '%-double%' double, pick, avg(won) won
+  select ${playersSql} players, filename like '%-double%' double, pick, avg(won) won
   from ${parquet("games-*", true)} group by all order by players desc, double, pick`);
 const gameLabel = (r: Row) => `${r.players} players${r.double ? ", two racers each" : ""}: pick ${r.pick}`;
 save("games", {
@@ -337,7 +336,7 @@ save("spread", {
 const seats = await query(`
   select *, points / avg(points) over (partition by race, players) - 1 edge from (
     ${[0, 1].map((race) => `
-      select ${race + 1} race, '${tracks[race]}' track, ${players()} players, seat + 1 seat, avg(${pointsSql(race)}) points
+      select ${race + 1} race, '${tracks[race]}' track, ${playersSql} players, seat + 1 seat, avg(${pointsSql(race)}) points
       from ${races(race, "*")} group by all`).join(" union all ")}
   ) order by race, players, seat`);
 save("seats", {

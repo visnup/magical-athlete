@@ -3,7 +3,7 @@ import { parseArgs } from "node:util";
 import { ALL, GOLD, MILD_MILE, mulberry32, type Name, Race, SECOND_WIND, shuffle, SILVER, WILD_WILDS } from "../src/game.ts";
 import { collect } from "../src/parallel.ts";
 import RATINGS from "../src/ratings.json" with { type: "json" };
-import { pointsSql, query, races, parquet, write } from "../src/results.ts";
+import { parquet, pointsSql, query, racerRows, races, write } from "../src/results.ts";
 import { winners } from "../src/tables.ts";
 
 const tracks = [MILD_MILE, WILD_WILDS];
@@ -36,20 +36,13 @@ export function task(track: number, ratings: Ratings, seed: number, n: number) {
         choose: { Mastermind: (race) => race.racers.map((o) => o.name).reduce((a, b) => ((first[b] ?? 0) > (first[a] ?? 0) ? b : a)) },
       },
     }).run();
-    return result.racers.map((x) => {
-      const mine = result.racers.filter((r) => r.player === x.seat);
+    return racerRows(result).map((row) => {
+      const mine = result.racers.filter((r) => r.player === row.seat);
       return {
-        seat: x.seat,
-        racer: x.name as string,
+        ...row,
         gold: +mine.some((r) => result.finishers[0] === r.seat),
         silver: +mine.some((r) => result.finishers[1] === r.seat),
         bronze: mine.reduce((s, r) => s + r.bronze, 0),
-        pos: x.pos,
-        trips: x.trips,
-        uses: x.uses,
-        eliminated: +(x.eliminated !== null),
-        turns: x.turns,
-        stalled: +result.stalled,
       };
     });
   });

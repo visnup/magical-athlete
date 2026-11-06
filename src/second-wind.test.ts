@@ -1,12 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
-import { mulberry32, type Name, Race, type RaceOptions, SECOND_WIND } from "./game.ts";
-
-function setup(names: Name[], pos: number[], dice: number[] = [], o: Partial<RaceOptions> = {}) {
-  const race = new Race({ racers: names, dice, rng: mulberry32(1), ...o });
-  race.racers.forEach((r, i) => (r.pos = pos[i]));
-  return race;
-}
+import { type Race, SECOND_WIND } from "./game.ts";
+import { setup } from "./setup.ts";
 
 const positions = (race: Race) => race.racers.map((r) => r.pos);
 

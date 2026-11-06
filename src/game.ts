@@ -99,7 +99,7 @@ export type Policy = {
 export const defaultPolicy: Policy = {
   // From `lineup.ts --write`: points per race on this track at this many racers, or draft value.
   rating: (name, race) =>
-    (race && (RATINGS as { races?: Record<string, Record<number, Record<Name, number>>> }).races?.[race.track.name][race.racers.length]?.[name]) ?? RATINGS.draft[name],
+    (race && (RATINGS.races as Record<string, Record<number, Record<Name, number>>>)[race.track.name][race.racers.length]?.[name]) ?? RATINGS.draft[name],
   reroll(race, r, roll) {
     if (race.has(r, "Alchemist") && roll <= 2) return false;
     if (race.has(r, "Sisyphus") && roll === 6) return true;

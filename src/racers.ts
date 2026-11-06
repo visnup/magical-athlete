@@ -107,6 +107,22 @@ export function settle(race: Race, to: number) {
   return to;
 }
 
+/** Spaces with exactly 2 racers on them. */
+export function pairs(race: Race) {
+  const counts = new Map<number, number>();
+  for (const o of race.onTrack()) counts.set(o.pos, (counts.get(o.pos) ?? 0) + 1);
+  return [...counts].filter(([, n]) => n === 2).map(([pos]) => pos);
+}
+
+/** Swaps two racers' spaces, a warp for both. */
+export function swap(race: Race, a: Racer, b: Racer) {
+  if (a.pos === b.pos) return;
+  [a.pos, b.pos] = [b.pos, a.pos];
+  race.say(`${a.name} swaps with ${b.name}`);
+  race.arrive(a);
+  race.arrive(b);
+}
+
 /** A racer's chance of 1st in a race of 5 on this track, from `ratings.json`. */
 const first = (race: Race, name: Name) => (RATINGS.first as Record<string, number[]>)[name]?.[race.track.name === "Wild Wilds" ? 1 : 0] ?? 0;
 
@@ -366,14 +382,7 @@ export const RACERS: Record<Name, Powers> = {
     replaceMain(race, me) {
       const t: Racer | null = race.choose(me, "Flip Flop");
       if (!t) return false;
-      race.use(me, "Flip Flop", () => {
-        const same = me.pos === t.pos;
-        [me.pos, t.pos] = [t.pos, me.pos];
-        race.say(`${me.name} swaps with ${t.name}`);
-        if (same) return;
-        race.arrive(me);
-        race.arrive(t);
-      });
+      race.use(me, "Flip Flop", () => swap(race, me, t));
       return true;
     },
   },
@@ -831,10 +840,8 @@ export const RACERS: Record<Name, Powers> = {
    */
   "Third Wheel": {
     choose(race, me) {
-      const counts = new Map<number, number>();
-      for (const o of race.onTrack()) counts.set(o.pos, (counts.get(o.pos) ?? 0) + 1);
-      const pairs = [...counts].filter(([pos, n]) => n === 2 && pos > me.pos).map(([pos]) => pos);
-      return pairs.length ? Math.max(...pairs) : null;
+      const ahead = pairs(race).filter((pos) => pos > me.pos);
+      return ahead.length ? Math.max(...ahead) : null;
     },
     startTurn(race, me) {
       const pos: number | null = race.choose(me, "Third Wheel");

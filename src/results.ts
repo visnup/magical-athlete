@@ -64,6 +64,9 @@ export const parquet = (name: string, filename = false) => `read_parquet('${path
 /** SQL for the race dataset `races.ts` writes, for race `race` (0–3)'s track and `players`. */
 export const races = (race: number, players: number | "*" = 5) => parquet(`races-${["mild", "wild"][race % 2]}-${players}p`, players === "*");
 
+/** SQL for the player count in a `filename` column, from names like races-mild-5p or games-3p-double. */
+export const playersSql = `regexp_extract(filename, '(\\d)p(-double)?\\.parquet$', 1)::int`;
+
 /** SQL for a row's points scored as race `race` (0–3), with an optional table alias. */
 export const pointsSql = (race: number, t = "") => `(${t}gold * ${GOLD[race]} + ${t}silver * ${SILVER[race]} + ${t}bronze)`;
 

@@ -2,7 +2,7 @@
 # writes, since make 3.81 has no grouped targets. Data depends on engine.sha, which changes only
 # when the engine's results do, so a change to src/ that doesn't (like how results are written)
 # needs `make -B`.
-SRC := $(filter-out %.test.ts,$(wildcard src/*.ts)) src/ratings.json
+SRC := $(filter-out %.test.ts src/setup.ts,$(wildcard src/*.ts)) src/ratings.json
 ENGINE := engine.sha
 RACES := results/races-wild-6p.parquet
 RESULTS := $(RACES) results/lineup-draft.parquet results/twin-rated.parquet results/choices-third-wheel.parquet \

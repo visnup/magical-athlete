@@ -1,7 +1,7 @@
 import { parseArgs } from "node:util";
 import { GOLD, SILVER } from "../src/game.ts";
 import { pointsSql, query, races } from "../src/results.ts";
-import { trackFor } from "../src/tables.ts";
+import { raceTitle } from "../src/tables.ts";
 
 /**
  * How spread out each racer's points are in one race, not just the average: for picking a safe
@@ -16,7 +16,7 @@ if (import.meta.main) {
   const { values: args } = parseArgs({ options: { race: { type: "string", default: "4" } } });
   const race = Number(args.race) - 1;
   const pct = (x: number) => `${(100 * x).toFixed(0)}%`;
-  console.log(`Race ${race + 1}, ${trackFor(race).name} (${GOLD[race]}/${SILVER[race]}):\n`);
+  console.log(`${raceTitle(race)}:\n`);
   console.log("| racer | mean | sd | 0 points | at least silver | at least gold |");
   console.log("| --- | --- | --- | --- | --- | --- |");
   for (const r of await query(`${spreadSql(race)} order by sd desc`)) {
