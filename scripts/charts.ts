@@ -48,6 +48,10 @@ function save(name: string, options: Plot.PlotOptions, legend?: string) {
     svg.append(key, plot);
   }
   svg.setAttribute("xmlns", ns);
+  // Dark mode flips lightness and keeps hue: paper goes dark, ink light, and blue and red stay put.
+  const dark = document.createElementNS(ns, "style");
+  dark.textContent = "@media (prefers-color-scheme: dark) { :root { filter: invert(1) hue-rotate(180deg); background: none !important } }";
+  svg.prepend(dark);
   writeFileSync(new URL(`${name}.svg`, dir), svg.outerHTML + "\n");
 }
 
@@ -141,7 +145,7 @@ const medals = await query(`
 const byMedal = [...Map.groupBy(medals, (r) => r.racer)].map(([racer, rs]) => [racer, rs.reduce((s, r) => s + r.p, 0)] as const);
 save("places", {
   marginLeft: 100,
-  x: { label: "chance of 1st (dark) and 2nd (light) in one race of 5", percent: true, grid: true },
+  x: { label: "chance of 1st (solid) and 2nd (faded) in one race of 5", percent: true, grid: true },
   y: { domain: byMedal.toSorted((a, b) => b[1] - a[1]).map(([racer]) => racer), label: null, grid: true },
   fx: { domain: tracks, label: null },
   color: trackColor,
