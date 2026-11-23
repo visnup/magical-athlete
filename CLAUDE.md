@@ -1,6 +1,6 @@
 # magical-athlete
 
-A simulator of the CMYK board game Magical Athlete. Node 24 runs the TypeScript directly. The
+A simulator of the CMYK board game Magical Athlete. Node 26 runs the TypeScript directly. The
 engine has no dependencies; the analysis scripts need `pnpm install` (DuckDB, hyparquet-writer,
 Observable Plot and jsdom).
 
