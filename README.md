@@ -1,31 +1,31 @@
 # Magical Athlete
 
 [Magical Athlete](https://www.cmyk.games/products/magical-athlete) is a racing game of dice and
-nonsense, designed by Richard Garfield. Thirty-six ridiculous racers each have one power that
-bends the rules, like a Scoocher that shuffles forward one space every time anything else
-happens. You draft a team of four and race them one at a time, and the fun is in
-the chain reactions.
+nonsense. Richard Garfield designed it. Thirty-six ridiculous racers each have one power that
+bends the rules. A Scoocher, for one, shuffles forward one space every time anything else
+happens. You draft a team of four and race them one at a time. The fun is in the chain reactions.
 
-This repo is a simulator of the game. It plays millions of races and games by the rules, so it can
-answer the questions that come up at the table: who's actually good, which race to save your
+This repo is a simulator of the game. It plays millions of races and games by the rules. That lets
+it answer the questions that come up at the table: who's actually good, which race to save your
 best racer for, whether going first matters, and what happens when Scoocher and Suckerfish get
 together (nothing good).
 
-The answers come from the model, not from real tables. It follows the August 2026 printing of the
-rulebook and the official rulings from the game's designers, and agrees with what players report
-and with another simulator (see "Against real play"), but it hasn't been checked against logged
-real games yet.
+The answers come from the model. They don't come from real tables. The model follows the August
+2026 printing of the rulebook and the official rulings from the game's designers. It agrees with
+what players report and with another simulator (see "Against real play"). It hasn't been checked
+against logged real games yet.
 
-The simulator and this analysis were written with Claude Opus 5.5 at medium effort, working in
-Claude Code throughout.
+The simulator and this analysis were written with Claude Opus 5.5 at medium effort. All of that
+work happened in Claude Code.
 
 ## A quick refresher
 
-You draft four racers in two snake drafts, then race one of them in each of four races. Each turn
-is a roll of the die, your main move, which many powers key off; racers also move, pass and get
-warped (placed without moving) by powers, and a tripped racer skips its next main move. Powers
-worded "I can" are optional. A race ends when two racers cross the finish: gold for 1st, silver
-for 2nd, and bronze from stars and powers along the way. The chips go up each race, and the tracks alternate:
+You draft four racers in two snake drafts. You then race one of them in each of four races. Each
+turn is a roll of the die, your main move. Many powers key off the main move. Racers also move,
+pass and get warped (placed without moving) by powers. A tripped racer skips its next main move.
+Powers worded "I can" are optional. A race ends when two racers cross the finish. The race pays
+gold for 1st, silver for 2nd, and bronze from stars and powers along the way. The chips go up each
+race. The tracks alternate:
 
 | race | track | gold | silver |
 | --- | --- | --- | --- |
@@ -34,9 +34,9 @@ for 2nd, and bronze from stars and powers along the way. The chips go up each ra
 | 3 | Mild Mile | 4 | 3 |
 | 4 | Wild Wilds | 5 | 4 |
 
-The Mild Mile is plain. On the Wild Wilds, stars on spaces 1 and 13 pay a bronze point, arrows on
-7, 11, 16, 23 and 24 push racers along (16's sends them back 4, to 12), and trip spaces on 5, 17
-and 26 cost a main move. The box holds 43 points of bronze for the whole game, and that cap
+The Mild Mile is plain. On the Wild Wilds, stars on spaces 1 and 13 pay a bronze point. Arrows on
+7, 11, 16, 23 and 24 push racers along. The arrow on 16 sends them back 4, to 12. Trip spaces on
+5, 17 and 26 cost a main move. The box holds 43 points of bronze for the whole game. That cap
 matters (see "More findings").
 
 ## How to read the numbers
@@ -51,26 +51,26 @@ shares is twice as good as average.
 
 **Most tables come from one big dataset:** a million races with random lineups for each track and
 each table size from 3 to 6 players. Races 1 and 3 are both on the Mild Mile and differ only in
-chip values, so they're scored from the same races, and so are races 2 and 4.
+chip values. That's why they're scored from the same races. Races 2 and 4 also share one set of
+races.
 
-**Noise.** These are averages over random races, so small differences can be luck. Each table
+**Noise.** These are averages over random races. Small differences can be luck. Each table
 says roughly how big a difference has to be before it means something.
 
 **Optional powers** are played by hand-written rules of thumb ("Legs moves 5 when that lands
-somewhere better than an average roll"), each tuned to be about as good as we could find (see
-"Playing your racer well").
+somewhere better than an average roll"). Each rule is tuned to be about as good as we could find
+(see "Playing your racer well").
 
-The raw data behind every table and chart is on Hugging Face as Parquet files, a row per racer per
-race or per player per game:
-[visnup/magical-athlete](https://huggingface.co/datasets/visnup/magical-athlete). `make`
-regenerates it into `results/` and redraws `charts/`, and each section names the script behind
-it. The tables below are from 2026-11-03.
+The raw data behind every table and chart is on Hugging Face as Parquet files:
+[visnup/magical-athlete](https://huggingface.co/datasets/visnup/magical-athlete). The files hold a
+row per racer per race or per player per game. `make` regenerates the data into `results/` and
+redraws `charts/`. Each section names the script behind it. The tables below are from 2026-11-03.
 
 ## Who's good
 
 *From `node scripts/points.ts --race k`, a million races of 5 players.*
 
-The best and worst five-ish racers in race 1, on the Mild Mile, where a fair share is 1.00:
+Race 1 is on the Mild Mile. A fair share there is 1.00. The best and worst five-ish racers:
 
 | racer | points | 1st | 2nd | bronze |
 | --- | --- | --- | --- | --- |
@@ -88,7 +88,7 @@ The best and worst five-ish racers in race 1, on the Mild Mile, where a fair sha
 | Centaur | 0.48 | 7.7% | 12.7% | 0 |
 | Huge Baby | 0.44 | 6.8% | 12.0% | 0 |
 
-And race 2, on the Wild Wilds, where a fair share is 1.40:
+Race 2 is on the Wild Wilds. A fair share there is 1.40. The same list:
 
 | racer | points | 1st | 2nd | bronze |
 | --- | --- | --- | --- | --- |
@@ -107,29 +107,29 @@ And race 2, on the Wild Wilds, where a fair share is 1.40:
 
 **The top of race 1 is two racers who almost never place.** Lovable Loser ("Top of her class at
 Loser Academy. Which is bad.") takes a bronze chip every turn she starts alone in last. Sisyphus
-starts the race with 4 chips and loses one for every 6 it rolls, which also warps it back to
-the Start. Each walks away with nearly 3 points whatever happens, while gold in race 1 is only
-worth 3.
+starts the race with 4 chips. It loses one for every 6 it rolls. Each of those rolls also warps it
+back to the Start. Each of the two walks away with nearly 3 points whatever happens. Gold in race
+1 is only worth 3.
 
 **Scoocher wins two Mild Mile races in three.** Its power, "When another racer's power happens, I
-move 1", sounds modest, but with five racers' powers going off, that's about 18 extra spaces a
-race. That rests on a ruling: Garfield's rule of thumb is that anything that changes the board,
-compared with a racer with no power, counts as a power happening, and that includes passive
-powers like Gunk's −1 to everyone's main move, every turn. On the Wild Wilds, Scoocher's
-one-space shuffles keep landing it on stars, and it more than triples a fair share.
+move 1", sounds modest. With five racers' powers going off, that's about 18 extra spaces a race.
+That rests on a ruling: Garfield's rule of thumb is that anything that changes the board, compared
+with a racer with no power, counts as a power happening. That includes passive powers like Gunk's
+−1 to everyone's main move, every turn. On the Wild Wilds, Scoocher's one-space shuffles keep
+landing it on stars. Scoocher more than triples a fair share there.
 
-**Romantic** moves 2 whenever a racer stops on a space with exactly one other, which happens
+**Romantic** moves 2 whenever a racer stops on a space with exactly one other. That happens
 constantly while everyone's bunched up early.
 
 **Dicemonger is second on the Wild Wilds.** Its power lets every racer reroll their main move once
-a turn, and Dicemonger moves 1 each time someone else does. On a track full of stars, arrows and
-trip spaces, racers reroll far more often, and each reroll carries Dicemonger another space.
+a turn. Dicemonger moves 1 each time someone else does. On a track full of stars, arrows and trip
+spaces, racers reroll far more often. Each reroll carries Dicemonger another space.
 
-**At the bottom** are Blimp ("Built to fly, born to explode"; +3 before the second corner, −1
-after), Centaur, who knocks back racers it passes by 2, and Huge Baby.
+**At the bottom** are Blimp, Centaur and Huge Baby. Blimp ("Built to fly, born to explode") gets +3
+before the second corner and −1 after. Centaur knocks back racers it passes by 2.
 
-The chance of each score in a race of 5, strongest racers first, with each racer's two likeliest
-scores labeled and its average marked:
+This chart shows the chance of each score in a race of 5, strongest racers first. It labels each
+racer's two likeliest scores and marks each racer's average:
 
 ![Chance of each score in a race of 5, by racer and track](charts/points.svg)
 
@@ -137,14 +137,14 @@ And their chances of 1st and 2nd, sorted by the chance of either:
 
 ![Chances of 1st and 2nd, by racer and track](charts/places.svg)
 
-Twin, who copies the power of an earlier race's winner, is averaged here over both races on each
+Twin copies the power of an earlier race's winner. Twin is averaged here over both races on each
 track. That's 0 or 2 earlier winners to choose from on the Mild Mile, and 1 or 3 on the Wild
 Wilds. "Racers that pick racers" takes each race on its own.
 
 ## How many players
 
-*From `node scripts/players.ts`.* Points per race as a multiple of a fair share, so different
-table sizes compare directly; selected racers:
+*From `node scripts/players.ts`.* This table gives points per race as a multiple of a fair share.
+Different table sizes compare directly that way. Selected racers:
 
 | racer | Mild 3p | 4p | 5p | 6p | Wild 3p | 4p | 5p | 6p |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- |
@@ -163,30 +163,30 @@ table sizes compare directly; selected racers:
 
 ![Fair shares per race by player count, for the racers that rise or fall most](charts/players.svg)
 **Scoocher is a monster at big tables and merely good at small ones.** At 3 players it earns 1.24
-fair shares on the Mild Mile, behind Lovable Loser, Sisyphus, Legs, Egg and Flip Flop. Every extra
-racer is another power for it to feed on, so by 6 players it's at 3 fair shares on the Mild Mile
-and over 8 on the Wild Wilds. Racers that feed on traffic all climb with the count: Romantic,
-Suckerfish, Dicemonger, Copycat, and Heckler, who moves 2 whenever a racer ends a turn within a
-space of where it started.
+fair shares on the Mild Mile. That puts it behind Lovable Loser, Sisyphus, Legs, Egg and Flip Flop.
+Every extra racer is another power for it to feed on. By 6 players it's at 3 fair shares on the
+Mild Mile and over 8 on the Wild Wilds. Racers that feed on traffic all climb with the count:
+Romantic, Suckerfish, Dicemonger, Copycat and Heckler. Heckler moves 2 whenever a racer ends a turn
+within a space of where it started.
 
 **Bronze racers look better at big tables partly by arithmetic.** Sisyphus's 4 chips are worth
-the same at any table size, while a fair share of gold and silver shrinks, so its multiple doubles
-from 3 to 6 players. Lovable Loser slips slightly instead: being alone in last is harder in a
-crowd. Star bronze does the same on the Wild Wilds, which is why Hypnotist and M.O.U.T.H. peak at
-4 players there: their medals fall steadily with the count, but their stars (0.5 to 0.8 points a
+the same at any table size. A fair share of gold and silver shrinks. Sisyphus's multiple therefore
+doubles from 3 to 6 players. Lovable Loser slips slightly instead: being alone in last is harder
+in a crowd. Star bronze does the same on the Wild Wilds. That's why Hypnotist and M.O.U.T.H. peak
+at 4 players there. Their medals fall steadily with the count. Their stars (0.5 to 0.8 points a
 race at any count) are worth more fair shares at bigger tables.
 
 **Some racers like it quiet.** Alchemist, Banana, M.O.U.T.H., Hypnotist, Coach, Magician, Gunk and
-Stickler all lose ground on the Mild Mile as the table grows; Alchemist halves (0.99 to 0.48).
+Stickler all lose ground on the Mild Mile as the table grows. Alchemist halves (0.99 to 0.48).
 
 **At 3 players the field flattens.** Most racers sit between 0.8 and 1.3 fair shares. Only Lovable
 Loser stands out, and Third Wheel, Huge Baby and Blimp trail.
 
 ## Who's good with whom
 
-*From `node scripts/matchups.ts`*, which compares each racer's points in races with another
-particular racer against races without, from the million 5-player races per track. Each pair
-meets in about 16,000 races, so differences under about 0.05 (Mild Mile) or 0.1 (Wild Wilds) are
+*From `node scripts/matchups.ts`.* The script compares each racer's points in races with another
+particular racer against races without. It uses the million 5-player races per track. Each pair
+meets in about 16,000 races. Differences under about 0.05 (Mild Mile) or 0.1 (Wild Wilds) are
 noise. Selected effects, in race-1 or race-2 points:
 
 | racer | with | Mild Mile | Wild Wilds |
@@ -214,54 +214,55 @@ labeled cells are the 12 pairs furthest from what the two racers' overall streng
 ![Matchups on the Wild Wilds](charts/matchups-race2.svg)
 
 **Scoocher and Suckerfish are the game's most broken pair.** Suckerfish ("Has abandonment issues")
-can ride along whenever a racer leaves its space. When the two share a space, Scoocher moves,
-Suckerfish rides with it, which is a power, so Scoocher moves again, and so on all the way across
-the finish. The rulebook knows ("Some powers can interact many times but aren't a loop, like
-Scoocher/Suckerfish"), so it's left as the rules make it. On the Wild Wilds they also ride each
-other around and around the arrow loop from 16 back to 12, picking up the star on 13 every lap.
+can ride along whenever a racer leaves its space. When the two share a space, Scoocher moves and
+Suckerfish rides with it. That ride is a power. Scoocher moves again for it. This repeats all the
+way across the finish. The rulebook knows ("Some powers can interact many times but aren't a loop,
+like Scoocher/Suckerfish"). The simulator leaves the pair as the rules make it. On the Wild Wilds
+they also ride each other around and around the arrow loop from 16 back to 12. They pick up the
+star on 13 every lap.
 
 **Anything that adds powers feeds Scoocher.** Gunk's −1 every turn, Copycat, Romantic, Hypnotist
-and Party Animal all add triggers. Copycat, who has the power of whoever's leading, often *is* a
+and Party Animal all add triggers. Copycat has the power of whoever's leading. Copycat often *is* a
 second Scoocher. Racers whose powers rarely go off cost Scoocher over a point a race on the Wild
-Wilds, just by taking a seat a busier racer would have had: Twin without a winner to copy, Third
-Wheel, Rocket Scientist, Alchemist, Mastermind.
+Wilds. They do it just by taking a seat a busier racer would have had. Those racers: Twin without
+a winner to copy, Third Wheel, Rocket Scientist, Alchemist, Mastermind.
 
 **M.O.U.T.H. is the counter to Scoocher.** M.O.U.T.H. ("Mastication Orifice Utilized Toward
 Hunger") eliminates any racer it stops alone with. Scoocher creeps forward a space at a time and
-keeps ending up next to other racers, which is exactly what M.O.U.T.H. eats. It also counters
-Hypnotist and Party Animal, who pull racers onto shared spaces.
+keeps ending up next to other racers. That's exactly what M.O.U.T.H. eats. M.O.U.T.H. also counters
+Hypnotist and Party Animal. Those two pull racers onto shared spaces.
 
 **Hypnotist's two exceptions win the most from it.** Hypnotist warps a racer back to its own space
-at the start of each turn. The model pulls back any opponent ahead except Copycat and Baba Yaga,
-to avoid loops (see "Rules findings"), so those two gain a point or more with Hypnotist in the
-race: everyone else gets pulled back, they don't. Fits the data, not traced through individual
-races.
+at the start of each turn. The model pulls back any opponent ahead except Copycat and Baba Yaga.
+The exceptions avoid loops (see "Rules findings"). Those two gain a point or more with Hypnotist in
+the race: everyone else gets pulled back and they don't. This fits the data. It hasn't been traced
+through individual races.
 
 **Flip Flop takes Copycat's lead.** Flip Flop can swap places with any racer instead of rolling.
-It used to leave Copycat alone, and Copycat would copy Flip Flop and swap with the leader itself,
-worth +0.66 a race to Copycat on both tracks. Now Flip Flop swaps with a Copycat ahead too, and
-Copycat loses 0.30 with it on the Mild Mile and gains only 0.47 on the Wild Wilds.
+It used to leave Copycat alone. Copycat would then copy Flip Flop and swap with the leader itself.
+That was worth +0.66 a race to Copycat on both tracks. Now Flip Flop swaps with a Copycat ahead
+too. Copycat loses 0.30 with it on the Mild Mile and gains only 0.47 on the Wild Wilds.
 
-**Lovable Loser and Sisyphus can't share a race.** Sisyphus keeps warping back to the Start, so
-Lovable Loser is rarely alone in last; they also draw on the same bronze chips.
+**Lovable Loser and Sisyphus can't share a race.** Sisyphus keeps warping back to the Start. That
+leaves Lovable Loser rarely alone in last. The two also draw on the same bronze chips.
 
 **Heckler likes anything that stalls racers.** Trips from Banana and Baba Yaga, and Gunk's −1, make
-more racers end a turn within one space of where they started, which is Heckler's trigger.
+more racers end a turn within one space of where they started. That's Heckler's trigger.
 
-**Dicemonger's rerolls help everyone else.** Each one also moves Scoocher, and rerolls help Legs's
-and Skipper's opponents more than they help Legs and Skipper.
+**Dicemonger's rerolls help everyone else.** Each one also moves Scoocher. Rerolls help Legs's and
+Skipper's opponents more than they help Legs and Skipper.
 
-**Huge Baby ("She's 30") is safe from M.O.U.T.H.** Nobody can stop on Huge Baby's space, so
-M.O.U.T.H. can't eat it, while it eats the racers bumped in behind her.
+**Huge Baby ("She's 30") is safe from M.O.U.T.H.** Nobody can stop on Huge Baby's space. M.O.U.T.H.
+therefore can't eat Huge Baby. M.O.U.T.H. does eat the racers bumped in behind her.
 
 ## Which race to play each racer in
 
-*From `node scripts/lineup.ts`.* Each racer's points in each of the four races, from the dataset.
-Twin is raced again with earlier winners drawn from the earlier races. A team's value is its best
-assignment of four racers to four races. A racer's *draft value* is how much better the random
-teams it's on do than the average team (9.30 points a game): how much picking it is worth.
-`lineup.ts --write` saves these to `ratings.json` for the simulated players to draft and choose
-by.
+*From `node scripts/lineup.ts`.* This table gives each racer's points in each of the four races,
+from the dataset. Twin is raced again with earlier winners drawn from the earlier races. A team's
+value is its best assignment of four racers to four races. A racer's *draft value* is how much
+better the random teams it's on do than the average team (9.30 points a game): how much picking
+it is worth. `lineup.ts --write` saves these to `ratings.json`. The simulated players draft and
+choose by those ratings.
 
 | racer | race 1 (Mild 3/2) | race 2 (Wild 4/3) | race 3 (Mild 4/3) | race 4 (Wild 5/4) | usually played in | draft value |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -285,25 +286,26 @@ Every racer's draft value, labeled with the race it's usually played in:
 
 ![Draft value by racer, and the race it's usually played in](charts/draft-value.svg)
 
-**The Wild Wilds races are worth more for everyone.** Stars add bronze, so race 2 out-earns race 3
-even though their gold and silver are the same. Race 4 is the jackpot.
+**The Wild Wilds races are worth more for everyone.** Stars add bronze. That's why race 2
+out-earns race 3 even though their gold and silver are the same. Race 4 is the jackpot.
 
-**Save Scoocher for race 4, and send the bronze racers out first.** Lovable Loser's and Sisyphus's
-points barely change from race to race, so race 1, the cheapest, costs them the least.
+**Save Scoocher for race 4. Send the bronze racers out first.** Lovable Loser's and Sisyphus's
+points barely change from race to race. Race 1 is the cheapest. Playing them there costs them the
+least.
 
 **Some racers prefer the Mild Mile.** Romantic, Skipper, Lackey, Hare and Magician usually go to
-race 3: they're about as good on either track, while everyone else gains more from the stars.
+race 3. They're about as good on either track. Everyone else gains more from the stars.
 Inchworm, Huge Baby, Dicemonger, Egg and M.O.U.T.H. go to race 2 for the opposite reason.
 
 **If you see Scoocher in the draft, take it.** It's worth about 4.7 points a game over an average
-pick, three times the next racer. After it come Twin (saved for race 4), Lovable Loser,
-Suckerfish, Dicemonger and Sisyphus, all within a quarter point of each other.
+pick. That's three times the next racer. After it come Twin (saved for race 4), Lovable Loser,
+Suckerfish, Dicemonger and Sisyphus. They're all within a quarter point of each other.
 
 ## Playing your racer well
 
-*From `node scripts/choices.ts`*, which races each racer with an optional power in every race
-(100,000 races of 5) and compares the rule of thumb it plays by now with alternatives. Points per
-race, race 1 / race 2:
+*From `node scripts/choices.ts`.* The script races each racer with an optional power in every race
+(100,000 races of 5). It compares the rule of thumb the racer plays by now with alternatives.
+Points per race, race 1 / race 2:
 
 | racer | current choice | alternatives |
 | --- | --- | --- |
@@ -328,51 +330,52 @@ back Baba Yaga is +0.04 on the Wild Wilds but −0.02 on the Mild Mile.
 **Use your power.** Every optional power is worth a lot over ignoring it: never using it costs 0.4
 to 2.7 points a race.
 
-**On the Wild Wilds, look at where you'll land, not how far you'll go.** Legs can move 5 instead of
-rolling, Alchemist can move 4 instead of a 1 or 2, and Rocket Scientist can double its roll and
-trip. Each choice lands on a different space, and a star, an arrow or a trip space there matters
+**On the Wild Wilds, look at where you'll land.** How far you'll go matters less. Legs can move 5
+instead of rolling. Alchemist can move 4 instead of a 1 or 2. Rocket Scientist can double its roll
+and trip. Each choice lands on a different space. A star, an arrow or a trip space there matters
 more than a space or two of distance. Choosing by where each option lands gained Legs 0.6 a race
 on the Wild Wilds.
 
-**A star is worth about 15 spaces.** A star is a sure point, while a few extra spaces only matter if
+**A star is worth about 15 spaces.** A star is a sure point. A few extra spaces only matter if
 they change who finishes 1st or 2nd. So Flip Flop should swap onto a star even if that means going
-backwards, and Magician and Alchemist should land on stars when they can. Legs is the exception:
-valuing stars that highly costs it 0.10, since it often gives up moving 5 for them.
+backwards. Magician and Alchemist should land on stars when they can. Legs is the exception:
+valuing stars that highly costs it 0.10. Legs often gives up moving 5 for them.
 
-**Genius should predict a 6 to catch up, and a 1 to protect a lead.** Genius predicts its roll and
-takes an extra turn if it's right. Every prediction is right 1 time in 6, so the guess doesn't
-change how far Genius goes on average, only which roll comes with the extra turn. A right 6 makes
-the best roll better, which a trailing racer needs to reach the medals. A right 1 makes the worst
-roll harmless, which is worth more to the leader. Guessing 1 from 2nd place doesn't help.
+**Genius should predict a 6 to catch up and a 1 to protect a lead.** Genius predicts its roll. It
+takes an extra turn if it's right. Every prediction is right 1 time in 6. The guess therefore
+doesn't change how far Genius goes on average. It changes only which roll comes with the extra
+turn. A right 6 makes the best roll better. A trailing racer needs that to reach the medals. A
+right 1 makes the worst roll harmless. That's worth more to the leader. Guessing 1 from 2nd place
+doesn't help.
 
-**Mastermind should predict the likeliest winner, not the best racer.** On its first turn,
-Mastermind predicts which racer will win; if it's right, it takes 2nd and the race ends. The
-best-rated racer by points is often Lovable Loser or Sisyphus, who almost never win.
+**Mastermind should predict the likeliest winner.** It shouldn't predict the best racer. On its
+first turn, Mastermind predicts which racer will win. If it's right, it takes 2nd and the race
+ends. The best-rated racer by points is often Lovable Loser or Sisyphus. Those two almost never
+win.
 
 **Rocket Scientist shouldn't double to just short of the finish.** Doubling to within 6 spaces of
-the line without crossing it leaves it tripped there while the others get a turn to finish
-first.
+the line without crossing it leaves it tripped there. The others then get a turn to finish first.
 
 **Flip Flop ("Ever searching for its lost twin") should swap with a Copycat too.** A Copycat copies
-the leader, so after Flip Flop takes its lead, the Copycat becomes a Flip Flop and swaps straight
+the leader. After Flip Flop takes its lead, the Copycat becomes a Flip Flop and swaps straight
 back. The two can trade places every turn. That still pays Flip Flop on balance: +0.12 on the
-Wild Wilds at 5 players and +0.10 at 3. The cost is races where they're the last two left, which
-end with neither scoring, by the rule that a loop no one can finish ends the race. With both in a
-race of 3, that's a quarter of races. Swapping only when it wouldn't put Flip Flop in the lead
-gained just 0.02.
+Wild Wilds at 5 players and +0.10 at 3. The cost is races where they're the last two left. Those
+races end with neither scoring, by the rule that a loop no one can finish ends the race. With both
+in a race of 3, that's a quarter of races. Swapping only when it wouldn't put Flip Flop in the
+lead gained just 0.02.
 
 **Cheerleader ("A being of pure pep") shouldn't cheer for an opponent's M.O.U.T.H.** Cheerleader can
-move everyone in last place 2 spaces, and itself 1. Moving M.O.U.T.H. 2 can land it on a space
-with one other racer, which it eats. Skipping it gains 0.03 on the Wild Wilds; skipping it only
-when it would eat gained the same.
+move everyone in last place 2 spaces. It can move itself 1. Moving M.O.U.T.H. 2 can land it on a
+space with one other racer. M.O.U.T.H. eats that racer. Skipping it gains 0.03 on the Wild Wilds.
+Skipping it only when it would eat gained the same.
 
 **Take Dicemonger's rerolls the way Magician takes its own.** Magician ("He can also cast
-fireball") can reroll twice. Any racer rerolling Dicemonger's offer whenever the roll lands worse
-than an average roll, instead of only on a 1 to 3, scored 0.25 more a race on the Wild Wilds and
-0.007 less on the Mild Mile (100,000 races each, ±0.006).
+fireball") can reroll twice. Any racer can take Dicemonger's offer the same way: rerolling whenever
+the roll lands worse than an average roll, instead of only on a 1 to 3. That scored 0.25 more a
+race on the Wild Wilds and 0.007 less on the Mild Mile (100,000 races each, ±0.006).
 
 **Don't refuse Dicemonger's rerolls to spite it.** Taking a reroll only when it gains you several
-spaces, so Dicemonger moves less, costs you more than it costs Dicemonger
+spaces makes Dicemonger move less. It costs you more than it costs Dicemonger
 (`node scripts/dicemonger.ts`, 100,000 races of 5 on the Wild Wilds with Dicemonger and a test
 racer):
 
@@ -390,7 +393,7 @@ Tried and rejected, besides the alternatives in the table:
 - Cheerleader not cheering when an opponent shares last place: −0.20 / −0.25.
 - Cheerleader skipping an opponent's Baba Yaga too: +0.01 / −0.01.
 
-Hypnotist still skips Copycat, unlike Flip Flop. Pulling a Copycat back makes it copy Hypnotist
+Hypnotist still skips Copycat. Flip Flop doesn't. Pulling a Copycat back makes it copy Hypnotist
 and pull straight back, forever. Pulling Baba Yaga onto your own space trips you, which stalled
 races when it repeated. So Hypnotist skips both.
 
@@ -399,7 +402,7 @@ races when it repeated. So Hypnotist skips both.
 *From `node scripts/playouts.ts`.* To see how much better a racer could play, the simulator also
 decides each choice the slow way: it tries every option, plays the rest of the race out 20 times
 for each, and takes whichever scored best. Then it compares that with the rule of thumb (4,000
-races of 5 per racer; differences under about 0.1 are noise).
+races of 5 per racer). Differences under about 0.1 are noise.
 
 | racer | race 1, Mild Mile | race 2, Wild Wilds |
 | --- | --- | --- |
@@ -415,31 +418,31 @@ races of 5 per racer; differences under about 0.1 are noise).
 
 ![Hand-written choices against choices by playouts](charts/playouts.svg)
 
-**On the Mild Mile the rules of thumb are close to the best.** The exceptions are Flip Flop, whose
-best swap depends on more than distance, and Mastermind, which does better still predicting from
-this particular race than from each racer's chance of winning in general.
+**On the Mild Mile the rules of thumb are close to the best.** The exceptions are Flip Flop and
+Mastermind. Flip Flop's best swap depends on more than distance. Mastermind does better still
+predicting from this particular race than from each racer's chance of winning in general.
 
-**On the Wild Wilds the track is what matters.** The first rules of thumb ignored the track, and
-playouts beat them by up to 1.7 points a race. Those gaps are where the advice above came from:
+**On the Wild Wilds the track is what matters.** The first rules of thumb ignored the track.
+Playouts beat them by up to 1.7 points a race. Those gaps are where the advice above came from:
 
-- **Where you'll land:** choosing by landing space gained, on the Wild Wilds, Legs 1.95 → 2.54,
+- **Where you'll land:** on the Wild Wilds, choosing by landing space gained Legs 1.95 → 2.54,
   Flip Flop 2.54 → 2.95, Rocket Scientist 2.03 → 2.24, Alchemist 1.23 → 1.35 and Cheerleader
-  2.31 → 2.40, with the Mild Mile unchanged within ±0.02.
+  2.31 → 2.40. The Mild Mile was unchanged within ±0.02.
 - **Stars at 15 spaces:** logging each decision against playouts showed Flip Flop's best swaps
-  landing on stars, often backwards, and Rocket Scientist's worst doubles stopping just short of
-  the finish. Fixing those cut the gaps from +1.40 to +0.50 for Flip Flop, +0.38 to +0.05 for
-  Mastermind, and +0.26 to +0.12 for Rocket Scientist.
+  landing on stars, often backwards. It also showed Rocket Scientist's worst doubles stopping just
+  short of the finish. Fixing those cut the gaps from +1.40 to +0.50 for Flip Flop, +0.38 to +0.05
+  for Mastermind, and +0.26 to +0.12 for Rocket Scientist.
 
-Suckerfish was tried with the landing rule too and kept as it was: it scored 2.95 against 3.75
-for always riding, because a ride the −4 arrow sends back still passes the star on 13 again.
+Suckerfish was tried with the landing rule too and kept as it was. It scored 2.95 against 3.75
+for always riding: a ride the −4 arrow sends back still passes the star on 13 again.
 
 **What's left of Flip Flop's gap has no pattern.** On the Mild Mile, only 0.07 of its 0.5 a race
 survives a recheck with 10 times the playouts (`node scripts/decisions.ts --racer "Flip Flop"
---race 1`), so most of the gap is noise: pick the best of several noisy estimates and you'll
-overrate it. On the Wild Wilds, 0.39 survives, spread over picking a different racer ahead,
-swapping backwards near the star on 13 instead of rolling, and swapping with Copycat. Only the
-Copycat swap made a rule. Cheerleader's gap is the same story: most of it doesn't survive a
-recheck, and what does is scattered.
+--race 1`). Most of the gap is noise: pick the best of several noisy estimates and you'll
+overrate it. On the Wild Wilds, 0.39 survives. That remainder is spread over picking a different
+racer ahead, swapping backwards near the star on 13 instead of rolling, and swapping with Copycat.
+Only the Copycat swap made a rule. Cheerleader's gap is the same story: most of it doesn't survive
+a recheck. What does survive is scattered.
 
 Not covered: Magician's rerolls and the picks made before a race (Egg, Twin).
 
@@ -452,12 +455,12 @@ Four racers borrow other racers' powers:
 - **Copycat** ("Very similar to another, different cat") has the power of whoever's leading.
 - **Mastermind** predicts the winner.
 
-How well they do depends on how they choose. *From `node scripts/twin.ts`*, which reruns them
-choosing by each racer's points in that exact race, and gives Twin earlier winners drawn from the
-earlier races. Points per race, 100,000 races of 5, against the dataset, where they choose by the
-simulator's built-in ratings (each racer's points on that track at that table size; for
-Mastermind, its chance of 1st). In the dataset, Twin is also averaged over both races on each
-track:
+How well they do depends on how they choose. *From `node scripts/twin.ts`.* The script reruns them
+choosing by each racer's points in that exact race. It gives Twin earlier winners drawn from the
+earlier races. The table shows points per race, 100,000 races of 5, against the dataset. In the
+dataset, they choose by the simulator's built-in ratings (each racer's points on that track at
+that table size; for Mastermind, its chance of 1st). In the dataset, Twin is also averaged over
+both races on each track:
 
 | racer | race 1 | race 2 | race 3 | race 4 |
 | --- | --- | --- | --- | --- |
@@ -470,18 +473,18 @@ track:
 
 **Twin ("Not related to anyone, just identical to everyone") is a closer.** In race 4 it's the
 second best racer of all, behind only Scoocher. With three earlier winners to choose from, it can
-usually copy a strong one, often Scoocher, which wins half the races it's in. In race 1 it has
+usually copy a strong one, often Scoocher. Scoocher wins half the races it's in. In race 1 Twin has
 nothing to copy and is nearly worthless.
 
 **Choosing by each race's own ratings adds little** over the built-in ones: −0.07 to +0.25 points
-for Egg, Mastermind and Copycat, mostly in race 4. Choosing by any rating at all, rather than at
-random, was worth half a point to a point a race to Egg and Mastermind. The rest of the ranking
-hardly moves (rank correlation 0.95–1.00); what moves is mostly Twin.
+for Egg, Mastermind and Copycat, mostly in race 4. Compared with choosing at random, choosing by
+any rating at all was worth half a point to a point a race to Egg and Mastermind. The rest of the
+ranking hardly moves (rank correlation 0.95–1.00). What moves is mostly Twin.
 
 ## Whole games
 
-*From `node scripts/games.ts`*, 100,000 games of 5 where everyone drafts the highest-rated racer
-left and plays each team in its best race order.
+*From `node scripts/games.ts`*: 100,000 games of 5. Everyone drafts the highest-rated racer left
+and plays each team in its best race order.
 
 | first-round pick | score | wins |
 | --- | --- | --- |
@@ -491,17 +494,17 @@ left and plays each team in its best race order.
 | 4 | 8.89 | 13.8% |
 | 5 | 8.36 | 12.4% |
 
-**Your seat in the draft decides a lot.** Only 10 racers are flipped up per round at 5 players,
-and the value is concentrated in a few of them, Scoocher above all, so the first picks take most
-of it. The 2nd seat does best of all: the second snake draft starts one seat to the left, so it
-picks first that round while the first player picks second. Between them, the first two seats win
-57% of games, against 40% for an even share. That's decided by a roll-off, so it's the game's
-biggest swing that isn't on the track.
+**Your seat in the draft decides a lot.** Only 10 racers are flipped up per round at 5 players.
+The value is concentrated in a few of them, Scoocher above all. The first picks take most of it.
+The 2nd seat does best of all: the second snake draft starts one seat to the left. That seat
+therefore picks first that round. The first player picks second. Between them, the first two seats
+win 57% of games, against 40% for an even share. A roll-off decides the seats. That makes the seat
+the game's biggest swing that isn't on the track.
 
 **A stronger team wins, loosely.** The team with the best estimated value wins 42.4% of games,
-against 20% for an even share, and the estimate correlates 0.45 with the final score. Estimates
-run low (9.34 against 9.90 actual), probably because they come from races against random
-opponents rather than drafted, stronger ones.
+against 20% for an even share. The estimate correlates 0.45 with the final score. Estimates run
+low (9.34 against 9.90 actual). They probably run low because they come from races against random
+opponents. Drafted opponents are stronger.
 
 ## Two racers each
 
@@ -518,23 +521,22 @@ games for comparison:
 
 ![Chance of winning by draft position](charts/games.svg)
 
-**The 2-player variant's draft is fair.** It picks ABBAABBA, then reverses for the second draft,
-which cancels the first pick's edge.
+**The 2-player variant's draft is fair.** It picks ABBAABBA, then reverses for the second draft.
+The reversal cancels the first pick's edge.
 
-**The 3-player variant's draft isn't.** It runs four snake drafts of 6, rotating who starts, so
-the first player starts two of the four and wins 40.9% of games against 33.3% for an even share.
+**The 3-player variant's draft isn't.** It runs four snake drafts of 6, rotating who starts. The
+first player starts two of the four and wins 40.9% of games, against 33.3% for an even share.
 A table could fix it by giving the last pick of the first draft the first pick of the fourth.
 
-**Standard drafts are fair at 3 players but not at 5,** where only the first two players ever
-start a round.
+**Standard drafts are fair at 3 players. They aren't at 5.** There, only the first two players
+ever start a round.
 
 **Team quality matters more with two racers each.** The best estimated team wins 57% of the time
-in the variants, against 36% in standard 3-player games, where one racer per race leaves more to
-luck.
+in the variants, against 36% in standard 3-player games. One racer per race leaves more to luck.
 
 ## Does clever drafting pay?
 
-*From `node scripts/draft.ts`*, which gives one randomly seated player a different drafting
+*From `node scripts/draft.ts`.* The script gives one randomly seated player a different drafting
 strategy against opponents who take the highest-rated racer left (100,000 games of 5 each):
 
 | my draft | wins | score |
@@ -544,16 +546,17 @@ strategy against opponents who take the highest-rated racer left (100,000 games 
 | my gain plus the most it would add to an opponent (denial) | 19.8% | 9.90 |
 
 **No. Take the best racer.** Both alternatives score within 0.03 points a game of taking the
-highest rating, and win 0.4 percentage points less often: about the size of the noise over
-100,000 games, and invisible at a table. The value is concentrated in a few racers, so the racer
+highest rating. They win 0.4 percentage points less often. That's about the size of the noise over
+100,000 games. It's invisible at a table. The value is concentrated in a few racers. The racer
 that adds most to your team, the one that would add most to an opponent's, and the best one are
-nearly always the same pick. Where you sit in the draft matters far more than how you draft.
+therefore nearly always the same pick. Where you sit in the draft matters far more than how you
+draft.
 
 ## Choosing racers during the game
 
-*From `node scripts/endgame.ts`*, which lets one randomly seated player choose its racer before
-each race differently from the opponents, who play their best race order (100,000 games of 5
-each):
+*From `node scripts/endgame.ts`.* The script lets one randomly seated player choose its racer
+before each race differently from the opponents. The opponents play their best race order
+(100,000 games of 5 each):
 
 | my choices | wins | score | my M.O.U.T.H. met their Scoocher | wins in those games |
 | --- | --- | --- | --- | --- |
@@ -563,18 +566,18 @@ each):
 
 ![Strategies' chances of winning](charts/strategies.svg)
 
-**Just play your best race order.** Switching by score gives up 0.06 points a game, and the
+**Just play your best race order.** Switching by score gives up 0.06 points a game. The
 racers' spreads are too alike for the safe pick or the long shot to make it back.
 
 **Countering Scoocher doesn't pay for the one doing it.** When your M.O.U.T.H. meets their
 Scoocher you win only 9.0% of the time. Slowing or eating Scoocher helps the other three
-opponents as much as you, while it costs you a better draft pick and M.O.U.T.H.'s own best race.
+opponents as much as you. It also costs you a better draft pick and M.O.U.T.H.'s own best race.
 
 ## Safe racers and swingy ones
 
 *From `node scripts/spread.ts`.* An average hides how a racer gets there: some score a little
-every time, others all or nothing. Race 4 on the Wild Wilds (5/4), selected; sd is the standard
-deviation, how far a typical race strays from the mean:
+every time, others all or nothing. This table is race 4 on the Wild Wilds (5/4), selected racers.
+The sd column is the standard deviation, how far a typical race strays from the mean:
 
 | racer | mean | sd | 0 points | at least gold |
 | --- | --- | --- | --- | --- |
@@ -592,13 +595,13 @@ deviation, how far a typical race strays from the mean:
 ![Chance of scoring nothing against chance of at least gold in race 4](charts/spread.svg)
 
 **Protecting a lead in race 4,** pick a racer that rarely scores nothing. Sisyphus ("Stays humble,
-keeps grinding"), at 2%, is the steadiest of all, and Dicemonger (2%) and Flip Flop (8%) are
-nearly as sure of a few points.
+keeps grinding") is the steadiest of all: 2%. Dicemonger (2%) and Flip Flop (8%) are nearly as
+sure of a few points.
 
 **Catching up in race 4,** pick a racer that often scores gold or more. Flip Flop (57%),
-Suckerfish and Dicemonger (53%) do it more than half the time, against Sisyphus's 26%. Dicemonger
-and Flip Flop are both safe and likely to win. Scoocher is the safest and the likeliest to win,
-so it's the best racer whichever position you're in.
+Suckerfish and Dicemonger (53%) do it more than half the time. Sisyphus does it 26% of the time.
+Dicemonger and Flip Flop are both safe and likely to win. Scoocher is the safest and the likeliest
+to win. That makes Scoocher the best racer whichever position you're in.
 
 ## Going first
 
@@ -612,38 +615,37 @@ so it's the best racer whichever position you're in.
 | 6 | 1.08 | 1.04 | 0.99 | 0.96 | 0.94 | 0.92 | +0.09 |
 
 That's race 1 on the Mild Mile. The Wild Wilds is flatter: +0.07 to +0.11 points, or 3% to 4%
-above an average seat against 7% to 10% on the Mild Mile.
+above an average seat. The Mild Mile's figure is 7% to 10%.
 
 ![Each seat's points against an average seat at the table](charts/seats.svg)
 
-**Going first is worth about 0.1 points a race,** roughly 10% above an average seat, and each
+**Going first is worth about 0.1 points a race.** That's roughly 10% above an average seat. Each
 later seat is worth a little less. With 5 players, seat 1 earns 19% more than seat 5. After the
-first race, the player whose racer finished farthest behind goes first, so that rule is a small
-catch-up, far smaller than a strong racer is worth.
+first race, the player whose racer finished farthest behind goes first. That rule is a small
+catch-up. It's far smaller than what a strong racer is worth.
 
 ## More findings
 
 **Romantic ("The last of her species") is strong, but less so under the 2026 printing.** The new
 printing says powers about stopping together don't trigger for racers that arrive at the same
-time, as when Suckerfish rides along or Party Animal pulls everyone in. That took Romantic's Mild
-Mile wins from 61% to 54%.
+time. Suckerfish riding along and Party Animal pulling everyone in are examples. That took
+Romantic's Mild Mile wins from 61% to 54%.
 
-**Suckerfish declining a ride doesn't pay for Suckerfish.** Staying put near the finish rather
-than riding another player's Scoocher home raises Suckerfish's wins from 3% to 19%, but its
-points stay the same in race 1 (1.74) and drop in race 4 (3.45 to 3.29), since gold beats silver
-by only 1 point. It's kept because it costs Scoocher's owner a lot. (Measured under the 2025
-printing.)
+**Suckerfish declining a ride doesn't pay for Suckerfish.** Staying put near the finish instead of
+riding another player's Scoocher home raises Suckerfish's wins from 3% to 19%. Its points stay the
+same in race 1 (1.74) and drop in race 4 (3.45 to 3.29). Gold beats silver by only 1 point. The
+rule stays because it costs Scoocher's owner a lot. (Measured under the 2025 printing.)
 
-**The Wild Wilds has a loop.** The arrow on 16 sends racers back to 12, so anything moving 1
-space at a time circles 12–16 and crosses the star on 13 each lap. Scoocher averages 5.04 bronze
-a race there. With Suckerfish along, the pair would farm about 21 a race, except that the box
-only holds 43 points of bronze chips for the whole game. So in full games the pair also starves
+**The Wild Wilds has a loop.** The arrow on 16 sends racers back to 12. Anything moving 1 space at
+a time circles 12–16 and crosses the star on 13 each lap. Scoocher averages 5.04 bronze a race
+there. With Suckerfish along, the pair would farm about 21 a race. The box stops that: it only
+holds 43 points of bronze chips for the whole game. So in full games the pair also starves
 everyone else's stars.
 
 **The Duelist should always duel.** Duelist ("When you've got a rapier, everything looks like a
-duel") can challenge any racer on its space; both roll, and the higher roll moves 2, with ties
-going to the Duelist. It wins 58% of duels, and every alternative scored lower (race-1 points
-over 200,000 races, on an earlier version of the simulator):
+duel") can challenge any racer on its space. Both roll. The higher roll moves 2. Ties go to the
+Duelist. It wins 58% of duels. Every alternative scored lower (race-1 points over 200,000 races,
+on an earlier version of the simulator):
 
 - always duel: 0.99;
 - decline when losing would carry the other racer across the line: 0.88;
@@ -656,16 +658,17 @@ The Second Wind expansion adds 36 more racers, from a Streaker who earns a point
 overtake to a Doppelgängster who steals the winner's finish and their power with it. Everything above
 is the base game alone. This section shuffles the two sets together.
 
-There's no rulebook for these racers yet, only their cards, from
+There's no rulebook for these racers yet. There are only their cards, from
 [this card list](https://johnnlds.github.io/Magical-Athlete-Racers/). Wherever a card leaves
-something open, the reading is ours, and each one is listed with its card in
-`src/second-wind.ts`. For example, Doppelgängster steals only once a race, Cheatah and its
-neighbor play the guessing game as well as it can be played, and Nemesis's every roll counts as
-using its power, so Scoocher moves for it. Read these numbers as a first look, not a verdict.
+something open, the reading is ours. Each reading is listed with its card in
+`src/second-wind.ts`. For example, Doppelgängster steals only once a race. Cheatah and its
+neighbor play the guessing game as well as it can be played. Nemesis's every roll counts as
+using its power. Scoocher moves for each of those rolls. Read these numbers as a first look. They
+aren't a verdict.
 
-*From `node scripts/second-wind.ts`*, a million 5-player races per track with lineups drawn from
+*From `node scripts/second-wind.ts`*: a million 5-player races per track with lineups drawn from
 all 72 racers. A fair share is 1.00 in race 1 and 1.40 in race 2. Each racer is in about 69,000
-races, so differences under about 0.03 (race 1) or 0.05 (race 2) are noise:
+races. Differences under about 0.03 (race 1) or 0.05 (race 2) are noise:
 
 | racer | race 1 | race 2 |
 | --- | --- | --- |
@@ -710,55 +713,56 @@ races, so differences under about 0.03 (race 1) or 0.05 (race 2) are noise:
 
 **Streaker is the expansion's Scoocher.** A point for every move that passes anyone adds up to
 about 3 bronze a race, on either track. That makes it the best racer in race 1 of all 72, ahead of
-Sisyphus and Lovable Loser, and second only to Scoocher in race 2. It rarely wins (6%), and it
+Sisyphus and Lovable Loser. It's second only to Scoocher in race 2. It rarely wins (6%). It
 doesn't need to.
 
-**Penguin and Nemesis win the most of the new racers.** Every racer that passes Penguin trips it,
-and a tripped Penguin doubles its roll instead of skipping its move, so the pack keeps launching
-it: gold in 39% of races on the Mild Mile and 44% on the Wild Wilds. Nemesis rolls along with
-everyone else and moves whenever it matches, about once a round: 41% and 37%. Only Scoocher,
-Romantic and Heckler win as often.
+**Penguin and Nemesis win the most of the new racers.** Every racer that passes Penguin trips it.
+A tripped Penguin doubles its roll instead of skipping its move. The pack keeps launching it: gold
+in 39% of races on the Mild Mile and 44% on the Wild Wilds. Nemesis rolls along with everyone else
+and moves whenever it matches, about once a round. Nemesis's gold rates are 41% and 37%. Only
+Scoocher, Romantic and Heckler win as often.
 
 **Understudy is as good as what it copies.** Before the race, it takes the power of the
 best-rated opponent in its race.
 
 **Some cards depend on the game around them.** Re-Runner's power does nothing inside a race: it's a
-powerless racer (0.40), and its value is racing again in every later race. Speed Demon gets +1 per
-point its player has, and these races start everyone at 0, so it's understated here. Hotel charges
-a point to anyone who stops on it, and with nobody holding points in race 1, it trips them
-instead (0.60 against 2.30 in race 2, mostly from stars). Icarus is eliminated in 61% of races
-(+3 to every move, but a 6 knocks it out).
+powerless racer (0.40). Its value is racing again in every later race. Speed Demon gets +1 per
+point its player has. These races start everyone at 0. Speed Demon is understated here for that
+reason. Hotel charges a point to anyone who stops on it. With nobody holding points in race 1, it
+trips them instead (0.60 against 2.30 in race 2, mostly from stars). Icarus is eliminated in 61%
+of races (+3 to every move, but a 6 knocks it out).
 
-**Cheatah is the weakest.** Its guessing game pays about 3.24 spaces a turn, a little less than
-an ordinary roll, so it plays like a racer with no power.
+**Cheatah is the weakest.** Its guessing game pays about 3.24 spaces a turn. That's a little less
+than an ordinary roll. Cheatah plays like a racer with no power.
 
 **Who's good with whom, all 72.** As in "Who's good with whom", each cell is the row racer's points
-minus the column racer's when both are in the same race, but in races of 5. A pair meets in about
-3,900 races, so differences under about 0.1 on the Mild Mile and 0.2 on the Wild Wilds are
+minus the column racer's when both are in the same race. Here the races are of 5. A pair meets in
+about 3,900 races. Differences under about 0.1 on the Mild Mile and 0.2 on the Wild Wilds are
 noise. The labeled cells are the furthest from what the two racers' overall strength predicts:
 
-- **Party Pooper saves Icarus.** All sixes get rerolled, so Icarus never rolls the 6 that
-  eliminates it. It beats Party Pooper by 1.31 on the Mild Mile, though it trails most racers.
-- **Null shuts down the runaways.** Racers ahead of Null have no powers, and Scoocher and
-  Streaker are usually ahead. Scoocher beats Null by only 0.62 on the Mild Mile and 1.94 on the
-  Wild Wilds, and Streaker by 0.69, a fraction of their usual margins.
-- **Copying the best is as good as being it.** Understudy takes the strongest opponent's power,
-  so against Streaker it's Streaker (+0.02 for Understudy), and against Scoocher on the Wild Wilds
-  it's Scoocher (−0.08). Doppelgängster steals Scoocher's wins and runs about even with it on the
-  Mild Mile (+0.11).
-- **Nepo Baby is a target.** It starts 12 spaces up, right where Flip Flop wants to swap and
-  Hypnotist and Kraken want to pull from. Flip Flop beats it by 1.69.
-- **New food for old feeders.** Stunner makes its neighbors roll 1s, so Inchworm beats it by 4.88
-  on the Wild Wilds. Nemesis rolls with every main move, which is a power each time, so Scoocher
-  beats it by 6.62.
+- **Party Pooper saves Icarus.** All sixes get rerolled. Icarus therefore never rolls the 6 that
+  eliminates it. Icarus beats Party Pooper by 1.31 on the Mild Mile. Icarus still trails most
+  racers.
+- **Null shuts down the runaways.** Racers ahead of Null have no powers. Scoocher and Streaker are
+  usually ahead. Scoocher beats Null by only 0.62 on the Mild Mile and 1.94 on the Wild Wilds.
+  Streaker beats Null by 0.69. Those are a fraction of their usual margins.
+- **Copying the best is as good as being it.** Understudy takes the strongest opponent's power.
+  Against Streaker it's Streaker (+0.02 for Understudy). Against Scoocher on the Wild Wilds it's
+  Scoocher (−0.08). Doppelgängster steals Scoocher's wins. Doppelgängster runs about even with
+  Scoocher on the Mild Mile (+0.11).
+- **Nepo Baby is a target.** It starts 12 spaces up. That's right where Flip Flop wants to swap
+  and Hypnotist and Kraken want to pull from. Flip Flop beats it by 1.69.
+- **New food for old feeders.** Stunner makes its neighbors roll 1s. Inchworm therefore beats it
+  by 4.88 on the Wild Wilds. Nemesis rolls with every main move. Each of those rolls is a power.
+  Scoocher therefore beats Nemesis by 6.62.
 
 ![Matchups among all 72 racers on the Mild Mile](charts/second-wind-matchups-race1.svg)
 
 ![Matchups among all 72 racers on the Wild Wilds](charts/second-wind-matchups-race2.svg)
 
 **The base racers shift a little.** Scoocher drops from 2.37 to 2.13 in race 1 and from 7.66 to
-6.50 in race 2, and Suckerfish, Twin and Copycat fall too. They feed on the strongest base racers,
-probably Scoocher above all, and those now turn up half as often. Legs, Alchemist, Inchworm and
+6.50 in race 2. Suckerfish, Twin and Copycat fall too. They feed on the strongest base racers,
+probably Scoocher above all. Those racers now turn up half as often. Legs, Alchemist, Inchworm and
 Magician gain 0.1 to 0.3 on both tracks.
 
 ![Each base racer's points with Second Wind racers in the field, against base racers only](charts/second-wind-shift.svg)
@@ -769,21 +773,21 @@ What players report on BoardGameGeek agrees with the model on the main points:
 
 - **Scoocher is the strongest racer, more so at bigger tables.** In
   ["Is Scoocher OP?"](https://boardgamegeek.com/thread/3635824), players describe it running away
-  with races and "worse with higher player counts", but beatable with Hypnotist or Flip Flop
-  around. One player names Mastermind, Centaur and Third Wheel as "really quite bad" and Scoocher,
-  Gunk and Suckerfish as "game-warpingly good."
+  with races and "worse with higher player counts". They also call it beatable with Hypnotist or
+  Flip Flop around. One player names Mastermind, Centaur and Third Wheel as "really quite bad" and
+  Scoocher, Gunk and Suckerfish as "game-warpingly good."
 - **The Wild Wilds star farm happens at real tables.** In the same thread, a Scoocher stuck
   around the −4 arrow kept scooching onto the star and "amassed a whopping 14 points."
 - **The spread is deliberate.** Richard Garfield, in that thread: "the intent was to keep a pretty
   big spread in power … Balanced for boredom, not power."
 
-An independent simulator, [MagSim](https://github.com/pschonev/magsim) by Philipp Schoneville
-([thread](https://boardgamegeek.com/thread/3673716)), reaches the same ranking: Scoocher far
+[MagSim](https://github.com/pschonev/magsim) is an independent simulator by Philipp Schoneville
+([thread](https://boardgamegeek.com/thread/3673716)). MagSim reaches the same ranking: Scoocher far
 ahead, then Romantic, Lovable Loser and Sisyphus; Heckler, Flip Flop and Legs strong; Blimp,
 Banana and Alchemist weak; and Twin the best of the racers that copy. Its author also found a
-Scoocher–Copycat loop on the Mild Mile that wins on the first turn, which MagSim leaves out of its
-data. MagSim reads some rules differently, so the two agreeing is evidence the ranking doesn't
-hinge on our readings.
+Scoocher–Copycat loop on the Mild Mile that wins on the first turn. MagSim leaves that loop out of
+its data. MagSim reads some rules differently. The two agreeing is therefore evidence the ranking
+doesn't hinge on our readings.
 
 **Per racer, the two simulators agree closely.** MagSim publishes its dataset (about 8,000
 5-player races per track). Comparing each racer's chance of 1st at 5 players with ours (200,000
@@ -798,11 +802,12 @@ Scoocher matches almost exactly (64.8% against 64.0% on the Mild Mile). With abo
 per racer in MagSim's data, differences of 3 percentage points are within its noise. The large
 ones have explanations:
 
-- **Twin:** MagSim always gives it three earlier winners to copy; the version compared here gave
+- **Twin:** MagSim always gives it three earlier winners to copy. The version compared here gave
   it none.
 - **Copycat:** MagSim's data has no Mild Mile races with both Copycat and Scoocher (about 130
-  expected) and only 68 on the Wild Wilds, because it drops the Scoocher–Copycat first-turn loop.
-  Copycat does very well alongside Scoocher, so leaving those races out lowers its numbers.
+  expected) and only 68 on the Wild Wilds. The cause is that MagSim drops the Scoocher–Copycat
+  first-turn loop. Copycat does very well alongside Scoocher. Leaving those races out lowers its
+  numbers.
 - **Suckerfish and Flip Flop:** each plays its optional power by a different rule in the two
   simulators.
 
@@ -810,9 +815,9 @@ Not done: comparing with logged real games.
 
 ## Rules questions
 
-Some rules are still open to interpretation. *From `node scripts/sensitivity.ts`*, which reruns
-races 1 and 2 (100,000 races of 5 each) with each open reading flipped. Neither matters beyond its
-own racer:
+Some rules are still open to interpretation. *From `node scripts/sensitivity.ts`.* The script
+reruns races 1 and 2 (100,000 races of 5 each) with each open reading flipped. Neither matters
+beyond its own racer:
 
 | reading | race 1 | race 2 |
 | --- | --- | --- |
@@ -824,30 +829,31 @@ own racer:
 Queuing lets a Romantic move even after the pair it saw has broken up. The simulator instead
 re-checks each trigger as it resolves.
 
-Two more were settled rather than left open:
+Two more were settled. They aren't left open:
 
-- Duelist duels everyone on the Start before the first turn, worth about 0.15 points a race to it.
+- Duelist duels everyone on the Start before the first turn. That's worth about 0.15 points a race
+  to Duelist.
 - Blimp's second corner is space 15, where the track turns the second time. Counting the Start's
-  rounded end as the first corner would make it 12 and cost Blimp about 0.2 points a race.
+  rounded end as the first corner would make it 12. That would cost Blimp about 0.2 points a race.
 
 ### Rules findings
 
 - The 2025 printing's note under Sisyphus, "I still get my main move after warping", was a
-  misprint; the 2026 printing says "I don't get my main move after warping."
-- Some races can't end, like four racers on space 29 with Coach (+1 to everyone on its space) and
-  Stickler ("Proofread this rulebook without asking"; others can only finish with an exact roll).
-  The 2026 printing ends such a race with no further points.
+  misprint. The 2026 printing says "I don't get my main move after warping."
+- Some races can't end. One example is four racers on space 29 with Coach (+1 to everyone on its
+  space) and Stickler ("Proofread this rulebook without asking"; others can only finish with an
+  exact roll). The 2026 printing ends such a race with no further points.
 - A Copycat ping-pongs forever with Hypnotist or Flip Flop if they keep targeting each other.
-  Hypnotist avoids it. Flip Flop doesn't, since it pays: other racers usually finish while the two
-  trade places. When they're the last two left, it's a loop no one can finish, which ends the race
-  with no more points (fiddly details 5 in the rulebook). The simulator used to end those only
-  after 1,000 turns, letting the pair farm stars until then.
+  Hypnotist avoids it. Flip Flop doesn't. The ping-pong pays Flip Flop: other racers usually finish
+  while the two trade places. When they're the last two left, it's a loop no one can finish. That
+  loop ends the race with no more points (fiddly details 5 in the rulebook). The simulator used to
+  end those only after 1,000 turns. That let the pair farm stars until then.
 - Huge Baby on 12 traps a racer between 11's arrow (+1) and 16's (−4). The loop rule ends it after
   one pass.
-- Flip Flop can swap with a racer on its own space, but neither scores the space again: a warp
+- Flip Flop can swap with a racer on its own space. Neither scores the space again: a warp
   that doesn't change spaces triggers nothing (Garfield and Hague,
   [BGG](https://boardgamegeek.com/thread/3584489/article/46674967)). The simulator used to score
-  the star again, which the playouts found and farmed.
+  the star again. The playouts found that and farmed it.
 
 ## Next
 
